@@ -1,1 +1,15 @@
-.venv
+.venv/
+env/
+venv/
+
+# python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# jupyter checkpoints
+.ipynb_checkpoints/
+
+# trained model files — these get regenerated, no need to commit
+models/asl_model.keras
+models/asl_model.tflite

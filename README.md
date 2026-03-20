@@ -1,49 +1,61 @@
-# Project Setup
+# HelpingHand 🤝
 
-Follow these instructions to set up the repository and run the project locally.
+A wearable ASL learning glove with real-time haptic feedback. Built with an ESP32, flex sensors, IMU, and a companion React Native app.
 
-## Prerequisites
+---
 
-Ensure you have [Python](https://www.python.org/downloads/) installed on your system.
+## ML Pipeline (Semester 1)
 
-## Installation & Setup
+Classifies static ASL signs (A-Z, 0-9) using a lightweight MLP trained on glove sensor data and exported to TFLite for on-device inference on the ESP32.
 
-**1. Clone the repository (if you haven't already)**
+---
+
+## Setup
+
+**Prerequisites:** Python 3.10+
+
+**1. Clone the repo**
 ```bash
 git clone https://github.com/GG1627/helping-hand.git
 cd helping-hand
 ```
 
-**2. Create the virtual environment**
-Create a virtual environment named `venv` in the root directory of the project:
+**2. Create and activate virtual environment**
 ```bash
 python -m venv .venv
 ```
-*(Note: Depending on your system, you might need to use `python3` instead of `python`)*
+Windows:
+```bash
+.venv\Scripts\activate
+```
+macOS/Linux:
+```bash
+source .venv/bin/activate
+```
 
-**3. Activate the virtual environment**
-You need to activate the virtual environment before installing dependencies or running the code.
-
-* **On Windows:**
-  ```bash
-  venv\Scripts\activate
-  ```
-* **On macOS and Linux:**
-  ```bash
-  source venv/bin/activate
-  ```
-*(You should now see `(venv)` at the beginning of your terminal prompt.)*
-
-**4. Install dependencies**
-With the virtual environment activated, install the required packages using `pip`:
+**3. Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
 ---
 
-## Deactivating the Environment
-When you are done working on the project, you can easily exit the virtual environment by running:
+## Running the ML Pipeline
+
+**Generate synthetic training data**
+```bash
+python generate_asl_data.py
+```
+
+**Train the model**
+
+Open and run `asl_train.ipynb` top to bottom. Outputs saved to `models/`.
+
+> When real glove data is available, update `DATA_PATH` in the notebook and rerun.
+
+---
+
+## Deactivate
 ```bash
 deactivate
 ```
