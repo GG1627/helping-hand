@@ -1,6 +1,6 @@
 # HelpingHand 🤝
 
-A wearable ASL learning glove with real-time haptic feedback. Built with an ESP32, flex sensors, IMU, and a companion React Native app.
+A wearable ASL learning glove with real-time haptic feedback. Built with an ESP32, flex sensors, IMU, and a companion Flutter app.
 
 ---
 

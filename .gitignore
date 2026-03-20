@@ -10,6 +10,6 @@ __pycache__/
 # jupyter checkpoints
 .ipynb_checkpoints/
 
-# trained model files — these get regenerated, no need to commit
+# trained model files
 models/asl_model.keras
 models/asl_model.tflite
