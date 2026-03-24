@@ -7,3 +7,8 @@
 [4] J. Haydar et al, "ASL Fingerspelling Translator Glove," International Journal of Computer Science Issues (IJCSI), vol. 9, (6), pp. 254-260, 2012. Available: https://login.lp.hscl.ufl.edu/login?url=https://www.proquest.com/scholarly-journals/asl-fingerspelling-translator-glove/docview/1314914273/se-2. 
 
 [5] P. Prajapati, G. S. Surya, and M. Nithya, “An Interpreter for the Differently Abled using Haptic Feedback and Machine Learning,” 2020 Third International Conference on Smart Systems and Inventive Technology (ICSSIT), pp. 1–7, Aug. 2020, doi: https://doi.org/10.1109/icssit48917.2020.9214398. 
+
+[6] “bluetooth_low_energy,” Dart packages, Jul. 2021. https://pub.dev/packages/bluetooth_low_energy (accessed Mar. 24, 2026).‌
+
+[7] Kürşat Fevzican Şayhan, “Using Bluetooth Low Energy (BLE) with Flutter,” Medium, May 27, 2024. https://kursatsayhan.medium.com/using-bluetooth-low-energy-ble-with-flutter-3c70469af814 (accessed Mar. 24, 2026).
+‌
