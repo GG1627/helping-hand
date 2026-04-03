@@ -1,50 +1,75 @@
 import 'package:flutter/material.dart';
-
 import '../../theme/warm_clay_theme.dart';
 import '../../widgets/warm_components.dart';
 
 class DashboardTab extends StatelessWidget {
-  const DashboardTab({super.key});
+  final Set<String> learnedLetters;
+  final int totalLetters;
+  final Set<int> learnedNumbers;
+  final int totalNumbers;
+
+  const DashboardTab({
+    super.key,
+    required this.learnedLetters,
+    required this.totalLetters,
+    required this.learnedNumbers,
+    required this.totalNumbers,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return const TabScaffold(
+    final lettersLearned = learnedLetters.length;
+    final numbersLearned = learnedNumbers.length;
+
+    final alphabetPercentage =
+        totalLetters > 0 ? (lettersLearned / totalLetters * 100).toStringAsFixed(0) : '0';
+    final numbersPercentage =
+        totalNumbers > 0 ? (numbersLearned / totalNumbers * 100).toStringAsFixed(0) : '0';
+
+    // Overall progress: combine letters + numbers
+    final overallPercentage = ((lettersLearned + numbersLearned) /
+            (totalLetters + totalNumbers) *
+            100)
+        .toStringAsFixed(0);
+
+    return TabScaffold(
       title: 'Dashboard',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          StreakPill(text: '12 day streak'),
-          SizedBox(height: WarmClayTheme.cardGap),
+          const StreakPill(text: '12 day streak'),
+          const SizedBox(height: WarmClayTheme.cardGap),
           WarmCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Overall Progress'),
-                SizedBox(height: 8),
-                ProgressBar(value: 0.54),
-                SizedBox(height: 8),
-                Text('19 of 35 targets complete'),
+                const Text('Overall Progress'),
+                const SizedBox(height: 8),
+                ProgressBar(
+                  value: (lettersLearned + numbersLearned) /
+                      (totalLetters + totalNumbers),
+                ),
+                const SizedBox(height: 8),
+                Text('$lettersLearned/$totalLetters letters, '
+                    '$numbersLearned/$totalNumbers numbers'),
               ],
             ),
           ),
-          SizedBox(height: WarmClayTheme.cardGap),
+          const SizedBox(height: WarmClayTheme.cardGap),
           Row(
             children: [
               Expanded(
-                child: StatCard(number: '54%', label: 'Overall'),
-              ),
-              SizedBox(width: WarmClayTheme.cardGap),
+                  child: StatCard(number: '$overallPercentage%', label: 'Overall')),
+              const SizedBox(width: WarmClayTheme.cardGap),
               Expanded(
-                child: StatCard(number: '62%', label: 'Alphabet'),
-              ),
-              SizedBox(width: WarmClayTheme.cardGap),
+                  child: StatCard(number: '$alphabetPercentage%', label: 'Alphabet')),
+              const SizedBox(width: WarmClayTheme.cardGap),
               Expanded(
-                child: StatCard(number: '30%', label: 'Numbers'),
-              ),
+                  child: StatCard(number: '$numbersPercentage%', label: 'Numbers')),
             ],
           ),
-          SizedBox(height: WarmClayTheme.cardGap),
-          ProgressCalendarCard(),
+          const SizedBox(height: WarmClayTheme.cardGap),
+          const ProgressCalendarCard(),
         ],
       ),
     );

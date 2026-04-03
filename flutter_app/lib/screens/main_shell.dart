@@ -17,15 +17,52 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int tabIndex = 0;
 
-  static const pages = [
-    DashboardTab(),
-    AlphabetTab(),
-    NumbersTab(),
-    BleTestingTab(),
-  ];
+  Set<String> learnedLetters = {};
+  Set<int> learnedNumbers = {};
+
+  static const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  static const numbers = 0;
+
+  void markLetterLearned(String letter) {
+  setState(() {
+    if (learnedLetters.contains(letter)) {
+      learnedLetters.remove(letter);
+    } else {
+      learnedLetters.add(letter);
+    }
+  });
+  }
+
+  void toggleNumber(int number) {
+    setState(() {
+      if (learnedNumbers.contains(number)) {
+        learnedNumbers.remove(number);
+      } else {
+        learnedNumbers.add(number);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final pages = [
+      DashboardTab(
+        learnedLetters: learnedLetters,
+        totalLetters: letters.length,
+        learnedNumbers: learnedNumbers,
+        totalNumbers: 10,
+      ),
+      AlphabetTab(
+        learnedLetters: learnedLetters,
+        onLetterLearned: markLetterLearned,
+      ),
+      NumbersTab(
+        learnedNumbers: learnedNumbers,
+        onNumberLearned: toggleNumber,
+      ),
+      BleTestingTab(),
+    ];
+
     return Scaffold(
       body: pages[tabIndex],
       bottomNavigationBar: Container(
