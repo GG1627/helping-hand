@@ -3,7 +3,10 @@
 
 void setup() {
   Serial.begin(115200);
-  delay(1000);
+  
+  // Wait for USB-CDC serial to actually connect
+  while (!Serial) delay(10);
+  delay(500);
 
   Serial.println("=== HelpingHand Boot Check ===");
   Serial.println("CPU Freq: " + String(getCpuFrequencyMhz()) + " MHz");
@@ -14,9 +17,11 @@ void setup() {
   
   Serial.println("BLE Name: " + String(BLEDevice::toString().c_str()));
   Serial.println("BLE MAC: " + String(BLEDevice::getAddress().toString().c_str()));
-  Serial.println("\nESP32 is ON and BLE is UP ✓");
+  Serial.println("\nESP32 is ON and BLE is UP!");
 }
 
 void loop() {
+  Serial.println("ESP32 is running...");
+  delay(5000); // Check every 5 seconds
   // nothing needed for this check
 }
