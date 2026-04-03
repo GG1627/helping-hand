@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Helping Hand uses Bluetooth to connect to your ESP32 for BLE testing.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Helping Hand uses Bluetooth to receive BLE data from your ESP32.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
