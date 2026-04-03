@@ -4,7 +4,14 @@ import '../../theme/warm_clay_theme.dart';
 import '../../widgets/warm_components.dart';
 
 class NumbersTab extends StatelessWidget {
-  const NumbersTab({super.key});
+  final Set<int> learnedNumbers;
+  final void Function(int) onNumberLearned;
+
+  const NumbersTab({
+    super.key,
+    required this.learnedNumbers,
+    required this.onNumberLearned,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,25 +32,28 @@ class NumbersTab extends StatelessWidget {
               spacing: 10,
               runSpacing: 10,
               children: List.generate(10, (index) {
-                final learned = index < 4;
-                return Container(
-                  width: 72,
-                  height: 72,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: learned
-                        ? WarmClayColors.accentLight
-                        : WarmClayColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: WarmClayColors.border),
-                  ),
-                  child: Text(
-                    '$index',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                final learned = learnedNumbers.contains(index);
+                return GestureDetector(
+                  onTap: () => onNumberLearned(index),
+                  child: Container(
+                    width: 72,
+                    height: 72,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
                       color: learned
-                          ? WarmClayColors.accentPrimary
-                          : WarmClayColors.textPrimary,
+                          ? WarmClayColors.accentLight
+                          : WarmClayColors.surface,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: WarmClayColors.border),
                     ),
+                    child: Text(
+                      '$index',
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: learned
+                            ? WarmClayColors.accentPrimary
+                            : WarmClayColors.textPrimary,
+                      ),
+                    )  
                   ),
                 );
               }),
