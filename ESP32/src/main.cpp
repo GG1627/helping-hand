@@ -1,18 +1,22 @@
 #include <Arduino.h>
-
-// put function declarations here:
-int myFunction(int, int);
+#include <BLEDevice.h>
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(115200);
+  delay(1000);
+
+  Serial.println("=== HelpingHand Boot Check ===");
+  Serial.println("CPU Freq: " + String(getCpuFrequencyMhz()) + " MHz");
+  Serial.println("Free Heap: " + String(ESP.getFreeHeap()) + " bytes");
+
+  Serial.println("\nInitializing BLE...");
+  BLEDevice::init("HelpingHand-Glove");
+  
+  Serial.println("BLE Name: " + String(BLEDevice::toString().c_str()));
+  Serial.println("BLE MAC: " + String(BLEDevice::getAddress().toString().c_str()));
+  Serial.println("\nESP32 is ON and BLE is UP ✓");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  // nothing needed for this check
 }
