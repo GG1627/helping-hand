@@ -227,7 +227,7 @@ void loop() {
 
   Serial.println(payload);
   if (bleClientConnected && txCharacteristic != nullptr) {
-    txCharacteristic->setValue(reinterpret_cast<const uint8_t*>(payload), strlen(payload));
+    txCharacteristic->setValue(reinterpret_cast<uint8_t*>(payload), strlen(payload));
     txCharacteristic->notify();
   }
 }
