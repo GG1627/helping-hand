@@ -21,7 +21,6 @@ class _MainShellState extends State<MainShell> {
   Set<int> learnedNumbers = {};
 
   static const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  static const numbers = 0;
 
   void markLetterLearned(String letter) {
   setState(() {
