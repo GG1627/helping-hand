@@ -7,6 +7,7 @@
 
 constexpr int I2C_SDA_PIN = SDA;
 constexpr int I2C_SCL_PIN = SCL;
+constexpr int FLEX_SENSOR_PIN = A0;
 constexpr uint8_t MPU_ADDR_LOW = 0x68;
 constexpr uint8_t MPU_ADDR_HIGH = 0x69;
 constexpr uint8_t MPU_REG_WHO_AM_I = 0x75;
@@ -134,6 +135,15 @@ bool readImuSample(ImuSample& sample) {
   return true;
 }
 
+int readFlexRaw() {
+  return analogRead(FLEX_SENSOR_PIN);
+}
+
+float readFlexNormalized(int raw) {
+  // ESP32 ADC default is 12-bit => 0..4095
+  return static_cast<float>(raw) / 4095.0f;
+}
+
 void setupBle() {
   BLEDevice::init(BLE_DEVICE_NAME);
   BLEServer* server = BLEDevice::createServer();
@@ -165,6 +175,11 @@ void setup() {
 
   Serial.println("\n=== HelpingHand IMU + BLE Runtime ===");
   Serial.printf("I2C pins SDA=%d SCL=%d\n", I2C_SDA_PIN, I2C_SCL_PIN);
+  Serial.printf("Flex sensor pin=%d (A0)\n", FLEX_SENSOR_PIN);
+
+  pinMode(FLEX_SENSOR_PIN, INPUT);
+  analogReadResolution(12);
+  analogSetPinAttenuation(FLEX_SENSOR_PIN, ADC_11db);
 
 #if defined(PIN_I2C_POWER)
   pinMode(PIN_I2C_POWER, OUTPUT);
@@ -194,8 +209,7 @@ void loop() {
         Serial.println("IMU still not found; retrying...");
       }
     }
-    delay(20);
-    return;
+    // Continue loop so flex sensor can still be tested even if IMU is offline.
   }
 
   if (millis() - lastImuPacketMs < 100) {  // 10 Hz
@@ -204,26 +218,44 @@ void loop() {
   }
   lastImuPacketMs = millis();
 
+  const int flexRaw = readFlexRaw();
+  const float flexNorm = readFlexNormalized(flexRaw);
+
   ImuSample sample{};
-  if (!readImuSample(sample)) {
-    Serial.println("IMU read failed; marking IMU offline.");
-    imuReady = false;
-    return;
+  bool imuSampleOk = imuReady;
+  if (imuReady) {
+    imuSampleOk = readImuSample(sample);
+    if (!imuSampleOk) {
+      Serial.println("IMU read failed; marking IMU offline.");
+      imuReady = false;
+    }
   }
 
-  char payload[160];
-  snprintf(
-    payload,
-    sizeof(payload),
-    "who=0x%02X,ax=%.3f,ay=%.3f,az=%.3f,gx=%.3f,gy=%.3f,gz=%.3f",
-    imuWhoAmI,
-    sample.axG,
-    sample.ayG,
-    sample.azG,
-    sample.gxDps,
-    sample.gyDps,
-    sample.gzDps
-  );
+  char payload[220];
+  if (imuSampleOk) {
+    snprintf(
+      payload,
+      sizeof(payload),
+      "who=0x%02X,ax=%.3f,ay=%.3f,az=%.3f,gx=%.3f,gy=%.3f,gz=%.3f,flex_raw=%d,flex_norm=%.3f",
+      imuWhoAmI,
+      sample.axG,
+      sample.ayG,
+      sample.azG,
+      sample.gxDps,
+      sample.gyDps,
+      sample.gzDps,
+      flexRaw,
+      flexNorm
+    );
+  } else {
+    snprintf(
+      payload,
+      sizeof(payload),
+      "imu=offline,flex_raw=%d,flex_norm=%.3f",
+      flexRaw,
+      flexNorm
+    );
+  }
 
   Serial.println(payload);
   if (bleClientConnected && txCharacteristic != nullptr) {

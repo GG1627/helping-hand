@@ -12,3 +12,4 @@
 
 [7] Kürşat Fevzican Şayhan, “Using Bluetooth Low Energy (BLE) with Flutter,” Medium, May 27, 2024. https://kursatsayhan.medium.com/using-bluetooth-low-energy-ble-with-flutter-3c70469af814 (accessed Mar. 24, 2026).
 ‌
+[8] “Flex Sensor Hookup Guide,” SparkFun Electronics. https://learn.sparkfun.com/tutorials/flex-sensor-hookup-guide/all (accessed Apr. 6, 2026).
