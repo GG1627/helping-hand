@@ -7,7 +7,8 @@
 
 constexpr int I2C_SDA_PIN = SDA;
 constexpr int I2C_SCL_PIN = SCL;
-constexpr int FLEX_SENSOR_PIN = A0;
+constexpr size_t FLEX_SENSOR_COUNT = 5;
+constexpr int FLEX_SENSOR_PINS[FLEX_SENSOR_COUNT] = {A0, A1, A2, A3, A4};
 constexpr uint8_t MPU_ADDR_LOW = 0x68;
 constexpr uint8_t MPU_ADDR_HIGH = 0x69;
 constexpr uint8_t MPU_REG_WHO_AM_I = 0x75;
@@ -34,6 +35,11 @@ struct ImuSample {
   float gxDps;
   float gyDps;
   float gzDps;
+};
+
+struct FlexReadings {
+  int raw[FLEX_SENSOR_COUNT];
+  float norm[FLEX_SENSOR_COUNT];
 };
 
 class ServerCallbacks : public BLEServerCallbacks {
@@ -135,13 +141,27 @@ bool readImuSample(ImuSample& sample) {
   return true;
 }
 
-int readFlexRaw() {
-  return analogRead(FLEX_SENSOR_PIN);
-}
-
 float readFlexNormalized(int raw) {
   // ESP32 ADC default is 12-bit => 0..4095
   return static_cast<float>(raw) / 4095.0f;
+}
+
+void setupFlexSensors() {
+  analogReadResolution(12);
+  for (size_t i = 0; i < FLEX_SENSOR_COUNT; i++) {
+    pinMode(FLEX_SENSOR_PINS[i], INPUT);
+    analogSetPinAttenuation(FLEX_SENSOR_PINS[i], ADC_11db);
+  }
+}
+
+FlexReadings readFlexReadings() {
+  FlexReadings readings{};
+  for (size_t i = 0; i < FLEX_SENSOR_COUNT; i++) {
+    const int raw = analogRead(FLEX_SENSOR_PINS[i]);
+    readings.raw[i] = raw;
+    readings.norm[i] = readFlexNormalized(raw);
+  }
+  return readings;
 }
 
 void setupBle() {
@@ -175,11 +195,15 @@ void setup() {
 
   Serial.println("\n=== HelpingHand IMU + BLE Runtime ===");
   Serial.printf("I2C pins SDA=%d SCL=%d\n", I2C_SDA_PIN, I2C_SCL_PIN);
-  Serial.printf("Flex sensor pin=%d (A0)\n", FLEX_SENSOR_PIN);
-
-  pinMode(FLEX_SENSOR_PIN, INPUT);
-  analogReadResolution(12);
-  analogSetPinAttenuation(FLEX_SENSOR_PIN, ADC_11db);
+  Serial.printf(
+    "Flex sensor pins: A0=%d A1=%d A2=%d A3=%d A4=%d\n",
+    FLEX_SENSOR_PINS[0],
+    FLEX_SENSOR_PINS[1],
+    FLEX_SENSOR_PINS[2],
+    FLEX_SENSOR_PINS[3],
+    FLEX_SENSOR_PINS[4]
+  );
+  setupFlexSensors();
 
 #if defined(PIN_I2C_POWER)
   pinMode(PIN_I2C_POWER, OUTPUT);
@@ -218,8 +242,7 @@ void loop() {
   }
   lastImuPacketMs = millis();
 
-  const int flexRaw = readFlexRaw();
-  const float flexNorm = readFlexNormalized(flexRaw);
+  const FlexReadings flex = readFlexReadings();
 
   ImuSample sample{};
   bool imuSampleOk = imuReady;
@@ -231,12 +254,12 @@ void loop() {
     }
   }
 
-  char payload[220];
+  char payload[512];
   if (imuSampleOk) {
     snprintf(
       payload,
       sizeof(payload),
-      "who=0x%02X,ax=%.3f,ay=%.3f,az=%.3f,gx=%.3f,gy=%.3f,gz=%.3f,flex_raw=%d,flex_norm=%.3f",
+      "who=0x%02X,ax=%.3f,ay=%.3f,az=%.3f,gx=%.3f,gy=%.3f,gz=%.3f,flex0_raw=%d,flex0_norm=%.3f,flex1_raw=%d,flex1_norm=%.3f,flex2_raw=%d,flex2_norm=%.3f,flex3_raw=%d,flex3_norm=%.3f,flex4_raw=%d,flex4_norm=%.3f",
       imuWhoAmI,
       sample.axG,
       sample.ayG,
@@ -244,16 +267,32 @@ void loop() {
       sample.gxDps,
       sample.gyDps,
       sample.gzDps,
-      flexRaw,
-      flexNorm
+      flex.raw[0],
+      flex.norm[0],
+      flex.raw[1],
+      flex.norm[1],
+      flex.raw[2],
+      flex.norm[2],
+      flex.raw[3],
+      flex.norm[3],
+      flex.raw[4],
+      flex.norm[4]
     );
   } else {
     snprintf(
       payload,
       sizeof(payload),
-      "imu=offline,flex_raw=%d,flex_norm=%.3f",
-      flexRaw,
-      flexNorm
+      "imu=offline,flex0_raw=%d,flex0_norm=%.3f,flex1_raw=%d,flex1_norm=%.3f,flex2_raw=%d,flex2_norm=%.3f,flex3_raw=%d,flex3_norm=%.3f,flex4_raw=%d,flex4_norm=%.3f",
+      flex.raw[0],
+      flex.norm[0],
+      flex.raw[1],
+      flex.norm[1],
+      flex.raw[2],
+      flex.norm[2],
+      flex.raw[3],
+      flex.norm[3],
+      flex.raw[4],
+      flex.norm[4]
     );
   }
 
