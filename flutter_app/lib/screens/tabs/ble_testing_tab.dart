@@ -6,6 +6,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../theme/warm_clay_theme.dart';
+import '../../widgets/hand_visualizer_widget.dart';
 import '../../widgets/warm_components.dart';
 
 class BleTestingTab extends StatefulWidget {
@@ -347,6 +348,11 @@ class _BleTestingTabState extends State<BleTestingTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Align(
+            alignment: Alignment.topCenter,
+            child: HandVisualizerWidget(),
+          ),
+          const SizedBox(height: WarmClayTheme.cardGap),
           WarmCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
