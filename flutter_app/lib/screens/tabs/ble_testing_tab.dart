@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -62,6 +63,10 @@ class _BleTestingTabState extends State<BleTestingTab> {
   double? _gx;
   double? _gy;
   double? _gz;
+  static const double _maxUiRollRad = 0.5;
+  static const double _imuRollAlpha = 0.18;
+  double _imuRoll = 0.0;
+  bool _imuRollInitialized = false;
   final List<int?> _flexRaw = List<int?>.filled(5, null);
   final List<double?> _flexNorm = List<double?>.filled(5, null);
   DateTime? _lastImuUpdate;
@@ -393,6 +398,18 @@ class _BleTestingTabState extends State<BleTestingTab> {
     _gy = double.tryParse(parsed['gy'] ?? '') ?? _gy;
     _gz = double.tryParse(parsed['gz'] ?? '') ?? _gz;
 
+    if (_ay != null && _az != null) {
+      final accelRoll = math.atan2(_ay!, _az!);
+      if (!_imuRollInitialized) {
+        _imuRoll = accelRoll;
+        _imuRollInitialized = true;
+      } else {
+        _imuRoll =
+            (_imuRoll * (1.0 - _imuRollAlpha)) + (accelRoll * _imuRollAlpha);
+      }
+      _imuRoll = _imuRoll.clamp(-_maxUiRollRad, _maxUiRollRad).toDouble();
+    }
+
     for (var i = 0; i < 5; i++) {
       final raw = double.tryParse(parsed['flex${i}_raw'] ?? '');
       final norm = double.tryParse(parsed['flex${i}_norm'] ?? '');
@@ -454,7 +471,7 @@ class _BleTestingTabState extends State<BleTestingTab> {
             alignment: Alignment.topCenter,
             child: HandVisualizerWidget(
               bendValues: _handBendValues(),
-              imuRoll: 0.0,
+              imuRoll: _imuRoll,
             ),
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
@@ -546,6 +563,7 @@ class _BleTestingTabState extends State<BleTestingTab> {
                       ('Accel X (g)', _fmt3(_ax)),
                       ('Accel Y (g)', _fmt3(_ay)),
                       ('Accel Z (g)', _fmt3(_az)),
+                      ('Hand Roll (rad)', _fmt3(_imuRoll)),
                       ('Gyro X (dps)', _fmt3(_gx)),
                       ('Gyro Y (dps)', _fmt3(_gy)),
                       ('Gyro Z (dps)', _fmt3(_gz)),
