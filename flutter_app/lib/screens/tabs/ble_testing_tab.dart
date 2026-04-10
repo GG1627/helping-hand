@@ -539,30 +539,57 @@ class _BleTestingTabState extends State<BleTestingTab> {
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    _ImuMetricTile(label: 'Accel X (g)', value: _fmt3(_ax)),
-                    _ImuMetricTile(label: 'Accel Y (g)', value: _fmt3(_ay)),
-                    _ImuMetricTile(label: 'Accel Z (g)', value: _fmt3(_az)),
-                    _ImuMetricTile(label: 'Gyro X (dps)', value: _fmt3(_gx)),
-                    _ImuMetricTile(label: 'Gyro Y (dps)', value: _fmt3(_gy)),
-                    _ImuMetricTile(label: 'Gyro Z (dps)', value: _fmt3(_gz)),
-                  ],
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final crossAxisCount = constraints.maxWidth >= 420 ? 3 : 2;
+                    final imuItems = [
+                      ('Accel X (g)', _fmt3(_ax)),
+                      ('Accel Y (g)', _fmt3(_ay)),
+                      ('Accel Z (g)', _fmt3(_az)),
+                      ('Gyro X (dps)', _fmt3(_gx)),
+                      ('Gyro Y (dps)', _fmt3(_gy)),
+                      ('Gyro Z (dps)', _fmt3(_gz)),
+                    ];
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: imuItems.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 1.7,
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = imuItems[index];
+                        return _ImuMetricTile(label: item.$1, value: item.$2);
+                      },
+                    );
+                  },
                 ),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: List.generate(
-                    5,
-                    (i) => _FlexMetricTile(
-                      label: _flexLabels[i],
-                      raw: _flexRaw[i],
-                      norm: _flexNorm[i],
-                    ),
-                  ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final crossAxisCount = constraints.maxWidth >= 420 ? 3 : 2;
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: 5,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 1.25,
+                      ),
+                      itemBuilder: (context, i) {
+                        return _FlexMetricTile(
+                          label: _flexLabels[i],
+                          raw: _flexRaw[i],
+                          norm: _flexNorm[i],
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),
@@ -599,7 +626,6 @@ class _ImuMetricTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: WarmClayColors.surface,
@@ -640,7 +666,6 @@ class _FlexMetricTile extends StatelessWidget {
     final progress = (norm ?? 0).clamp(0.0, 1.0);
 
     return Container(
-      width: 165,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: WarmClayColors.surface,

@@ -143,36 +143,17 @@ class ProgressCalendarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const cells = [
-      0,
-      1,
-      2,
-      0,
-      1,
-      2,
-      2,
-      1,
-      0,
-      2,
-      3,
-      1,
-      0,
-      1,
-      2,
-      2,
-      0,
-      1,
-      3,
-      2,
-      0,
-      1,
-      3,
-      2,
-      1,
-      0,
-      2,
-      3,
-    ];
+    final now = DateTime.now();
+    final daysInMonth = DateUtils.getDaysInMonth(now.year, now.month);
+    final monthName = _monthNames[now.month - 1];
+
+    // Placeholder visual intensity until persisted progress is wired in.
+    final cells = List<int>.generate(daysInMonth, (index) {
+      final day = index + 1;
+      if (day == now.day) return 3;
+      if (day < now.day) return 1;
+      return 0;
+    });
 
     Color toneFor(int level) {
       switch (level) {
@@ -197,37 +178,61 @@ class ProgressCalendarCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Track your daily ASL practice.',
+            '$monthName ${now.year} • $daysInMonth days',
             style: Theme.of(context).textTheme.labelSmall,
           ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: List.generate(cells.length, (index) {
-              final tone = toneFor(cells[index]);
-              final dark = cells[index] >= 2;
-              return Container(
-                width: 34,
-                height: 34,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: tone,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: WarmClayColors.border),
+          LayoutBuilder(
+            builder: (context, _) {
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: cells.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 7,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 1,
                 ),
-                child: Text(
-                  '${index + 1}',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: dark ? Colors.white : WarmClayColors.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                itemBuilder: (context, index) {
+                  final tone = toneFor(cells[index]);
+                  final dark = cells[index] >= 2;
+                  return Container(
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: tone,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: WarmClayColors.border),
+                    ),
+                    child: Text(
+                      '${index + 1}',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: dark ? Colors.white : WarmClayColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                },
               );
-            }),
+            },
           ),
         ],
       ),
     );
   }
+
+  static const List<String> _monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 }
