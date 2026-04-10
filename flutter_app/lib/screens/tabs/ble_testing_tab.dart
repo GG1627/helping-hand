@@ -17,36 +17,44 @@ class BleTestingTab extends StatefulWidget {
 }
 
 class _BleTestingTabState extends State<BleTestingTab> {
-  // ESP32 BLE UART defaults (Nordic UART profile). Replace these if your ESP32 uses custom UUIDs.
-  static final Guid _serviceUuid = Guid('6E400001-B5A3-F393-E0A9-E50E24DCCA9E');
-  static final Guid _notifyUuid = Guid('6E400003-B5A3-F393-E0A9-E50E24DCCA9E');
-  static final Guid _writeUuid = Guid('6E400002-B5A3-F393-E0A9-E50E24DCCA9E');
+  // ESP32 BLE UART defaults (Nordic UART profile)
+  static const String _targetDeviceName = 'HelpingHand-Glove';
+  static final Guid _serviceUuid = Guid(
+    '6E400001-B5A3-F393-E0A9-E50E24DCCA9E',
+  );
+  static final Guid _notifyUuid = Guid(
+    '6E400003-B5A3-F393-E0A9-E50E24DCCA9E',
+  );
+  static const List<String> _flexLabels = [
+    'Thumb',
+    'Index',
+    'Middle',
+    'Ring',
+    'Pinky',
+  ];
+  static const List<int> _straightRaw = [550, 550, 550, 550, 560];
+  static const List<int> _bentRaw = [145, 135, 130, 125, 95];
 
   BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
   BluetoothDevice? _connectedDevice;
-  BluetoothCharacteristic? _writeCharacteristic;
-
-  final TextEditingController _txController = TextEditingController(
-    text: 'ping',
-  );
   final List<ScanResult> _scanResults = [];
-  final List<String> _logs = [];
-  final List<String> _debugLogs = [];
 
   StreamSubscription<BluetoothAdapterState>? _adapterSub;
   StreamSubscription<List<ScanResult>>? _scanSub;
   StreamSubscription<bool>? _isScanningSub;
   StreamSubscription<BluetoothConnectionState>? _connectionSub;
   StreamSubscription<List<int>>? _notifySub;
-  StreamSubscription<String>? _fbpLogsSub;
-  Timer? _scanWatchdog;
 
   bool _isScanning = false;
   bool _scanRequestInFlight = false;
+  bool _autoConnectEnabled = true;
+  bool _autoConnectInProgress = false;
   String _status = 'Idle';
-  int _scanBatchCount = 0;
-  int _scanRawCount = 0;
-  int _scanEspMatchCount = 0;
+  int _targetFoundCount = 0;
+
+  String _predictedLabel = '--';
+  double? _predictedConfidence;
+  String _expectedLabel = '--';
   String _imuWhoAmI = '--';
   double? _ax;
   double? _ay;
@@ -54,8 +62,11 @@ class _BleTestingTabState extends State<BleTestingTab> {
   double? _gx;
   double? _gy;
   double? _gz;
+  final List<int?> _flexRaw = List<int?>.filled(5, null);
+  final List<double?> _flexNorm = List<double?>.filled(5, null);
   DateTime? _lastImuUpdate;
-  int _imuPacketCount = 0;
+  int _packetCount = 0;
+  String _lastPacket = '--';
 
   @override
   void initState() {
@@ -75,9 +86,6 @@ class _BleTestingTabState extends State<BleTestingTab> {
       });
       _debug('isScanning stream: $scanning');
     });
-    _fbpLogsSub = FlutterBluePlus.logs.listen((line) {
-      _debug('[FBP] $line');
-    });
   }
 
   @override
@@ -87,22 +95,12 @@ class _BleTestingTabState extends State<BleTestingTab> {
     _isScanningSub?.cancel();
     _connectionSub?.cancel();
     _notifySub?.cancel();
-    _fbpLogsSub?.cancel();
-    _scanWatchdog?.cancel();
-    _txController.dispose();
     unawaited(_disconnectCurrent());
     super.dispose();
   }
 
   void _debug(String message) {
-    if (!mounted) return;
-    final line = '${DateTime.now().toIso8601String()}  $message';
-    setState(() {
-      _debugLogs.insert(0, line);
-      if (_debugLogs.length > 60) {
-        _debugLogs.removeRange(60, _debugLogs.length);
-      }
-    });
+    debugPrint('[BLE_TAB] $message');
   }
 
   Future<bool> _ensurePermissions() async {
@@ -145,11 +143,8 @@ class _BleTestingTabState extends State<BleTestingTab> {
     }
 
     _scanSub?.cancel();
-    _scanWatchdog?.cancel();
     _scanResults.clear();
-    _scanBatchCount = 0;
-    _scanRawCount = 0;
-    _scanEspMatchCount = 0;
+    _targetFoundCount = 0;
     _setStatus('Scanning...');
     _debug('Starting scan...');
     setState(() {
@@ -159,13 +154,15 @@ class _BleTestingTabState extends State<BleTestingTab> {
     _scanSub = FlutterBluePlus.onScanResults.listen(
       (results) {
         if (!mounted) return;
-        _scanBatchCount += 1;
-        _scanRawCount += results.length;
-        final espLogs = <String>[];
-        int espMatchDelta = 0;
+
+        BluetoothDevice? autoConnectCandidate;
 
         setState(() {
           for (final result in results) {
+            if (!_isTargetResult(result)) {
+              continue;
+            }
+
             final index = _scanResults.indexWhere(
               (item) => item.device.remoteId == result.device.remoteId,
             );
@@ -175,35 +172,27 @@ class _BleTestingTabState extends State<BleTestingTab> {
               _scanResults[index] = result;
             }
 
-            final advName = result.advertisementData.advName.trim();
-            final platformName = result.device.platformName.trim();
-            final displayName = advName.isNotEmpty
-                ? advName
-                : (platformName.isNotEmpty
-                      ? platformName
-                      : result.device.remoteId.str);
-            final hasNusService = result.advertisementData.serviceUuids
-                .contains(_serviceUuid);
-            final looksLikeEsp =
-                displayName.toLowerCase().contains('helpinghand') ||
-                displayName.toLowerCase().contains('glove') ||
-                hasNusService;
-            if (looksLikeEsp) {
-              espMatchDelta += 1;
-              espLogs.add(
-                'ESP candidate: name="$displayName" id=${result.device.remoteId.str} rssi=${result.rssi} nus=$hasNusService',
-              );
+            _targetFoundCount += 1;
+
+            if (autoConnectCandidate == null && _connectedDevice == null) {
+              autoConnectCandidate = result.device;
             }
           }
-          _scanEspMatchCount += espMatchDelta;
         });
 
-        for (final line in espLogs.take(2)) {
-          _debug(line);
+        if (_autoConnectEnabled &&
+            !_autoConnectInProgress &&
+            _connectedDevice == null &&
+            autoConnectCandidate != null) {
+          _autoConnectInProgress = true;
+          _setStatus('Target found. Auto-connecting...');
+          _debug('Auto-connect starting for ${autoConnectCandidate!.remoteId.str}');
+          unawaited(
+            _connectToDevice(autoConnectCandidate!).whenComplete(() {
+              _autoConnectInProgress = false;
+            }),
+          );
         }
-        _debug(
-          'Scan callback: ${results.length} raw, ${_scanResults.length} unique',
-        );
       },
       onError: (Object error, StackTrace stackTrace) {
         _debug('Scan stream error: $error');
@@ -214,20 +203,49 @@ class _BleTestingTabState extends State<BleTestingTab> {
       },
     );
 
+    bool scanStarted = false;
     try {
       // Some Android builds report location-services checks inconsistently.
-      // Disable that check in plugin and rely on runtime permissions instead.
+      // Start with non-location BLE scan mode.
       await FlutterBluePlus.startScan(
-        continuousUpdates: true,
-        continuousDivisor: 2,
+        withServices: [_serviceUuid],
         androidScanMode: AndroidScanMode.lowLatency,
         androidUsesFineLocation: false,
         androidCheckLocationServices: false,
       );
+      scanStarted = true;
       _debug('startScan returned (scan active until stop)');
     } catch (e) {
-      _setStatus('Scan failed: $e');
-      _debug('Scan failed: $e');
+      _debug('Primary scan failed: $e');
+
+      final needsFineLocation = e.toString().toLowerCase().contains(
+        'access fine location required',
+      );
+
+      if (needsFineLocation) {
+        _debug('Fine location fallback requested by device/OS');
+        final status = await Permission.locationWhenInUse.request();
+        _debug('Fine location permission: $status');
+
+        if (status.isGranted) {
+          try {
+            await FlutterBluePlus.startScan(
+              withServices: [_serviceUuid],
+              androidScanMode: AndroidScanMode.lowLatency,
+              androidUsesFineLocation: true,
+              androidCheckLocationServices: false,
+            );
+            scanStarted = true;
+            _debug('Fallback scan started with fine location');
+          } catch (fallbackError) {
+            _debug('Fallback scan failed: $fallbackError');
+          }
+        }
+      }
+    }
+
+    if (!scanStarted) {
+      _setStatus('Scan failed. Check Nearby Devices (and Location on older Android).');
       setState(() {
         _isScanning = false;
       });
@@ -236,29 +254,21 @@ class _BleTestingTabState extends State<BleTestingTab> {
     }
 
     _scanRequestInFlight = false;
-    _setStatus('Scanning... waiting for advertisements');
-
-    _scanWatchdog = Timer.periodic(const Duration(seconds: 5), (_) {
-      if (!_isScanning) return;
-      _debug(
-        'Watchdog: batches=$_scanBatchCount raw=$_scanRawCount unique=${_scanResults.length} espMatches=$_scanEspMatchCount',
-      );
-      if (_scanResults.isEmpty) {
-        _setStatus(
-          'Scanning, but no advertisements yet. Keep app open and ESP32 powered.',
-        );
-      }
-    });
+    _setStatus('Scanning for $_targetDeviceName...');
   }
 
   Future<void> _stopScan() async {
     _debug('Stopping scan');
-    _scanWatchdog?.cancel();
     await FlutterBluePlus.stopScan();
     _setStatus('Scan stopped');
   }
 
   Future<void> _connectToDevice(BluetoothDevice device) async {
+    if (_connectedDevice?.remoteId == device.remoteId) {
+      _setStatus('Already connected to ${_deviceName(device)}');
+      return;
+    }
+
     await _stopScan();
     await _disconnectCurrent();
 
@@ -281,21 +291,28 @@ class _BleTestingTabState extends State<BleTestingTab> {
       if (state == BluetoothConnectionState.disconnected) {
         setState(() {
           _connectedDevice = null;
-          _writeCharacteristic = null;
         });
         _debug('Device disconnected');
+
+        if (_autoConnectEnabled) {
+          _setStatus('Disconnected. Auto-reconnecting...');
+          unawaited(
+            Future<void>.delayed(const Duration(milliseconds: 500), () async {
+              if (!mounted) return;
+              await _startScan();
+            }),
+          );
+        }
       }
     });
 
     final services = await device.discoverServices();
     BluetoothCharacteristic? notify;
-    BluetoothCharacteristic? write;
 
     for (final service in services) {
       if (service.uuid != _serviceUuid) continue;
       for (final characteristic in service.characteristics) {
         if (characteristic.uuid == _notifyUuid) notify = characteristic;
-        if (characteristic.uuid == _writeUuid) write = characteristic;
       }
     }
 
@@ -313,39 +330,16 @@ class _BleTestingTabState extends State<BleTestingTab> {
       final text = utf8.decode(bytes, allowMalformed: true).trim();
       if (text.isEmpty) return;
       setState(() {
-        _tryUpdateImuFromPacket(text);
-        _logs.insert(0, '${DateTime.now().toIso8601String()}  $text');
+        _tryUpdateFromPacket(text);
       });
     });
 
     if (!mounted) return;
     setState(() {
       _connectedDevice = device;
-      _writeCharacteristic = write;
     });
     _setStatus('Connected and listening');
     _debug('Connected + notify subscribed');
-  }
-
-  Future<void> _sendData() async {
-    final write = _writeCharacteristic;
-    if (write == null) {
-      _setStatus('Write characteristic not available.');
-      return;
-    }
-
-    final payload = _txController.text.trim();
-    if (payload.isEmpty) {
-      _setStatus('Enter a message before sending.');
-      return;
-    }
-
-    // Look out: If your ESP32 firmware expects newline-delimited messages, append '\n' before write.
-    await write.write(
-      utf8.encode(payload),
-      withoutResponse: write.properties.writeWithoutResponse,
-    );
-    _setStatus('Sent: $payload');
   }
 
   Future<void> _disconnectCurrent() async {
@@ -372,13 +366,17 @@ class _BleTestingTabState extends State<BleTestingTab> {
     return device.remoteId.str;
   }
 
-  String _scanResultName(ScanResult result) {
-    final advName = result.advertisementData.advName.trim();
-    if (advName.isNotEmpty) return advName;
-    return _deviceName(result.device);
+  bool _isTargetResult(ScanResult result) {
+    final advName = result.advertisementData.advName.trim().toLowerCase();
+    final platformName = result.device.platformName.trim().toLowerCase();
+    final target = _targetDeviceName.toLowerCase();
+    final hasTargetName = advName == target || platformName == target;
+    final hasNusService =
+        result.advertisementData.serviceUuids.contains(_serviceUuid);
+    return hasTargetName || hasNusService;
   }
 
-  void _tryUpdateImuFromPacket(String packet) {
+  void _tryUpdateFromPacket(String packet) {
     final segments = packet.split(',');
     final parsed = <String, String>{};
     for (final segment in segments) {
@@ -387,38 +385,39 @@ class _BleTestingTabState extends State<BleTestingTab> {
       parsed[parts[0].trim()] = parts[1].trim();
     }
 
-    if (!parsed.containsKey('ax') || !parsed.containsKey('gx')) return;
+    _imuWhoAmI = parsed['who'] ?? _imuWhoAmI;
+    _ax = double.tryParse(parsed['ax'] ?? '') ?? _ax;
+    _ay = double.tryParse(parsed['ay'] ?? '') ?? _ay;
+    _az = double.tryParse(parsed['az'] ?? '') ?? _az;
+    _gx = double.tryParse(parsed['gx'] ?? '') ?? _gx;
+    _gy = double.tryParse(parsed['gy'] ?? '') ?? _gy;
+    _gz = double.tryParse(parsed['gz'] ?? '') ?? _gz;
 
-    final ax = double.tryParse(parsed['ax'] ?? '');
-    final ay = double.tryParse(parsed['ay'] ?? '');
-    final az = double.tryParse(parsed['az'] ?? '');
-    final gx = double.tryParse(parsed['gx'] ?? '');
-    final gy = double.tryParse(parsed['gy'] ?? '');
-    final gz = double.tryParse(parsed['gz'] ?? '');
-
-    if (ax == null ||
-        ay == null ||
-        az == null ||
-        gx == null ||
-        gy == null ||
-        gz == null) {
-      return;
+    for (var i = 0; i < 5; i++) {
+      final raw = double.tryParse(parsed['flex${i}_raw'] ?? '');
+      final norm = double.tryParse(parsed['flex${i}_norm'] ?? '');
+      if (raw != null) _flexRaw[i] = raw.round();
+      if (norm != null) _flexNorm[i] = norm;
     }
 
-    _imuWhoAmI = parsed['who'] ?? _imuWhoAmI;
-    _ax = ax;
-    _ay = ay;
-    _az = az;
-    _gx = gx;
-    _gy = gy;
-    _gz = gz;
-    _imuPacketCount += 1;
+    _predictedLabel = parsed['pred'] ?? _predictedLabel;
+    _predictedConfidence =
+        double.tryParse(parsed['pred_conf'] ?? '') ?? _predictedConfidence;
+    _expectedLabel = parsed['expected'] ?? _expectedLabel;
+
+    _packetCount += 1;
     _lastImuUpdate = DateTime.now();
+    _lastPacket = packet;
   }
 
   String _fmt3(double? value) {
     if (value == null) return '--';
     return value.toStringAsFixed(3);
+  }
+
+  String _fmtPct(double? value) {
+    if (value == null) return '--';
+    return '${value.toStringAsFixed(1)}%';
   }
 
   String _lastUpdateText() {
@@ -429,6 +428,21 @@ class _BleTestingTabState extends State<BleTestingTab> {
     return 'Updated ${seconds}s ago';
   }
 
+  List<double> _handBendValues() {
+    return List<double>.generate(5, (i) {
+      final raw = _flexRaw[i];
+      if (raw == null) return 0.0;
+
+      final straight = _straightRaw[i].toDouble();
+      final bent = _bentRaw[i].toDouble();
+      final denom = straight - bent;
+      if (denom.abs() < 1e-6) return 0.0;
+
+      final bend = (straight - raw) / denom;
+      return bend.clamp(0.0, 1.0);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return TabScaffold(
@@ -436,9 +450,12 @@ class _BleTestingTabState extends State<BleTestingTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Align(
+          Align(
             alignment: Alignment.topCenter,
-            child: HandVisualizerWidget(),
+            child: HandVisualizerWidget(
+              bendValues: _handBendValues(),
+              imuRoll: 0.0,
+            ),
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
           WarmCard(
@@ -455,8 +472,25 @@ class _BleTestingTabState extends State<BleTestingTab> {
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 const SizedBox(height: 8),
+                Text(
+                  'Target: $_targetDeviceName',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+                const SizedBox(height: 8),
                 Text(_status, style: Theme.of(context).textTheme.bodyLarge),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Auto-connect'),
+                  subtitle: const Text('Connect immediately when target is found'),
+                  value: _autoConnectEnabled,
+                  onChanged: (value) {
+                    setState(() {
+                      _autoConnectEnabled = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -470,7 +504,17 @@ class _BleTestingTabState extends State<BleTestingTab> {
                         onPressed: _disconnectCurrent,
                         child: const Text('Disconnect'),
                       ),
+                    if (_connectedDevice == null && _scanResults.isNotEmpty)
+                      OutlinedButton(
+                        onPressed: () => _connectToDevice(_scanResults.first.device),
+                        child: const Text('Manual Connect'),
+                      ),
                   ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Targets seen: $_targetFoundCount | In list: ${_scanResults.length}',
+                  style: Theme.of(context).textTheme.labelSmall,
                 ),
               ],
             ),
@@ -481,12 +525,17 @@ class _BleTestingTabState extends State<BleTestingTab> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Live IMU Values',
+                  'Live Telemetry',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'WHO_AM_I: $_imuWhoAmI  |  Packets: $_imuPacketCount  |  ${_lastUpdateText()}',
+                  'Prediction: $_predictedLabel (${_fmtPct(_predictedConfidence)}) | Expected: $_expectedLabel',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'WHO_AM_I: $_imuWhoAmI | Packets: $_packetCount | ${_lastUpdateText()}',
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 const SizedBox(height: 12),
@@ -502,6 +551,19 @@ class _BleTestingTabState extends State<BleTestingTab> {
                     _ImuMetricTile(label: 'Gyro Z (dps)', value: _fmt3(_gz)),
                   ],
                 ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: List.generate(
+                    5,
+                    (i) => _FlexMetricTile(
+                      label: _flexLabels[i],
+                      raw: _flexRaw[i],
+                      norm: _flexNorm[i],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -511,126 +573,14 @@ class _BleTestingTabState extends State<BleTestingTab> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'BLE Debug',
+                  'Latest Packet',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'scanInFlight=$_scanRequestInFlight | isScanning=$_isScanning | results=${_scanResults.length} | batches=$_scanBatchCount raw=$_scanRawCount esp=$_scanEspMatchCount',
+                SelectableText(
+                  _lastPacket,
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
-                const SizedBox(height: 8),
-                if (_debugLogs.isEmpty)
-                  Text(
-                    'No debug events yet.',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                if (_debugLogs.isNotEmpty)
-                  ..._debugLogs
-                      .take(8)
-                      .map(
-                        (line) => Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Text(
-                            line,
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                        ),
-                      ),
-              ],
-            ),
-          ),
-          const SizedBox(height: WarmClayTheme.cardGap),
-          WarmCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Discovered Devices',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                if (_scanResults.isEmpty)
-                  Text(
-                    'No devices yet. Tap Start Scan.',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                if (_scanResults.isNotEmpty)
-                  ..._scanResults.map((result) {
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(_scanResultName(result)),
-                      subtitle: Text(
-                        '${result.device.remoteId.str}  RSSI ${result.rssi}',
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
-                      trailing: FilledButton(
-                        onPressed: () => _connectToDevice(result.device),
-                        child: const Text('Connect'),
-                      ),
-                    );
-                  }),
-              ],
-            ),
-          ),
-          const SizedBox(height: WarmClayTheme.cardGap),
-          WarmCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Send Test Data',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _txController,
-                  decoration: const InputDecoration(
-                    hintText: 'Message to send to ESP32',
-                    isDense: true,
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                FilledButton(
-                  onPressed: _connectedDevice == null ? null : _sendData,
-                  child: const Text('Send'),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: WarmClayTheme.cardGap),
-          WarmCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Incoming Data',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'What to watch for: permission prompts, matching UUIDs, MTU limits, newline framing, and notification frequency.',
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-                const SizedBox(height: 8),
-                if (_logs.isEmpty)
-                  Text(
-                    'No packets received yet.',
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                if (_logs.isNotEmpty)
-                  ..._logs
-                      .take(20)
-                      .map(
-                        (line) => Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: Text(
-                            line,
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                        ),
-                      ),
               ],
             ),
           ),
@@ -666,6 +616,61 @@ class _ImuMetricTile extends StatelessWidget {
             style: Theme.of(
               context,
             ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FlexMetricTile extends StatelessWidget {
+  const _FlexMetricTile({
+    required this.label,
+    required this.raw,
+    required this.norm,
+  });
+
+  final String label;
+  final int? raw;
+  final double? norm;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayNorm = norm == null ? '--' : norm!.toStringAsFixed(3);
+    final progress = (norm ?? 0).clamp(0.0, 1.0);
+
+    return Container(
+      width: 165,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: WarmClayColors.surface,
+        border: Border.all(color: WarmClayColors.border),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.labelSmall),
+          const SizedBox(height: 6),
+          Text(
+            'raw: ${raw ?? '--'}',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+          ),
+          const SizedBox(height: 4),
+          Text('norm: $displayNorm', style: Theme.of(context).textTheme.labelSmall),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: WarmClayColors.accentLight,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                WarmClayColors.accentPrimary,
+              ),
+            ),
           ),
         ],
       ),

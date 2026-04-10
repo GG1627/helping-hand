@@ -40,7 +40,7 @@ constexpr int kModelInputSize = 5;
 constexpr int kModelClassCount = 36;
 constexpr size_t kTensorArenaSize = 70 * 1024;
 alignas(16) uint8_t tensorArena[kTensorArenaSize];
-constexpr bool kUseHardcodedMlTest = true;
+constexpr bool kUseHardcodedMlTest = false;
 
 const tflite::Model* mlModel = nullptr;
 tflite::AllOpsResolver mlResolver;

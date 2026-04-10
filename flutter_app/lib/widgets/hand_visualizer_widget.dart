@@ -2,80 +2,53 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-class HandVisualizerWidget extends StatefulWidget {
-  const HandVisualizerWidget({super.key});
+class HandVisualizerWidget extends StatelessWidget {
+  const HandVisualizerWidget({
+    super.key,
+    required this.bendValues,
+    this.imuRoll = 0.0,
+  });
 
-  @override
-  State<HandVisualizerWidget> createState() => _HandVisualizerWidgetState();
-}
-
-class _HandVisualizerWidgetState extends State<HandVisualizerWidget> {
-  double _flexValue = 0.0;
-  double _imuRoll = 0.0;
+  final List<double> bendValues; // [thumb, index, middle, ring, pinky]
+  final double imuRoll; // radians
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: 220,
-          height: 340,
-          child: CustomPaint(
-            painter: _HandPainter(
-              flexValue: _flexValue,
-              imuRoll: _imuRoll,
-            ),
-          ),
+    return SizedBox(
+      width: 220,
+      height: 340,
+      child: CustomPaint(
+        painter: _HandPainter(
+          bendValues: bendValues,
+          imuRoll: imuRoll,
         ),
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Bend'),
-              Slider(
-                value: _flexValue,
-                min: 0.0,
-                max: 1.0,
-                onChanged: (value) {
-                  setState(() {
-                    _flexValue = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 8),
-              const Text('Rotate'),
-              Slider(
-                value: _imuRoll,
-                min: -0.5,
-                max: 0.5,
-                onChanged: (value) {
-                  setState(() {
-                    _imuRoll = value;
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
 class _HandPainter extends CustomPainter {
   const _HandPainter({
-    required this.flexValue,
+    required this.bendValues,
     required this.imuRoll,
   });
 
-  final double flexValue;
+  final List<double> bendValues;
   final double imuRoll;
 
   static const Color _fillColor = Color(0xFFF5F5F5);
+  static const Color _activeColor = Color(0xFF1565C0);
   static const Color _strokeColor = Color(0xFFBDBDBD);
   static const double _strokeWidth = 1.5;
+
+  double _bendAt(int index) {
+    if (index < 0 || index >= bendValues.length) return 0.0;
+    return bendValues[index].clamp(0.0, 1.0);
+  }
+
+  Color _fingerColor(int index) {
+    return Color.lerp(_fillColor, _activeColor, _bendAt(index)) ?? _fillColor;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -169,6 +142,7 @@ class _HandPainter extends CustomPainter {
       required double length,
       required double wBottom,
       required double wTop,
+      Color fillColor = _fillColor,
     }) {
       final local = [
         Offset(-wBottom / 2, 0),
@@ -176,7 +150,7 @@ class _HandPainter extends CustomPainter {
         Offset(wTop / 2, -length),
         Offset(-wTop / 2, -length),
       ];
-      drawPoly(rotateAndTranslate(local, base, angleDeg));
+      drawPoly(rotateAndTranslate(local, base, angleDeg), fillColor: fillColor);
     }
 
     canvas.save();
@@ -186,12 +160,14 @@ class _HandPainter extends CustomPainter {
 
     const thumbBase = Offset(48, 220);
     const thumbAngleDeg = -35.0;
+    final thumbColor = _fingerColor(0);
     drawThumbSegment(
       base: thumbBase,
       angleDeg: thumbAngleDeg,
       length: 54,
       wBottom: 36,
       wTop: 28,
+      fillColor: thumbColor,
     );
 
     final thumbJoint = rotateAndTranslate(
@@ -205,6 +181,7 @@ class _HandPainter extends CustomPainter {
       length: 40,
       wBottom: 28,
       wTop: 22,
+      fillColor: thumbColor,
     );
 
     final palm = [
@@ -224,6 +201,7 @@ class _HandPainter extends CustomPainter {
       totalHeight: 110,
       baseWidth: 32,
       tipWidth: 22,
+      fillColor: _fingerColor(1),
     );
     drawFinger(
       centerX: 96,
@@ -231,8 +209,7 @@ class _HandPainter extends CustomPainter {
       totalHeight: 132,
       baseWidth: 30,
       tipWidth: 20,
-      fillColor: Color.lerp(_fillColor, const Color(0xFF1565C0), flexValue.clamp(0.0, 1.0)) ??
-          _fillColor,
+      fillColor: _fingerColor(2),
     );
     drawFinger(
       centerX: 128,
@@ -240,6 +217,7 @@ class _HandPainter extends CustomPainter {
       totalHeight: 129,
       baseWidth: 30,
       tipWidth: 23,
+      fillColor: _fingerColor(3),
     );
     drawFinger(
       centerX: 157,
@@ -247,6 +225,7 @@ class _HandPainter extends CustomPainter {
       totalHeight: 96,
       baseWidth: 28,
       tipWidth: 20,
+      fillColor: _fingerColor(4),
     );
 
     canvas.restore();
@@ -254,6 +233,12 @@ class _HandPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _HandPainter oldDelegate) {
-    return oldDelegate.flexValue != flexValue || oldDelegate.imuRoll != imuRoll;
+    if (oldDelegate.imuRoll != imuRoll || oldDelegate.bendValues.length != bendValues.length) {
+      return true;
+    }
+    for (var i = 0; i < bendValues.length; i++) {
+      if (oldDelegate.bendValues[i] != bendValues[i]) return true;
+    }
+    return false;
   }
 }
