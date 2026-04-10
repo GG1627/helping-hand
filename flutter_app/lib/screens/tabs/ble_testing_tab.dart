@@ -24,10 +24,11 @@ class _BleTestingTabState extends State<BleTestingTab> {
 
   BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
   BluetoothDevice? _connectedDevice;
-  BluetoothCharacteristic? _notifyCharacteristic;
   BluetoothCharacteristic? _writeCharacteristic;
 
-  final TextEditingController _txController = TextEditingController(text: 'ping');
+  final TextEditingController _txController = TextEditingController(
+    text: 'ping',
+  );
   final List<ScanResult> _scanResults = [];
   final List<String> _logs = [];
   final List<String> _debugLogs = [];
@@ -37,10 +38,15 @@ class _BleTestingTabState extends State<BleTestingTab> {
   StreamSubscription<bool>? _isScanningSub;
   StreamSubscription<BluetoothConnectionState>? _connectionSub;
   StreamSubscription<List<int>>? _notifySub;
+  StreamSubscription<String>? _fbpLogsSub;
+  Timer? _scanWatchdog;
 
   bool _isScanning = false;
   bool _scanRequestInFlight = false;
   String _status = 'Idle';
+  int _scanBatchCount = 0;
+  int _scanRawCount = 0;
+  int _scanEspMatchCount = 0;
   String _imuWhoAmI = '--';
   double? _ax;
   double? _ay;
@@ -69,6 +75,9 @@ class _BleTestingTabState extends State<BleTestingTab> {
       });
       _debug('isScanning stream: $scanning');
     });
+    _fbpLogsSub = FlutterBluePlus.logs.listen((line) {
+      _debug('[FBP] $line');
+    });
   }
 
   @override
@@ -78,6 +87,8 @@ class _BleTestingTabState extends State<BleTestingTab> {
     _isScanningSub?.cancel();
     _connectionSub?.cancel();
     _notifySub?.cancel();
+    _fbpLogsSub?.cancel();
+    _scanWatchdog?.cancel();
     _txController.dispose();
     unawaited(_disconnectCurrent());
     super.dispose();
@@ -98,19 +109,18 @@ class _BleTestingTabState extends State<BleTestingTab> {
     final statuses = await [
       Permission.bluetoothScan,
       Permission.bluetoothConnect,
-      Permission.locationWhenInUse,
     ].request();
 
     _debug(
-      'Permissions scan=${statuses[Permission.bluetoothScan]} connect=${statuses[Permission.bluetoothConnect]} location=${statuses[Permission.locationWhenInUse]}',
+      'Permissions scan=${statuses[Permission.bluetoothScan]} connect=${statuses[Permission.bluetoothConnect]}',
     );
 
     final hasScan = statuses[Permission.bluetoothScan]?.isGranted ?? false;
-    final hasConnect = statuses[Permission.bluetoothConnect]?.isGranted ?? false;
-    final hasLocation = statuses[Permission.locationWhenInUse]?.isGranted ?? false;
+    final hasConnect =
+        statuses[Permission.bluetoothConnect]?.isGranted ?? false;
 
-    if (!(hasScan && hasConnect && hasLocation)) {
-      _setStatus('Missing BLE permissions (Nearby Devices/Location).');
+    if (!(hasScan && hasConnect)) {
+      _setStatus('Missing BLE permissions (Nearby Devices).');
       return false;
     }
     return true;
@@ -135,33 +145,86 @@ class _BleTestingTabState extends State<BleTestingTab> {
     }
 
     _scanSub?.cancel();
+    _scanWatchdog?.cancel();
     _scanResults.clear();
+    _scanBatchCount = 0;
+    _scanRawCount = 0;
+    _scanEspMatchCount = 0;
     _setStatus('Scanning...');
     _debug('Starting scan...');
     setState(() {
       _isScanning = true;
     });
 
-    _scanSub = FlutterBluePlus.scanResults.listen((results) {
-      if (!mounted) return;
-      setState(() {
-        for (final result in results) {
-          final index = _scanResults.indexWhere(
-            (item) => item.device.remoteId == result.device.remoteId,
-          );
-          if (index == -1) {
-            _scanResults.add(result);
-          } else {
-            _scanResults[index] = result;
+    _scanSub = FlutterBluePlus.onScanResults.listen(
+      (results) {
+        if (!mounted) return;
+        _scanBatchCount += 1;
+        _scanRawCount += results.length;
+        final espLogs = <String>[];
+        int espMatchDelta = 0;
+
+        setState(() {
+          for (final result in results) {
+            final index = _scanResults.indexWhere(
+              (item) => item.device.remoteId == result.device.remoteId,
+            );
+            if (index == -1) {
+              _scanResults.add(result);
+            } else {
+              _scanResults[index] = result;
+            }
+
+            final advName = result.advertisementData.advName.trim();
+            final platformName = result.device.platformName.trim();
+            final displayName = advName.isNotEmpty
+                ? advName
+                : (platformName.isNotEmpty
+                      ? platformName
+                      : result.device.remoteId.str);
+            final hasNusService = result.advertisementData.serviceUuids
+                .contains(_serviceUuid);
+            final looksLikeEsp =
+                displayName.toLowerCase().contains('helpinghand') ||
+                displayName.toLowerCase().contains('glove') ||
+                hasNusService;
+            if (looksLikeEsp) {
+              espMatchDelta += 1;
+              espLogs.add(
+                'ESP candidate: name="$displayName" id=${result.device.remoteId.str} rssi=${result.rssi} nus=$hasNusService',
+              );
+            }
           }
+          _scanEspMatchCount += espMatchDelta;
+        });
+
+        for (final line in espLogs.take(2)) {
+          _debug(line);
         }
-      });
-      _debug('Scan callback: ${results.length} raw, ${_scanResults.length} unique');
-    });
+        _debug(
+          'Scan callback: ${results.length} raw, ${_scanResults.length} unique',
+        );
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        _debug('Scan stream error: $error');
+        _setStatus('Scan stream error: $error');
+      },
+      onDone: () {
+        _debug('Scan stream closed');
+      },
+    );
 
     try {
-      await FlutterBluePlus.startScan(timeout: const Duration(seconds: 20));
-      _debug('startScan returned (timeout or stop)');
+      // Some Android builds report location-services checks inconsistently.
+      // Disable that check in plugin and rely on runtime permissions instead.
+      await FlutterBluePlus.startScan(
+        continuousUpdates: true,
+        continuousDivisor: 2,
+        androidScanMode: AndroidScanMode.lowLatency,
+        androidUsesFineLocation: false,
+        androidCheckLocationServices: false,
+      );
+      _debug('startScan returned (scan active until stop)');
     } catch (e) {
       _setStatus('Scan failed: $e');
       _debug('Scan failed: $e');
@@ -173,11 +236,24 @@ class _BleTestingTabState extends State<BleTestingTab> {
     }
 
     _scanRequestInFlight = false;
-    _setStatus('Scanning window started');
+    _setStatus('Scanning... waiting for advertisements');
+
+    _scanWatchdog = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!_isScanning) return;
+      _debug(
+        'Watchdog: batches=$_scanBatchCount raw=$_scanRawCount unique=${_scanResults.length} espMatches=$_scanEspMatchCount',
+      );
+      if (_scanResults.isEmpty) {
+        _setStatus(
+          'Scanning, but no advertisements yet. Keep app open and ESP32 powered.',
+        );
+      }
+    });
   }
 
   Future<void> _stopScan() async {
     _debug('Stopping scan');
+    _scanWatchdog?.cancel();
     await FlutterBluePlus.stopScan();
     _setStatus('Scan stopped');
   }
@@ -205,7 +281,6 @@ class _BleTestingTabState extends State<BleTestingTab> {
       if (state == BluetoothConnectionState.disconnected) {
         setState(() {
           _connectedDevice = null;
-          _notifyCharacteristic = null;
           _writeCharacteristic = null;
         });
         _debug('Device disconnected');
@@ -246,7 +321,6 @@ class _BleTestingTabState extends State<BleTestingTab> {
     if (!mounted) return;
     setState(() {
       _connectedDevice = device;
-      _notifyCharacteristic = notify;
       _writeCharacteristic = write;
     });
     _setStatus('Connected and listening');
@@ -267,7 +341,10 @@ class _BleTestingTabState extends State<BleTestingTab> {
     }
 
     // Look out: If your ESP32 firmware expects newline-delimited messages, append '\n' before write.
-    await write.write(utf8.encode(payload), withoutResponse: write.properties.writeWithoutResponse);
+    await write.write(
+      utf8.encode(payload),
+      withoutResponse: write.properties.writeWithoutResponse,
+    );
     _setStatus('Sent: $payload');
   }
 
@@ -295,6 +372,12 @@ class _BleTestingTabState extends State<BleTestingTab> {
     return device.remoteId.str;
   }
 
+  String _scanResultName(ScanResult result) {
+    final advName = result.advertisementData.advName.trim();
+    if (advName.isNotEmpty) return advName;
+    return _deviceName(result.device);
+  }
+
   void _tryUpdateImuFromPacket(String packet) {
     final segments = packet.split(',');
     final parsed = <String, String>{};
@@ -313,7 +396,12 @@ class _BleTestingTabState extends State<BleTestingTab> {
     final gy = double.tryParse(parsed['gy'] ?? '');
     final gz = double.tryParse(parsed['gz'] ?? '');
 
-    if (ax == null || ay == null || az == null || gx == null || gy == null || gz == null) {
+    if (ax == null ||
+        ay == null ||
+        az == null ||
+        gx == null ||
+        gy == null ||
+        gz == null) {
       return;
     }
 
@@ -357,7 +445,10 @@ class _BleTestingTabState extends State<BleTestingTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('BLE Status', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'BLE Status',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   'Adapter: ${_adapterState.name} | ${_connectedDevice == null ? 'Not connected' : 'Connected'}',
@@ -389,7 +480,10 @@ class _BleTestingTabState extends State<BleTestingTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Live IMU Values', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'Live IMU Values',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   'WHO_AM_I: $_imuWhoAmI  |  Packets: $_imuPacketCount  |  ${_lastUpdateText()}',
@@ -416,10 +510,13 @@ class _BleTestingTabState extends State<BleTestingTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('BLE Debug', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'BLE Debug',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
                 Text(
-                  'scanInFlight=$_scanRequestInFlight | isScanning=$_isScanning | results=${_scanResults.length}',
+                  'scanInFlight=$_scanRequestInFlight | isScanning=$_isScanning | results=${_scanResults.length} | batches=$_scanBatchCount raw=$_scanRawCount esp=$_scanEspMatchCount',
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 const SizedBox(height: 8),
@@ -429,12 +526,17 @@ class _BleTestingTabState extends State<BleTestingTab> {
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 if (_debugLogs.isNotEmpty)
-                  ..._debugLogs.take(8).map(
-                    (line) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(line, style: Theme.of(context).textTheme.labelSmall),
-                    ),
-                  ),
+                  ..._debugLogs
+                      .take(8)
+                      .map(
+                        (line) => Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Text(
+                            line,
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                        ),
+                      ),
               ],
             ),
           ),
@@ -443,7 +545,10 @@ class _BleTestingTabState extends State<BleTestingTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Discovered Devices', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'Discovered Devices',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
                 if (_scanResults.isEmpty)
                   Text(
@@ -454,7 +559,7 @@ class _BleTestingTabState extends State<BleTestingTab> {
                   ..._scanResults.map((result) {
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: Text(_deviceName(result.device)),
+                      title: Text(_scanResultName(result)),
                       subtitle: Text(
                         '${result.device.remoteId.str}  RSSI ${result.rssi}',
                         style: Theme.of(context).textTheme.labelSmall,
@@ -473,7 +578,10 @@ class _BleTestingTabState extends State<BleTestingTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Send Test Data', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'Send Test Data',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _txController,
@@ -496,7 +604,10 @@ class _BleTestingTabState extends State<BleTestingTab> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Incoming Data', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'Incoming Data',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   'What to watch for: permission prompts, matching UUIDs, MTU limits, newline framing, and notification frequency.',
@@ -509,12 +620,17 @@ class _BleTestingTabState extends State<BleTestingTab> {
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                 if (_logs.isNotEmpty)
-                  ..._logs.take(20).map(
-                    (line) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(line, style: Theme.of(context).textTheme.bodyLarge),
-                    ),
-                  ),
+                  ..._logs
+                      .take(20)
+                      .map(
+                        (line) => Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Text(
+                            line,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ),
+                      ),
               ],
             ),
           ),
@@ -543,16 +659,13 @@ class _ImuMetricTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
+          Text(label, style: Theme.of(context).textTheme.labelSmall),
           const SizedBox(height: 6),
           Text(
             value,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
