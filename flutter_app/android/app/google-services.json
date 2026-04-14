@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "601431395453",
+    "project_id": "helping-hand-43f25",
+    "storage_bucket": "helping-hand-43f25.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601431395453:android:356358c589b4af77c87514",
+        "android_client_info": {
+          "package_name": "com.example.flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAK3dirYIAxGkEO0BhTWBh05NB-Bj8zCiI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
