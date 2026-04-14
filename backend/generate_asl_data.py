@@ -23,9 +23,20 @@ import pandas as pd
 np.random.seed(42)
 
 SAMPLES_PER_CLASS = 200
-NOISE_STD = 80  # flex sensor noise
+NOISE_STD = 18  # flex sensor noise in realistic ADC window
 ACCEL_NOISE = 0.3
 GYRO_NOISE = 0.05
+
+# Legacy sign definitions below use a conceptual flex scale:
+#   500 -> extended, 3500 -> bent.
+# We remap that bend level into practical ADC ranges observed on hardware.
+LEGACY_EXTENDED = 500
+LEGACY_BENT = 3500
+
+# Per-finger practical ADC windows (straight high -> bent low).
+# Thumb/index/middle/ring stay similar; pinky can bend a bit lower.
+FLEX_STRAIGHT_ADC = [550, 550, 550, 550, 560]
+FLEX_BENT_ADC = [120, 120, 120, 120, 80]
 
 # ─────────────────────────────────────────────
 # Sign definitions
@@ -154,7 +165,25 @@ SIGN_DEFINITIONS = {
 }
 
 
-def generate_samples(label, flex_means, accel_means, n=SAMPLES_PER_CLASS):
+def _legacy_to_practical_adc(legacy_value, finger_index):
+    bend_ratio = (legacy_value - LEGACY_EXTENDED) / float(LEGACY_BENT - LEGACY_EXTENDED)
+    bend_ratio = float(np.clip(bend_ratio, 0.0, 1.0))
+
+    straight = FLEX_STRAIGHT_ADC[finger_index]
+    bent = FLEX_BENT_ADC[finger_index]
+    practical_adc = straight - bend_ratio * (straight - bent)
+    return int(round(practical_adc))
+
+
+def remap_flex_means(legacy_flex_means):
+    return [
+        _legacy_to_practical_adc(legacy_flex_means[i], i)
+        for i in range(len(legacy_flex_means))
+    ]
+
+
+def generate_samples(label, legacy_flex_means, accel_means, n=SAMPLES_PER_CLASS):
+    flex_means = remap_flex_means(legacy_flex_means)
     rows = []
     for _ in range(n):
         flex = [max(0, min(4095, int(np.random.normal(m, NOISE_STD)))) for m in flex_means]
