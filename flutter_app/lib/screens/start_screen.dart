@@ -39,7 +39,9 @@ class StartScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Learn ASL with alphabet and numbers practice.',
-                    style: Theme.of(context).textTheme.labelSmall,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontSize: 18,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
