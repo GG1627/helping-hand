@@ -27,9 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Helping Hand uses Bluetooth to connect to your ESP32 for BLE testing.</string>
+	<string>Helping Hand uses Bluetooth to connect to the glove for live sensor display and sign recording.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Helping Hand uses Bluetooth to receive BLE data from your ESP32.</string>
+	<string>Helping Hand uses Bluetooth to receive glove sensor data for sign recording.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
