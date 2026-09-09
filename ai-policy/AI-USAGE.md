@@ -26,5 +26,27 @@ Full course policy: /ai-policy/ai-usage-policy.pdf
    it before committing — inability to explain submitted code is grounds for
    a zero, so this isn't optional politeness, it's a required checkpoint.
 
+## Commit naming convention
+
+To make AI involvement visible in the commit history, begin every commit
+subject with `GENAI=Yes` or `GENAI=No`, and end the subject with the model used:
+
+    (GENAI=Yes) <short description> [Model: GPT-5]
+    (GENAI=No) <short description> [Model: None]
+
+Use `GENAI=Yes` when generative AI created or modified any committed content.
+For an AI-assisted commit, this convention supplements the required trailer;
+it does not replace it:
+
+    (GENAI=Yes) Update research documentation [Model: GPT-5]
+
+    AI-Assisted: codex
+
+Use the exact model ID exposed by the AI client or session metadata. Do not
+infer or invent a model name. If the client does not expose the model, use
+`[Model: Unknown]`. If multiple models were used, list them together, for
+example `[Model: GPT-5, Claude]`. A `GENAI=No` commit does not need an
+`AI-Assisted` trailer.
+
 Team AI-usage consensus is documented separately in /ai-policy/TEAM-CONSENSUS.md
 — not an agent instruction, that's a human agreement record.
