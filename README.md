@@ -53,19 +53,23 @@ Resilience behavior:
   - Dashboard
   - Alphabet
   - Numbers
+  - Record Signs
   - BLE Testing
-- BLE Testing tab handles:
+- A shell-owned BLE service handles:
   - adapter state monitoring
   - permission checks
   - scan/connect/disconnect
   - characteristic discovery and notify subscription
-  - packet parsing and live metric updates
-  - debug event logging in-app
+  - shared packet parsing and live metric updates for both BLE-facing tabs
+- Record Signs captures labeled word trials, saves app-private CSV/JSON session
+  files, and opens the platform share sheet for export.
 - Basic Firebase persistence path is integrated for app-side data flow.
 
 ### 3) Data + ML workspace (`backend/`)
 
 - Synthetic ASL data generation script
+- Word-sequence CSV validation, quality reporting, resampling/window foundations,
+  and deterministic test-only sequence fixtures
 - Training notebooks
 - Saved model artifacts:
   - `backend/models/asl_model.keras`
@@ -80,17 +84,30 @@ BLE transport uses Nordic UART-style UUIDs shared by firmware and app:
 - RX (app -> ESP32): `6E400002-B5A3-F393-E0A9-E50E24DCCA9E`
 - TX (ESP32 -> app notify): `6E400003-B5A3-F393-E0A9-E50E24DCCA9E`
 
-Packet format:
+The firmware's recording stream defaults to 40 Hz. Set the compile-time
+`HH_SENSOR_RATE_HZ` build flag to an integer from 25 through 50 to test another
+target. Forty hertz is a configured target, not a measured phone-side delivery
+claim; packet rate, loss, ordering, and notification length must be verified on
+the target phone.
+
+Packet format (legacy fields remain present):
 
 ```text
-who=0xNN,ax=...,ay=...,az=...,gx=...,gy=...,gz=...
+seq=...,t_ms=...,who=0xNN,ax=...,ay=...,az=...,gx=...,gy=...,gz=...,
+expected=...,pred=...,pred_conf=...,
+flex0_raw=...,flex0_norm=...,...,flex4_raw=...,flex4_norm=...
 ```
 
 Example:
 
 ```text
-who=0x70,ax=0.020,ay=0.008,az=1.029,gx=-5.947,gy=1.435,gz=-0.260
+seq=42,t_ms=1050,who=0x70,ax=0.020,ay=0.008,az=1.029,gx=-5.947,gy=1.435,gz=-0.260,...
 ```
+
+`seq` is a monotonically increasing sample ID and `t_ms` is monotonic device
+uptime in milliseconds. The app also stores a phone receive timestamp. A
+`WHO_AM_I` value of `0x70` is compatible with MPU-6500/MPU-9250-class hardware
+but does not confirm that a magnetometer exists or is usable.
 
 ## Current implementation status
 
@@ -98,12 +115,17 @@ Working:
 - ESP32 BLE advertising and live IMU packet transmission
 - BLE receive verification on phone tools (nRF Connect)
 - Flutter BLE screen parsing + live value display
+- Word recording UI and local CSV/JSON export implementation (physical-device
+  validation still required)
+- Backend word-recording schema validator and deterministic preprocessing tests
 - Modular Flutter app structure and progress UI flow
 - Basic Firebase-backed persistence path connected
 
 In progress:
 - Flex sensor hardware integration (sensors not available before current build cutoff)
 - Sign classification runtime integration with embedded/mobile flow
+- Physical validation of the 40 Hz recording stream, long BLE notifications,
+  packet loss/order, and mobile share destinations
 - Additional data integrity controls (packet checksum/CRC, stronger validation)
 
 ## Setup and run
@@ -118,7 +140,19 @@ python -m platformio device monitor --baud 115200
 
 Expected runtime output:
 - `BLE ready and advertising`
-- continuous IMU packets beginning with `who=...`
+- continuous sensor packets beginning with `seq=...,t_ms=...,who=...`
+
+To change the collection target or enable the diagnostic-only AK8963 probe, add
+the applicable build flag under `build_flags` in `ESP32/platformio.ini`:
+
+```text
+-D HH_SENSOR_RATE_HZ=25
+-D HH_ENABLE_AK8963_PROBE=1
+```
+
+The magnetometer probe reads only the MPU-9250-style AK8963 identity register,
+prints the result, and returns to accel/gyro-only runtime. It does not enable
+magnetometer streaming or establish final hardware capability.
 
 ## Flutter app
 
@@ -126,6 +160,13 @@ Expected runtime output:
 cd flutter_app
 flutter pub get
 flutter run
+```
+
+Saved trials use the `word-sequence-v1` contract described in
+`backend/data/README.md`. Validate an exported session from the repository root:
+
+```bash
+python backend/prepare_word_sequences.py path/to/trials.csv
 ```
 
 ## Hardware and platform notes
@@ -157,6 +198,8 @@ These diagnostics include:
 - Packet-level integrity checks (CRC/checksum) are not yet enabled.
 - Full production cloud data model is still evolving.
 - Flex-sensor-dependent features remain pending hardware availability.
+- The first immutable word vocabulary and real dynamic-sign dataset are not yet
+  available. Synthetic word sequences are test fixtures only.
 
 ## Key files
 
@@ -164,6 +207,9 @@ These diagnostics include:
 - Firmware diagnostics archive: `ESP32/docs/main_diagnostics_reference.cpp`
 - Firmware diagnostics notes: `ESP32/docs/imu_bringup_diagnostics.md`
 - Flutter BLE screen: `flutter_app/lib/screens/tabs/ble_testing_tab.dart`
+- Flutter recording screen: `flutter_app/lib/screens/tabs/record_signs_tab.dart`
+- Word data contract: `backend/data/README.md`
+- Collection protocol: `docs/word_data_collection_protocol.md`
 - Flutter app shell: `flutter_app/lib/screens/main_shell.dart`
 - Flutter start screen: `flutter_app/lib/screens/start_screen.dart`
 - ML training notebook: `backend/asl_train.ipynb`
