@@ -24,6 +24,9 @@ Repository: https://github.com/GG1627/helping-hand
 - `backend/`  
   Data generation + ML experimentation (training notebooks and model artifacts).
 
+- `research/`
+  Project research sources, hardware documents, and the word-level IMU/ASL recognition summary.
+
 - `embedded/`  
   Additional embedded prototyping area.
 
@@ -164,3 +167,4 @@ These diagnostics include:
 - Flutter app shell: `flutter_app/lib/screens/main_shell.dart`
 - Flutter start screen: `flutter_app/lib/screens/start_screen.dart`
 - ML training notebook: `backend/asl_train.ipynb`
+- Word-level recognition research: `research/IMU_WORD_LEVEL_ASL_RESEARCH.md`

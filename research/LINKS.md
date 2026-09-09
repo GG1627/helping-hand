@@ -13,3 +13,21 @@
 [7] Kürşat Fevzican Şayhan, “Using Bluetooth Low Energy (BLE) with Flutter,” Medium, May 27, 2024. https://kursatsayhan.medium.com/using-bluetooth-low-energy-ble-with-flutter-3c70469af814 (accessed Mar. 24, 2026).
 ‌
 [8] “Flex Sensor Hookup Guide,” SparkFun Electronics. https://learn.sparkfun.com/tutorials/flex-sensor-hookup-guide/all (accessed Apr. 6, 2026).
+
+[9] “Recent Advances on Deep Learning for Sign Language Recognition.” https://www.sciencedirect.com/org/science/article/pii/S1526149224001279
+
+[10] “Efficient spatio-temporal modeling for sign language recognition using CNN and RNN architectures.” https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12415044/
+
+[11] “A Wearable System for Recognizing American Sign Language in Real-Time Using IMU and Surface EMG Sensors.” https://www.researchgate.net/publication/306928904_A_Wearable_System_for_Recognizing_American_Sign_Language_in_Real-Time_Using_IMU_and_Surface_EMG_Sensors
+
+[12] “SIGMA-ASL: Sensor-Integrated Multimodal Dataset for Sign Language Recognition.” https://arxiv.org/html/2605.06351
+
+[13] “Word Level Sign Language Recognition Using MediaPipe and LSTM-GRU Network.” https://www.researchgate.net/publication/389222580_Word_Level_Sign_Language_Recognition_Using_MediaPipe_and_LSTM-GRU_Network
+
+[14] “Activity Recognition Invariant to Wearable Sensor Unit Orientation Using Differential Rotational Transformations Represented by Quaternions.” https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6111613/
+
+[15] “Quaternion-Based Gesture Recognition Using Wireless Wearable Motion Capture Sensors.” https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4883296/
+
+[16] “WristSense: Sensing Hidden Wrist Strain in Routine Activities via Inertial Tokenization and LLM-Based Feedback.” https://doi.org/10.1145/3774906.3800489
+
+[17] “Rotation-Invariant Multi-IMU Activity Recognition under Independent Per-Location Orientation Shifts.” https://arxiv.org/html/2608.15621
