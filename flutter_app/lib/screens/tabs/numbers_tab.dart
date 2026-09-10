@@ -5,12 +5,16 @@ import '../../widgets/warm_components.dart';
 
 class NumbersTab extends StatelessWidget {
   final Set<int> learnedNumbers;
-  final void Function(int) onNumberLearned;
+  final int? selectedNumber;
+  final Widget practiceCard;
+  final void Function(int) onNumberSelected;
 
   const NumbersTab({
     super.key,
     required this.learnedNumbers,
-    required this.onNumberLearned,
+    required this.selectedNumber,
+    required this.practiceCard,
+    required this.onNumberSelected,
   });
 
   @override
@@ -40,6 +44,8 @@ class NumbersTab extends StatelessWidget {
             ),
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
+          practiceCard,
+          const SizedBox(height: WarmClayTheme.cardGap),
           WarmCard(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -59,7 +65,8 @@ class NumbersTab extends StatelessWidget {
                     return _LearningTile(
                       label: '$index',
                       learned: learned,
-                      onTap: () => onNumberLearned(index),
+                      selected: selectedNumber == index,
+                      onTap: () => onNumberSelected(index),
                     );
                   },
                 );
@@ -76,11 +83,13 @@ class _LearningTile extends StatelessWidget {
   const _LearningTile({
     required this.label,
     required this.learned,
+    required this.selected,
     required this.onTap,
   });
 
   final String label;
   final bool learned;
+  final bool selected;
   final VoidCallback onTap;
 
   @override
@@ -94,10 +103,15 @@ class _LearningTile extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           decoration: BoxDecoration(
-            color: learned ? WarmClayColors.accentPrimary : WarmClayColors.surface,
+            color: learned
+                ? WarmClayColors.accentPrimary
+                : WarmClayColors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: learned ? WarmClayColors.accentPrimary : WarmClayColors.border,
+              color: learned || selected
+                  ? WarmClayColors.accentPrimary
+                  : WarmClayColors.border,
+              width: selected ? 2 : 1,
             ),
             boxShadow: learned
                 ? const [
@@ -115,10 +129,10 @@ class _LearningTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w800,
-                        color: learned ? Colors.white : WarmClayColors.textPrimary,
-                      ),
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                    color: learned ? Colors.white : WarmClayColors.textPrimary,
+                  ),
                 ),
               ),
               if (learned)
