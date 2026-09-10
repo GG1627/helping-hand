@@ -4,6 +4,7 @@
 #include <BLEUtils.h>
 #include <BLE2902.h>
 #include <Wire.h>
+#include <esp_timer.h>
 #include <math.h>
 
 #include "asl_model_data.h"
@@ -21,6 +22,28 @@ constexpr uint8_t MPU_ADDR_LOW = 0x68;
 constexpr uint8_t MPU_ADDR_HIGH = 0x69;
 constexpr uint8_t MPU_REG_WHO_AM_I = 0x75;
 
+// Override with -D HH_SENSOR_RATE_HZ=<25..50> in platformio.ini when testing a
+// different collection rate. Forty hertz is the recording default; delivered
+// phone-side rate and packet loss still require measurement on physical hardware.
+#ifndef HH_SENSOR_RATE_HZ
+#define HH_SENSOR_RATE_HZ 40
+#endif
+static_assert(
+  HH_SENSOR_RATE_HZ >= 25 && HH_SENSOR_RATE_HZ <= 50,
+  "HH_SENSOR_RATE_HZ must stay within the collection target range (25-50 Hz)."
+);
+constexpr uint32_t kSensorRateHz = HH_SENSOR_RATE_HZ;
+constexpr uint32_t kSensorIntervalUs = 1000000UL / kSensorRateHz;
+
+// Diagnostic only. Enabling this probes the MPU-9250-style AK8963 address and
+// WIA register once; it does not enable, stream, or claim magnetometer support.
+#ifndef HH_ENABLE_AK8963_PROBE
+#define HH_ENABLE_AK8963_PROBE 0
+#endif
+constexpr uint8_t AK8963_ADDR = 0x0C;
+constexpr uint8_t AK8963_REG_WIA = 0x00;
+constexpr uint8_t AK8963_EXPECTED_WIA = 0x48;
+
 // Nordic UART Service (matches the Flutter BLE testing tab UUIDs).
 static const char* BLE_DEVICE_NAME = "HelpingHand-Glove";
 static const char* BLE_SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
@@ -33,8 +56,10 @@ bool bleClientConnected = false;
 bool imuReady = false;
 uint8_t imuAddress = 0x00;
 uint8_t imuWhoAmI = 0x00;
-uint32_t lastImuPacketMs = 0;
+uint32_t lastSensorPacketUs = 0;
 uint32_t lastImuRetryMs = 0;
+uint64_t sensorSequence = 0;
+bool magnetometerProbeCompleted = false;
 
 constexpr int kModelInputSize = 5;
 constexpr int kModelClassCount = 36;
@@ -151,6 +176,35 @@ bool writeRegister8(uint8_t addr, uint8_t reg, uint8_t value) {
   Wire.write(reg);
   Wire.write(value);
   return Wire.endTransmission(true) == 0;
+}
+
+void maybeProbeAk8963Magnetometer() {
+#if HH_ENABLE_AK8963_PROBE
+  if (!imuReady || magnetometerProbeCompleted) return;
+  magnetometerProbeCompleted = true;
+
+  // INT_PIN_CFG.BYPASS_EN exposes an MPU-9250 auxiliary I2C device to the host.
+  if (!writeRegister8(imuAddress, 0x37, 0x02)) {
+    Serial.println("MAG PROBE: unable to enable auxiliary-I2C bypass.");
+    return;
+  }
+  delay(10);
+
+  uint8_t wia = 0;
+  const bool readable = readRegister8(AK8963_ADDR, AK8963_REG_WIA, wia);
+  if (readable && wia == AK8963_EXPECTED_WIA) {
+    Serial.println(
+      "MAG PROBE: AK8963 WIA=0x48 responded; physical part and usable data still require verification."
+    );
+  } else if (readable) {
+    Serial.printf("MAG PROBE: device at 0x0C returned unexpected WIA=0x%02X.\n", wia);
+  } else {
+    Serial.println("MAG PROBE: no readable AK8963 WIA at 0x0C.");
+  }
+
+  // Return the runtime to its accel/gyro-only configuration.
+  writeRegister8(imuAddress, 0x37, 0x00);
+#endif
 }
 
 bool initImuAtAddress(uint8_t addr) {
@@ -327,6 +381,9 @@ bool classifyFlex(const FlexReadings& flex, const char*& outLabel, float& outCon
 
 void setupBle() {
   BLEDevice::init(BLE_DEVICE_NAME);
+  // The telemetry payload is longer than the 20-byte default ATT payload.
+  // Advertise the ESP-IDF maximum; the phone still negotiates the actual MTU.
+  BLEDevice::setMTU(517);
   BLEServer* server = BLEDevice::createServer();
   server->setCallbacks(new ServerCallbacks());
 
@@ -379,6 +436,7 @@ void setup() {
   if (!discoverAndInitImu()) {
     Serial.println("IMU not found at boot (0x68/0x69). Will retry in loop.");
   }
+  maybeProbeAk8963Magnetometer();
 
   if (!setupClassifier()) {
     Serial.println("Classifier setup failed. Continuing without ML predictions.");
@@ -390,7 +448,11 @@ void setup() {
   }
 
   setupBle();
-  Serial.println("BLE ready and advertising");
+  Serial.printf(
+    "BLE ready and advertising; configured sensor stream=%lu Hz (%lu us interval)\n",
+    static_cast<unsigned long>(kSensorRateHz),
+    static_cast<unsigned long>(kSensorIntervalUs)
+  );
 }
 
 void loop() {
@@ -399,6 +461,7 @@ void loop() {
       lastImuRetryMs = millis();
       if (discoverAndInitImu()) {
         Serial.println("IMU hot-plug detected and initialized.");
+        maybeProbeAk8963Magnetometer();
       } else {
         Serial.println("IMU still not found; retrying...");
       }
@@ -406,11 +469,16 @@ void loop() {
     // Continue loop so flex sensor can still be tested even if IMU is offline.
   }
 
-  if (millis() - lastImuPacketMs < 100) {  // 10 Hz
-    delay(5);
+  const uint32_t nowUs = micros();
+  if (static_cast<uint32_t>(nowUs - lastSensorPacketUs) < kSensorIntervalUs) {
+    delay(1);
     return;
   }
-  lastImuPacketMs = millis();
+  lastSensorPacketUs = nowUs;
+
+  const uint64_t packetSequence = sensorSequence++;
+  const uint64_t deviceTimestampMs =
+    static_cast<uint64_t>(esp_timer_get_time()) / 1000ULL;
 
   FlexReadings flex = readFlexReadings();
   const char* expectedLabel = "-";
@@ -442,7 +510,9 @@ void loop() {
     snprintf(
       payload,
       sizeof(payload),
-      "who=0x%02X,ax=%.3f,ay=%.3f,az=%.3f,gx=%.3f,gy=%.3f,gz=%.3f,expected=%s,pred=%s,pred_conf=%.1f,flex0_raw=%d,flex0_norm=%.3f,flex1_raw=%d,flex1_norm=%.3f,flex2_raw=%d,flex2_norm=%.3f,flex3_raw=%d,flex3_norm=%.3f,flex4_raw=%d,flex4_norm=%.3f",
+      "seq=%llu,t_ms=%llu,who=0x%02X,ax=%.3f,ay=%.3f,az=%.3f,gx=%.3f,gy=%.3f,gz=%.3f,expected=%s,pred=%s,pred_conf=%.1f,flex0_raw=%d,flex0_norm=%.3f,flex1_raw=%d,flex1_norm=%.3f,flex2_raw=%d,flex2_norm=%.3f,flex3_raw=%d,flex3_norm=%.3f,flex4_raw=%d,flex4_norm=%.3f",
+      static_cast<unsigned long long>(packetSequence),
+      static_cast<unsigned long long>(deviceTimestampMs),
       imuWhoAmI,
       sample.axG,
       sample.ayG,
@@ -468,7 +538,9 @@ void loop() {
     snprintf(
       payload,
       sizeof(payload),
-      "imu=offline,expected=%s,pred=%s,pred_conf=%.1f,flex0_raw=%d,flex0_norm=%.3f,flex1_raw=%d,flex1_norm=%.3f,flex2_raw=%d,flex2_norm=%.3f,flex3_raw=%d,flex3_norm=%.3f,flex4_raw=%d,flex4_norm=%.3f",
+      "seq=%llu,t_ms=%llu,imu=offline,expected=%s,pred=%s,pred_conf=%.1f,flex0_raw=%d,flex0_norm=%.3f,flex1_raw=%d,flex1_norm=%.3f,flex2_raw=%d,flex2_norm=%.3f,flex3_raw=%d,flex3_norm=%.3f,flex4_raw=%d,flex4_norm=%.3f",
+      static_cast<unsigned long long>(packetSequence),
+      static_cast<unsigned long long>(deviceTimestampMs),
       expectedLabel,
       predictionOk ? predictedLabel : "NA",
       predictionOk ? predictedConfidence : 0.0f,

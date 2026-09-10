@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../services/ble_connection_service.dart';
+import '../services/ble_packet.dart';
+import '../services/recording_service.dart';
 import '../theme/warm_clay_theme.dart';
 import 'tabs/alphabet_tab.dart';
 import 'tabs/ble_testing_tab.dart';
 import 'tabs/dashboard_tab.dart';
 import 'tabs/numbers_tab.dart';
+import 'tabs/record_signs_tab.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -16,21 +22,41 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int tabIndex = 0;
+  late final BleConnectionService _bleService;
+  late final RecordingService _recordingService;
+  StreamSubscription<BlePacket>? _recordingPacketSubscription;
 
   Set<String> learnedLetters = {};
   Set<int> learnedNumbers = {};
 
   static const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  static const numbers = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _bleService = BleConnectionService();
+    _recordingService = RecordingService();
+    _recordingPacketSubscription = _bleService.packets.listen(
+      _recordingService.handlePacket,
+    );
+  }
+
+  @override
+  void dispose() {
+    unawaited(_recordingPacketSubscription?.cancel());
+    _recordingService.dispose();
+    _bleService.dispose();
+    super.dispose();
+  }
 
   void markLetterLearned(String letter) {
-  setState(() {
-    if (learnedLetters.contains(letter)) {
-      learnedLetters.remove(letter);
-    } else {
-      learnedLetters.add(letter);
-    }
-  });
+    setState(() {
+      if (learnedLetters.contains(letter)) {
+        learnedLetters.remove(letter);
+      } else {
+        learnedLetters.add(letter);
+      }
+    });
   }
 
   void toggleNumber(int number) {
@@ -56,15 +82,16 @@ class _MainShellState extends State<MainShell> {
         learnedLetters: learnedLetters,
         onLetterLearned: markLetterLearned,
       ),
-      NumbersTab(
-        learnedNumbers: learnedNumbers,
-        onNumberLearned: toggleNumber,
+      NumbersTab(learnedNumbers: learnedNumbers, onNumberLearned: toggleNumber),
+      RecordSignsTab(
+        bleService: _bleService,
+        recordingService: _recordingService,
       ),
-      BleTestingTab(),
+      BleTestingTab(bleService: _bleService),
     ];
 
     return Scaffold(
-      body: pages[tabIndex],
+      body: IndexedStack(index: tabIndex, children: pages),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: WarmClayColors.surface,
@@ -109,6 +136,11 @@ class _MainShellState extends State<MainShell> {
                 icon: Icon(Icons.pin_outlined),
                 selectedIcon: Icon(Icons.pin_rounded),
                 label: 'Numbers',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.fiber_manual_record_outlined),
+                selectedIcon: Icon(Icons.fiber_manual_record),
+                label: 'Record Signs',
               ),
               NavigationDestination(
                 icon: Icon(Icons.memory_outlined),
