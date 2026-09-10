@@ -70,6 +70,9 @@ Resilience behavior:
 - Synthetic ASL data generation script
 - Word-sequence CSV validation, quality reporting, resampling/window foundations,
   and deterministic test-only sequence fixtures
+- Configurable, currently untrained TCN, CNN-GRU, and CNN-LSTM candidates with
+  deterministic split manifests, train-only standardization, evaluation
+  reports, and float-TFLite compatibility checks
 - Training notebooks
 - Saved model artifacts:
   - `backend/models/asl_model.keras`
@@ -118,6 +121,8 @@ Working:
 - Word recording UI and local CSV/JSON export implementation (physical-device
   validation still required)
 - Backend word-recording schema validator and deterministic preprocessing tests
+- Untrained word-model architecture/training/evaluation code; all three
+  candidates pass shape and built-in-only float-TFLite smoke tests
 - Modular Flutter app structure and progress UI flow
 - Basic Firebase-backed persistence path connected
 
@@ -169,6 +174,20 @@ Saved trials use the `word-sequence-v1` contract described in
 python backend/prepare_word_sequences.py path/to/trials.csv
 ```
 
+The model-development commands are present for use after a vocabulary and real
+dataset version are approved:
+
+```bash
+python backend/train_word_models.py --help
+python backend/evaluate_word_models.py --help
+```
+
+No word model has been trained on real data or selected, and no fixture-trained
+artifact is retained. Synthetic fixture execution requires an explicit opt-in
+and its reports are marked as non-reportable software smoke results. See
+`backend/data/README.md` and `backend/models/README.md` for the contracts and
+artifact layout.
+
 ## Hardware and platform notes
 
 - BLE testing should be done on real hardware.
@@ -176,6 +195,13 @@ python backend/prepare_word_sequences.py path/to/trials.csv
 - iOS deployment requires Apple signing and a macOS build path (local Mac or cloud Mac workflow).
 
 ## Testing and debugging workflow
+
+Run the backend validator, split, evaluation, architecture, and float-TFLite
+smoke tests with:
+
+```bash
+python -m pytest backend/tests -q
+```
 
 Primary validation flow used:
 - verify ESP32 serial stream
@@ -200,6 +226,8 @@ These diagnostics include:
 - Flex-sensor-dependent features remain pending hardware availability.
 - The first immutable word vocabulary and real dynamic-sign dataset are not yet
   available. Synthetic word sequences are test fixtures only.
+- Word-model code exists, but no word candidate has been trained on real data,
+  benchmarked, quantized, selected, or deployed.
 
 ## Key files
 
@@ -209,6 +237,10 @@ These diagnostics include:
 - Flutter BLE screen: `flutter_app/lib/screens/tabs/ble_testing_tab.dart`
 - Flutter recording screen: `flutter_app/lib/screens/tabs/record_signs_tab.dart`
 - Word data contract: `backend/data/README.md`
+- Word model builders: `backend/word_models.py`
+- Word training/evaluation: `backend/train_word_models.py`,
+  `backend/evaluate_word_models.py`
+- Word model artifact policy: `backend/models/README.md`
 - Collection protocol: `docs/word_data_collection_protocol.md`
 - Flutter app shell: `flutter_app/lib/screens/main_shell.dart`
 - Flutter start screen: `flutter_app/lib/screens/start_screen.dart`

@@ -1,8 +1,8 @@
 # Teach ML Words — Living Implementation Plan
 
 **Issue:** #7
-**Status:** Collection and preprocessing foundations implemented; physical-device validation and real data collection pending.
-**Last updated:** 2026-09-09
+**Status:** Collection, preprocessing, and untrained model-code foundations implemented; physical-device validation and real data collection pending.
+**Last updated:** 2026-09-10
 
 ## Goal
 
@@ -29,6 +29,12 @@ Implementation note (2026-09-09): firmware now targets a configurable 25–50 Hz
 rate (40 Hz default), and the recording/export plus backend validation
 foundations are implemented. The 40 Hz delivery rate is not yet verified on a
 physical phone, and no real word recording or word-model training has occurred.
+
+Implementation note (2026-09-10): configurable TCN, CNN-GRU, and CNN-LSTM
+builders plus shared split, training, evaluation, metadata, and float-TFLite
+export code are implemented. Synthetic-only tests confirm shapes and built-in
+TFLite conversion. No candidate has been trained on real data, benchmarked,
+selected, or deployed, and no fixture-trained artifact is retained.
 
 ## Working principles
 
@@ -215,9 +221,9 @@ target phone. A backend validator accepts the export without hand-editing.
 - [x] Segment complete trials into fixed-length word windows by pad/trim or a
   documented activity-boundary rule. Record the selected window strategy in the
   processed-data manifest.
-- [ ] Calibrate flex channels per recording session and standardize every model
-  input using parameters fit on training data only.
-- [ ] Generate deterministic train/validation/test manifests for both:
+- [ ] Calibrate flex channels per recording session.
+- [x] Standardize every model input using parameters fit on training data only.
+- [x] Generate deterministic train/validation/test manifests for both:
   - user-dependent: recordings from every signer may appear in each split, but
     never the same trial in more than one split;
   - user-independent: at least one entire signer is held out from training.
@@ -235,9 +241,12 @@ target phone. A backend validator accepts the export without hand-editing.
 ### Planned files
 
 - `backend/word_data.py` — schemas, validation, loading, and preprocessing
+- `backend/word_dataset.py` — fixed examples, split manifests, and train-only
+  standardization
 - `backend/prepare_word_sequences.py` — reproducible dataset preparation CLI
 - `backend/data/README.md` — schema and split documentation
-- `backend/tests/test_word_data.py` — validator and preprocessing tests
+- `backend/tests/test_word_data.py`, `backend/tests/test_word_dataset.py` —
+  validator, preprocessing, and split tests
 
 ### Exit criteria
 
@@ -284,13 +293,16 @@ learning-rate schedule, and class weighting only if data imbalance warrants it.
 
 ### Tasks
 
-- [ ] Implement shared training/evaluation code and configuration, not three
+- [x] Implement shared training/evaluation code and configuration, not three
   disconnected notebooks.
 - [ ] Train each candidate with identical splits and search budgets.
 - [ ] Evaluate raw versus selected orientation preprocessing for each promising
   candidate.
 - [ ] Export each valid candidate to TFLite and verify numerical outputs on a
   fixed representative sample set.
+- [x] Smoke-test untrained candidate shapes and float-TFLite conversion using
+  built-in operators only. These tests are compatibility checks, not model
+  validation or accuracy evidence.
 - [ ] Measure inference latency on the intended runtime. If ESP32 deployment is
   required, validate TensorFlow Lite Micro operator support and memory arena
   usage—not only mobile TFLite conversion.
@@ -310,6 +322,7 @@ learning-rate schedule, and class weighting only if data imbalance warrants it.
 - `backend/train_word_models.py` — reproducible training CLI
 - `backend/evaluate_word_models.py` — metrics, confusion matrices, and reports
 - `backend/tests/test_word_models.py` — shape/conversion smoke tests
+- `backend/tests/test_evaluate_word_models.py` — reporting/provenance tests
 - `research/word_model_benchmark.md` — experiment results and final decision
 
 ### Exit criteria
@@ -361,11 +374,12 @@ predictions, and has a recorded validation report.
    and notification completeness on the target phone.
 4. Exercise save/discard/export from **Record Signs** and validate the exported
    CSV/manifest without hand editing.
-5. Make a short real pilot recording before building model scripts.
+5. Make a short real pilot recording before running the model training scripts.
 
 ## Change log
 
 | Date | Update |
 | --- | --- |
+| 2026-09-10 | Added configurable TCN/CNN-GRU/CNN-LSTM builders, leakage-safe split manifests, train-only standardization, shared training/evaluation metadata, and built-in-only TFLite smoke tests. No real-data training occurred and no fixture-trained artifact was retained. |
 | 2026-09-09 | Added 40 Hz configurable firmware packets, shared Flutter BLE/recording export, `word-sequence-v1` validation/preprocessing, and test-only sequence fixtures. Physical validation and real collection remain pending. |
 | 2026-09-09 | Initial living plan created from Issue #7 research and current repository state. |

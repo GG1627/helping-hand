@@ -87,9 +87,53 @@ sensor ranges. It flags suspicious input and does not repair the raw export.
 
 `resample_trial` uses the device clock and linear interpolation. `fixed_window`
 center-trims long complete trials and edge-pads short trials, recording trim/pad
-counts. These are foundations for later reproducible dataset preparation; flex
-calibration, train-only scaling, activity-boundary selection, and split
-manifests are not implemented yet.
+counts. `word_dataset.py` keeps trials indivisible, creates deterministic
+user-dependent or signer-held-out split manifests, and fits per-feature
+standardization on the training split only. Session-specific flex calibration
+and activity-boundary selection still require pilot data.
+
+## Untrained model pipeline
+
+The model contract starts with a float tensor shaped
+`[batch, window_samples, feature_count]`. The current raw feature order is the
+11 fields in `FEATURE_COLUMNS`; both the window length and feature count remain
+configurable because real delivery rate, sign duration, and orientation features
+have not been finalized.
+
+`word_models.py` defines three candidates:
+
+- a small dilated 1D temporal CNN (`tcn`);
+- a convolutional front end followed by a GRU (`cnn_gru`);
+- the same front end followed by an LSTM (`cnn_lstm`).
+
+`train_word_models.py` gives all selected candidates the same split manifest,
+vocabulary order, training-only standardizer, random seed, and training policy.
+It refuses invalid recordings, mixed real/synthetic origins, real data without
+an explicit vocabulary, empty splits, missing training classes, and an existing
+output directory. A future real-data run will follow this form after the values
+are approved:
+
+```text
+python backend/train_word_models.py session_a/trials.csv session_b/trials.csv \
+  --vocabulary path/to/words-v1.txt --data-version words-real-v1 \
+  --output-directory backend/models/word_runs/words-real-v1 \
+  --window-samples <approved-value> --target-rate-hz <measured-value>
+```
+
+Each run directory records the Keras and float TFLite artifacts, model
+configuration, feature order, vocabulary, standardizer, source hashes, split
+manifest, training history, and validation/test JSON. Evaluation includes top-1,
+top-5 when at least five labels exist, macro F1, a confusion matrix, and grouped
+signer/orientation results. Latency remains `null` until measured on the target
+runtime. Quantization remains disabled until representative real data exists.
+Reports also keep `final_accuracy_claim_ready=false`; using real data is
+necessary but does not replace review of protocol coverage, exclusions, and
+split integrity before publishing a final result.
+
+GRU and LSTM graphs use the fixed window unrolled at export so conversion stays
+within built-in TFLite operators instead of silently requiring Select TensorFlow
+operators. This increases graph size and must be included in the later
+same-window model size/latency comparison.
 
 ## Synthetic fixtures
 
@@ -103,3 +147,8 @@ Fixtures include still lead/tail behavior, smooth temporal motion, seeded
 sensor noise, a deliberate packet gap, and controlled orientation variation.
 They are only for automated tests and pipeline/UI smoke checks. Never mix them
 into real-data evaluation or cite their behavior as model accuracy.
+
+The training command refuses fixtures unless `--allow-synthetic-smoke` is
+provided. Even with that explicit flag, generated reports set
+`accuracy_reporting_allowed=false`; no fixture-trained artifact may be selected
+for deployment or presented as a recognition result.
