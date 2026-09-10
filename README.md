@@ -25,7 +25,8 @@ Repository: https://github.com/GG1627/helping-hand
   Data generation + ML experimentation (training notebooks and model artifacts).
 
 - `research/`
-  Project research sources, hardware documents, and the word-level IMU/ASL recognition summary.
+  Project research sources, hardware documents, and the word-level IMU/ASL
+  recognition and hand/wrist haptic-feedback summaries.
 
 - `embedded/`  
   Additional embedded prototyping area.
@@ -246,3 +247,4 @@ These diagnostics include:
 - Flutter start screen: `flutter_app/lib/screens/start_screen.dart`
 - ML training notebook: `backend/asl_train.ipynb`
 - Word-level recognition research: `research/IMU_WORD_LEVEL_ASL_RESEARCH.md`
+- Hand/wrist haptic research: `research/HAPTIC_FEEDBACK_STRIPS_RESEARCH.md`

@@ -31,3 +31,29 @@
 [16] “WristSense: Sensing Hidden Wrist Strain in Routine Activities via Inertial Tokenization and LLM-Based Feedback.” https://doi.org/10.1145/3774906.3800489
 
 [17] “Rotation-Invariant Multi-IMU Activity Recognition under Independent Per-Location Orientation Shifts.” https://arxiv.org/html/2608.15621
+
+[18] Texas Instruments, “Haptic Energy Consumption,” application report SLOA194A, rev. A, Jan. 2022. https://www.ti.com/lit/an/sloa194a/sloa194a.pdf
+
+[19] Texas Instruments, “DRV2605L 2- to 5.2-V Haptic Driver for LRA and ERM with Effect Library and Smart-Loop Architecture,” datasheet SLOS854D, rev. D, Mar. 2018. https://www.ti.com/lit/ds/symlink/drv2605l.pdf
+
+[20] Texas Instruments, “Haptic Implementation Considerations for Mobile and Wearable Devices,” application report SLOA207A, rev. A, Nov. 2021. https://www.ti.com/lit/an/sloa207a/sloa207a.pdf
+
+[21] Texas Instruments, “DRV2605L Multi-Driver ERM, LRA Haptics Evaluation Kit User's Guide,” SLOU400, Nov. 2014. https://www.ti.com/lit/ug/slou400/slou400.pdf
+
+[22] D. S. Elvitigala, D. J. C. Matthies, V. Dissanayaka, C. Weerasinghe, and S. C. Nanayakkara, “2bit-TactileHand: Evaluating Tactons for On-Body Vibrotactile Displays on the Hand and Wrist,” in *Proceedings of the 10th Augmented Human International Conference 2019*, pp. 1–8, 2019. https://doi.org/10.1145/3311823.3311832
+
+[23] M. Tajdari, J. Forsyth, and S. Lim, “Sensitivity to Vibrotactile Stimulation in the Hand and Wrist: Effects of Motion, Temporal Patterns, and Biological Sex,” *Human Factors*, published online Aug. 23, 2024. https://doi.org/10.1177/00187208241275734
+
+[24] J. Willms, A. Chaffangeon Caillet, M. Kurzweg, and K. Wolf, “Two-Point Discrimination of Vibrotactile Stimuli on the Forearm,” *Proceedings of the ACM on Human-Computer Interaction*, vol. 9, no. 5, pp. 1–24, 2025. https://doi.org/10.1145/3743721
+
+[25] Bluetooth SIG, “The Bluetooth Low Energy Primer,” connection parameters and connection events. https://www.bluetooth.com/bluetooth-le-primer/
+
+[26] Y. Chen, J. Jiao, X. Yu, Z. Liu, P. G. Verdin, and Z. Zhang, “An ultra-thin and lightweight flexible actuator for digitally-controllable shape-morphing haptics,” *Sensors and Actuators A: Physical*, vol. 397, art. 117233, 2026. https://doi.org/10.1016/j.sna.2025.117233
+
+[27] X. Fu, J. Liu, J. Gao, J. Xu, J. Huang, and K. Liu, “A Low Voltage-Powered Flexible Electroosmotic Actuator for Wearable Haptics,” *Small*, 2026. https://doi.org/10.1002/smll.74308
+
+[28] M. Motola-Barnes, “Haptic Actuators: Comparing Piezo to ERM and LRA,” PIEZO.com. https://blog.piezo.com/haptic-actuators-comparing-piezo-erm-lra
+
+[29] PIEZO.com, “Piezoelectric Haptic Feedback,” updated May 6, 2020. https://support.piezo.com/article/133-piezoelectric-haptic-feedback
+
+[30] TITAN Haptics, “Haptic Technology 101: A Beginner's Guide to the Different Types of Vibration Motors,” Jan. 23, 2024. https://titanhaptics.com/haptic-technology-101-a-beginners-guide-to-the-different-types-of-vibration-motors/
