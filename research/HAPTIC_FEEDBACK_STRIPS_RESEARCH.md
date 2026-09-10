@@ -18,6 +18,8 @@ evaluation. As of September 10, 2026:
 - the Issue #6 sub-50 ms figure remains an acceptance target, not a measured
   capability.
 
+## Our Conclusions
+
 ## Research provenance
 
 The initial source list and synthesis were supplied by a project contributor,
@@ -50,28 +52,12 @@ future command path, not an implemented haptic API.
 ## Actuator comparison
 
 | Technology | Useful properties | Main limitations for this project | Current disposition |
-|---|---|---|---|
-| ERM coin or cylinder motor | Inexpensive, common, and electrically simple | Rotating inertia makes crisp start/stop behavior harder; vibration amplitude and motor speed are coupled; usually less energy-efficient than an appropriately driven LRA | Low-cost comparison/control condition or fallback |
-| LRA | Faster, crisper effects than ERM; one-axis motion; closed-loop drivers can overdrive, brake, and track resonance | It is a narrow-band resonant device, not freely frequency-programmable; mounting changes resonance; each location still needs a discrete actuator and drive channel | Preferred first prototype, pending bench tests |
-| Piezoelectric bender/patch | Thin constructions, fast response, broader waveform control, and flexible-mounting options are possible | Drive electronics may require much higher voltage; actuator, mounting, insulation, and boost-converter choices are more complex and may cost more | Stretch candidate if thickness or pattern fidelity disqualifies LRA |
-| Research-stage flexible/electroosmotic actuator | Demonstrates that very thin, skin-conformal haptics are technically possible | The cited devices are research prototypes, not evidence of availability, glove durability, safe integration, or production cost for Helping Hand | Literature reference only, not the MVP |
-
-TI's comparative application note describes ERM response as slower and energy
-use as higher, while an LRA must stay close to its resonant frequency and
-benefits from resonance tracking [18]. Its example click test used different
-actuators and pulse lengths, reporting 124 mA over 50 ms for its ERM example
-and 52.6 mA over 40 ms for its LRA example at approximately comparable peak
-acceleration [18]. That example is consistent with roughly one-third of the
-electrical charge per click, but it is **not** a universal LRA power ratio.
-Helping Hand must repeat measurements with the exact actuator, mounting, drive
-settings, and battery rail.
-
-The initial notes described LRA amplitude and frequency as independently
-controllable. That wording is too broad. An LRA's intensity can be controlled,
-but effective drive frequency is constrained to a narrow band around its
-mechanical resonance [18]. Pattern design for an LRA should therefore emphasize
-timing, envelope, intensity, and actuator location instead of treating raw
-frequency as a free application-level parameter.
+| --- | --- | --- | --- |
+| **ERM coin or cylinder motor** | Inexpensive, common, and electrically simple | Rotating inertia makes crisp start/stop behavior harder; vibration amplitude and motor speed are coupled; usually less energy-efficient than an appropriately driven LRA | Low-cost comparison/control condition or fallback |
+| **LRA (Concept B / Concept A)** | Faster, crisper effects than ERM; one-axis motion; closed-loop drivers can overdrive, brake, and track resonance | Narrow-band resonant device; mounting shifts resonance; requires 1 driver channel per actuator (`0x5A` address collision requires multiplexing) | Preferred MVP prototype (Concept B: 1 per finger; Concept A: 2 per finger) |
+| **Piezoelectric bender/patch** | Thin construction (less than 1.0 mm), instant response (less than 1 ms), broader waveform control, and flexible mounting options | Requires high-voltage boost drivers (50 V to 105 V peak-to-peak); complex driver circuits, boost inductors, and trace safety margins | Stretch candidate if thickness or pattern fidelity disqualifies LRA |
+| **Piezoelectric coin array (Concept C)** | Ultra-thin profile (less than 1.0 mm); instant response (less than 1 ms); 3–4 spatial coins per finger enable fine-grained directional sweep waves | Requires high-voltage boost drivers (50 V to 105 V peak-to-peak) and a multiplexing matrix for 15–20 elements; PZT ceramics are brittle and prone to cracking under finger joint flexion; electrical series wiring divides drive voltage | High-risk stretch candidate; requires single-element high-voltage bench testing and bend-strain validation first |
+| **Research-stage flexible/electroosmotic actuator** | Demonstrates that very thin, skin-conformal haptics are technically possible | Cited devices are laboratory research prototypes, not evidence of availability, glove durability, safe integration, or production cost for Helping Hand | Literature reference only, not the MVP |
 
 ## Recommended first hardware direction
 
@@ -198,21 +184,29 @@ reliable. Start with the index finger and thumb, compare both directions
 against isolated-tap controls, and measure direction accuracy, missed cues,
 response time, comfort, and performance during motion before scaling.
 
+### Concept C: three or four piezoelectric coins and continuous spatial sweeps
+
+A higher-density alternate places 3 or 4 piezoelectric coin sensors in a line down each finger. Firing them in a sequence creates a continuous sweep or wave along the finger, giving the signer a sliding directional nudge (such as a sweep prompting them to flex a finger further) with higher spatial resolution than Concept A.
+
+Piezo disks are more user friendly because they are under 1mm thick, so the signer will not feel them, and react almost instantly (under 1ms). However, concept C introduces electric and mechanical issues.
+
+- **Physical series vs Electrical series**
+  While the coins sit in a physical line down the finger, they must not be wired in electrical series. Piezos are capacitive loads, so an electrical series connection divides the drive voltage (Vpiezo = Vtotal/N) and drops vibration below what the skin can feel. Each piezo coin needs its own signal path or high-voltage switch.
+
+- **High-voltage boost drivers**
+  Unlike LRAs running on standard 2.0V - 5.2V rails; piezo sensors need specialized drivers (like the TI DRV2667 or DRV2700) with integrated boost converters generating 50V - 105V peak-to-peak.
+  This introduces board isolation needs, larger boost inductors, and higher peak current draw.
+
+- **Ceramic cracking from fingers**
+  Standard PZT ceramic coins are brittle. Repeated joint bending during signing could potentially fracture the ceramic or snap solder joints. 
+
 ### Channel-count and ergonomic trade-off
 
-Concept B requires five actuator/driver channels; Concept A requires ten.
-With a DRV2605L implementation, that means one driver IC per independently
-controlled actuator. Because every DRV2605L uses address `0x5A`, a five- or
-ten-channel design also needs bus isolation/multiplexing or a different
-multi-channel architecture. It is not a matter of connecting five or ten
-DRV2605Ls directly to the same I2C bus.
+Concept B requires 5 actuator channels, Concept A requires 10, and Concept C scales to 15 or 20 elements across five fingers.
 
-The directional design also approximately doubles actuator mass, mounting
-features, conductors, connectors, and peak concurrency relative to the
-one-per-finger design. Small LRAs still occupy substantial space beside a
-full-length dorsal flex sensor, especially on the ring and little fingers.
-Both concepts need a mechanical layout drawing and measured bend/fit test;
-nominal actuator diameter and average finger width alone do not prove fit.
+With DRV2605L (LRA) or DRV2667 (Piezo) implementations, every driver IC uses a fixed I2C address (e.g., `0x5A` for the DRV2605L). Multi-channel designs cannot connect directly to a single shared bus; they require I2C multiplexing, bus switches, or a custom high-voltage switching matrix.
+
+Scaling beyond Concept B also multiplies wiring mass, connector pin counts, and peak power concurrency. Small LRAs still occupy substantial space beside full-length flex sensors, while Piezo arrays introduce high-voltage safety margins. All concepts require a mechanical layout drawing and physical fit test before layout.
 
 ### Recommended prototype sequence
 
@@ -221,11 +215,9 @@ nominal actuator diameter and average finger width alone do not prove fit.
 2. If the single-finger cue is perceptible during motion without unacceptable
    restriction or IMU contamination, build Concept B as a five-finger array.
 3. Measure power and thermal behavior for realistic and worst-case concurrent
-   cues; do not assume all five channels may run at full intensity.
-4. Prototype Concept A only on the index finger and thumb. Advance it to all
-   fingers only if bidirectional-cue accuracy materially exceeds the simpler
-   intensity interface and the added wiring, power, and weight remain within
-   the glove budget.
+   cues; do not assume all channels may run at full intensity.
+4. Prototype Concept A (directional LRA) or Concept C (piezo sweep) only on the index finger and thumb. Advance to all fingers only if directional/sweep accuracy materially exceeds the simpler intensity interface and the added electronics remain within the glove's mass, power, and safety budgets.
+
 
 ## Critical sensor-interference risk
 
