@@ -1,3 +1,4 @@
+import 'test_hand_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,6 +8,13 @@ import 'screens/start_screen.dart';
 import 'theme/warm_clay_theme.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
+void main() {
+  runApp(const MaterialApp(
+    home: TestHandPage(),
+  ));
+}
+
+/*
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -66,3 +74,4 @@ class _HelpingHandRootState extends State<HelpingHandRoot> {
     return const MainShell();
   }
 }
+*/
