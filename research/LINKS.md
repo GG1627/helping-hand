@@ -57,3 +57,11 @@
 [29] PIEZO.com, “Piezoelectric Haptic Feedback,” updated May 6, 2020. https://support.piezo.com/article/133-piezoelectric-haptic-feedback
 
 [30] TITAN Haptics, “Haptic Technology 101: A Beginner's Guide to the Different Types of Vibration Motors,” Jan. 23, 2024. https://titanhaptics.com/haptic-technology-101-a-beginners-guide-to-the-different-types-of-vibration-motors/
+
+[31] A. Israr and I. Poupyrev, “Generating virtual stimulation devices and illusory sensations using tactile display technology,” U.S. Patent 9,880,621 B2, Jan. 30, 2018. https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/9880621
+
+[32] A. Israr and I. Poupyrev, “Tactile Brush: Drawing on Skin with a Tactile Grid Display,” in *Proceedings of the SIGCHI Conference on Human Factors in Computing Systems*, pp. 2019–2028, 2011. https://doi.org/10.1145/1978942.1979235
+
+[33] J. Lee, H. Lee, M. Kim, Y. Kim, and J. Yoon, “Comparative analysis of directional cue perception between vibrotactile and electrotactile using funneling illusion mapping methods,” *Scientific Reports*, vol. 15, 2025. https://doi.org/10.1038/s41598-025-11436-6
+
+[34] C. Basdogan, F. Giraud, V. Levesque, and S. Choi, “A Review of Surface Haptics: Enabling Tactile Effects on Touch Surfaces,” *IEEE Transactions on Haptics*, vol. 13, no. 3, pp. 450–470, 2020. https://doi.org/10.1109/TOH.2020.2990712

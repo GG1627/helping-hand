@@ -79,6 +79,8 @@ Start with one or two small LRAs mounted on a removable flexible textile or
 flex-PCB carrier and driven by a closed-loop LRA driver. This satisfies the
 intent of a conforming strip while keeping the first prototype based on
 obtainable components. It does not claim that the actuator itself is bendable.
+This one- or two-channel setup is a bench and perception-validation step; it
+does not preclude a later five-finger array if the measurements support one.
 
 The DRV2605L is a reasonable evaluation candidate because it:
 
@@ -134,6 +136,96 @@ Each actuator should be removable and repositionable during fit tests. Record
 hand dimensions, placement coordinates, contact method, strap tension,
 dominant hand, and whether the cue was tested at rest or in motion. Do not infer
 comfort or perceptual accuracy from anatomy tables alone.
+
+## Per-finger correction concepts
+
+The contributor supplied two candidate interfaces for conveying *how* a
+finger differs from a target. Both are research hypotheses. Neither has been
+validated on the Helping Hand glove, and neither solves the upstream problem
+of estimating a meaningful per-finger correction from the sensor/model output.
+
+### Concept B: one actuator per finger and error-coded intensity
+
+The preferred first per-finger architecture is one LRA per finger (five total).
+The active finger identifies where the correction is needed, while pulse
+intensity encodes the magnitude of a normalized error: stronger means farther
+from the target and weaker means closer. A dead band around the target should
+prevent continuous buzzing, and firmware must clamp intensity, pulse length,
+repeat rate, and total activation time.
+
+This encoding is a better match for an LRA than an ERM because an LRA driver
+can shape the intensity envelope while keeping the actuator near resonance.
+It does **not** require or imply arbitrary frequency control. The mapping must
+be calibrated psychophysically; equal numeric steps in flex-sensor error must
+not be assumed to produce equal perceived intensity steps.
+
+The error signal also needs a precise definition. A flex-sensor deviation can
+support a finger-bend cue, but the glove's wrist orientation is shared rather
+than independently measured for each finger. For dynamic word recognition, a
+class label alone does not provide frame-by-frame corrective targets. Initial
+testing should therefore use known calibration poses or instructor-recorded
+target trajectories, and it should trigger feedback after the captured model
+window until haptic contamination of the IMU is understood.
+
+### Concept A: two actuators per finger and directional motion
+
+A more expressive alternative places proximal and distal tactors on a finger.
+Driving them in order could represent `open/move outward` versus `close/move
+inward`, so direction is encoded spatially rather than inferred through trial
+and error. At least two independently driven locations are required for this
+travel direction; one actuator can encode timing or intensity but cannot
+create motion between two skin locations.
+
+Related tactile illusions use several mechanisms that should not be treated as
+interchangeable:
+
+- **saltation/apparent motion:** successive stimuli at separated locations can
+  be perceived as intermediate or moving taps when their timing is suitable;
+- **funneling/phantom sensation:** simultaneous neighboring tactors with
+  controlled relative amplitudes can shift the perceived location between the
+  physical tactors; and
+- **continuous tactile stroke algorithms:** coordinated amplitude, onset, and
+  duration across a sparse array can synthesize a smoother moving sensation
+  [31][32][34].
+
+These effects are established in tactile-display research, and recent work
+continues to evaluate directional funneling cues [33]. However, the cited
+systems use tactile grids or body sites such as the trunk and shank; they do
+not validate proximal-to-distal motion on an actively signing finger. The
+available finger width and an expected actuator separation around 15-20 mm
+are therefore experiment inputs, not evidence that the illusion will be
+reliable. Start with the index finger and thumb, compare both directions
+against isolated-tap controls, and measure direction accuracy, missed cues,
+response time, comfort, and performance during motion before scaling.
+
+### Channel-count and ergonomic trade-off
+
+Concept B requires five actuator/driver channels; Concept A requires ten.
+With a DRV2605L implementation, that means one driver IC per independently
+controlled actuator. Because every DRV2605L uses address `0x5A`, a five- or
+ten-channel design also needs bus isolation/multiplexing or a different
+multi-channel architecture. It is not a matter of connecting five or ten
+DRV2605Ls directly to the same I2C bus.
+
+The directional design also approximately doubles actuator mass, mounting
+features, conductors, connectors, and peak concurrency relative to the
+one-per-finger design. Small LRAs still occupy substantial space beside a
+full-length dorsal flex sensor, especially on the ring and little fingers.
+Both concepts need a mechanical layout drawing and measured bend/fit test;
+nominal actuator diameter and average finger width alone do not prove fit.
+
+### Recommended prototype sequence
+
+1. Validate one LRA and one driver on the bench, then compare candidate
+   intensity levels on one removable finger mount.
+2. If the single-finger cue is perceptible during motion without unacceptable
+   restriction or IMU contamination, build Concept B as a five-finger array.
+3. Measure power and thermal behavior for realistic and worst-case concurrent
+   cues; do not assume all five channels may run at full intensity.
+4. Prototype Concept A only on the index finger and thumb. Advance it to all
+   fingers only if bidirectional-cue accuracy materially exceeds the simpler
+   intensity interface and the added wiring, power, and weight remain within
+   the glove budget.
 
 ## Critical sensor-interference risk
 
@@ -197,6 +289,11 @@ type=haptic_cmd,v=1,id=42,zone=wrist,effect=orientation_correction,intensity=70
 type=haptic_ack,v=1,id=42,status=started,t_rx_ms=123456,t_drive_ms=123458
 type=haptic_ack,v=1,id=42,status=complete,t_done_ms=123710
 ```
+
+A per-finger extension should add an explicit target such as `finger=index`
+and retain `id`, `v`, effect, and bounded intensity. Directional prototypes
+should use named effects such as `finger_open` and `finger_close`, rather than
+overloading a signed intensity whose interpretation could be ambiguous.
 
 Required behavior:
 
@@ -294,7 +391,9 @@ requirements.
 - Quantify IMU contamination and BLE packet loss/order while haptics run.
 - Verify that the carrier does not cross flex-sensor paths or restrict range of
   motion.
-- Select no more than two zones for the first integrated prototype.
+- Select no more than two hand/wrist zones for the first integrated prototype,
+  then perform a separate single-finger fit/perception gate before constructing
+  any five-finger array.
 
 ### Phase 3: pattern pilot
 
@@ -329,9 +428,11 @@ requirements.
 3. **Treat piezo as a second-stage option.** It is attractive for thinness and
    waveform fidelity, but higher-voltage drive and integration complexity must
    be resolved first.
-4. **Prefer one or two clearly separated zones.** Existing studies support
-   testing the hand as well as the wrist and warn against assuming that closely
-   spaced simultaneous wrist cues are distinguishable.
+4. **Stage spatial complexity.** Validate one or two clearly separated
+   hand/wrist zones first. If per-finger correction is required, evaluate the
+   one-LRA-per-finger intensity concept before a two-LRA directional array.
+   Existing studies do not establish that closely spaced finger tactors will
+   be distinguishable during signing.
 5. **Measure during motion.** Static perception results do not establish that a
    cue will be recognized while signing.
 6. **Protect the ML signal.** Haptic-active telemetry markers and an explicit
@@ -346,6 +447,8 @@ requirements.
 - [x] Draft correction-pattern library proposed.
 - [x] BLE command/acknowledgement contract proposed.
 - [x] Power, latency, ergonomic, and IMU-interference test plan documented.
+- [x] One-actuator intensity and two-actuator directional finger concepts
+  documented with prototype gates.
 - [ ] Candidate part numbers and current supplier availability verified.
 - [ ] Actuators and driver hardware acquired.
 - [ ] Bench comparison completed with raw measurements.
@@ -369,6 +472,13 @@ requirements.
 - Piezo.com and TITAN Haptics pages [28]-[30] are manufacturer/vendor
   background. They are useful for terminology and candidate discovery but are
   not independent product comparisons.
+- The tactile-display patent [31] documents an implementation and terminology;
+  it is not peer-reviewed evidence of perception accuracy. The related CHI
+  paper and surface-haptics review [32][34] support the general illusion, not
+  transfer to closely spaced finger-mounted LRAs.
+- The 2025 directional-cue study [33] tested vibrotactile and electrotactile
+  funneling on the trunk and shank. It supports feasibility and parameter
+  testing, but it is not direct evidence for fingers or active signing.
 - The supplied patent link, US 12,343,761, was not used as proof of general
   latency or energy performance. The more direct TI test data is retained with
   its device-specific limitations [18].
