@@ -1,0 +1,55 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function validProgress(data) {
+      return data.keys().hasOnly([
+          'schema_version',
+          'learned_letters',
+          'learned_numbers',
+          'completed_exercises',
+          'updated_at'
+        ])
+        && data.schema_version == 1
+        && data.learned_letters is list
+        && data.learned_letters.size() <= 26
+        && data.learned_letters.hasOnly([
+          'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+          'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+        ])
+        && data.learned_numbers is list
+        && data.learned_numbers.size() <= 10
+        && data.learned_numbers.hasOnly([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+        && data.completed_exercises is list
+        && data.completed_exercises.size() <= 36
+        && data.completed_exercises.hasOnly([
+          'static_prediction_a', 'static_prediction_b', 'static_prediction_c',
+          'static_prediction_d', 'static_prediction_e', 'static_prediction_f',
+          'static_prediction_g', 'static_prediction_h', 'static_prediction_i',
+          'static_prediction_j', 'static_prediction_k', 'static_prediction_l',
+          'static_prediction_m', 'static_prediction_n', 'static_prediction_o',
+          'static_prediction_p', 'static_prediction_q', 'static_prediction_r',
+          'static_prediction_s', 'static_prediction_t', 'static_prediction_u',
+          'static_prediction_v', 'static_prediction_w', 'static_prediction_x',
+          'static_prediction_y', 'static_prediction_z',
+          'static_prediction_0', 'static_prediction_1', 'static_prediction_2',
+          'static_prediction_3', 'static_prediction_4', 'static_prediction_5',
+          'static_prediction_6', 'static_prediction_7', 'static_prediction_8',
+          'static_prediction_9'
+        ])
+        && data.updated_at is timestamp
+        && data.updated_at == request.time;
+    }
+
+    match /users/{userId}/progress/current {
+      allow get: if isOwner(userId);
+      allow create, update: if isOwner(userId)
+        && validProgress(request.resource.data);
+      allow list, delete: if false;
+    }
+  }
+}

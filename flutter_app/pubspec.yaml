@@ -39,10 +39,10 @@ dependencies:
   firebase_core: ^4.6.0
   cloud_firestore: ^6.2.0
   firebase_auth: ^6.3.0
-  firebase_database: ^12.2.0
-  firebase_storage: ^13.2.0
   permission_handler: ^11.4.0
   flutter_3d_controller: ^2.3.0
+  path_provider: ^2.1.6
+  share_plus: ^11.1.0
 
 dev_dependencies:
   flutter_test:

@@ -54,6 +54,8 @@ Current runtime in `src/main.cpp` now:
 - Applies common init registers (`PWR_MGMT_1`, accel/gyro config, DLPF).
 - Reads accel/gyro data directly from raw registers (`0x3B` block).
 - Streams packets over BLE Nordic UART profile.
+- Targets a configurable 25–50 Hz sensor stream (`40 Hz` by default) and adds
+  a device sequence number plus monotonic device timestamp to every packet.
 
 ## BLE Interface (for Flutter app)
 Service/characteristics used:
@@ -62,7 +64,31 @@ Service/characteristics used:
 - TX (ESP32 -> app notify): `6E400003-B5A3-F393-E0A9-E50E24DCCA9E`
 
 Packet format:
-- `who=0xNN,ax=...,ay=...,az=...,gx=...,gy=...,gz=...`
+- `seq=...,t_ms=...,who=0xNN,ax=...,ay=...,az=...,gx=...,gy=...,gz=...,...`
+
+The existing static-classifier and flex fields remain after the IMU values.
+Actual delivered rate, packet loss/order, and full-notification receipt at the
+40 Hz default have not yet been verified on the target phone.
+
+## Optional magnetometer identity probe
+
+`WHO_AM_I=0x70` cannot distinguish an MPU-6500 from MPU-9250-class module and
+does not confirm a magnetometer. The normal runtime remains accel/gyro-only.
+
+For a diagnostic build only, add this flag under `build_flags` in
+`platformio.ini`:
+
+```text
+-D HH_ENABLE_AK8963_PROBE=1
+```
+
+At IMU initialization the firmware briefly enables auxiliary-I2C bypass, reads
+the MPU-9250-style AK8963 `WIA` register at `0x0C`, prints the result, and then
+restores the accel/gyro-only configuration. A `WIA=0x48` response is evidence
+that the identity register is accessible, but usable calibrated magnetometer
+data and the exact physical part still require hardware verification. No
+response is consistent with an MPU-6500 or an inaccessible/miswired auxiliary
+sensor; record the module marking and probe output before deciding.
 
 ## Archived Diagnostic Script
 The full deep-diagnostics script used during bring-up is saved as:

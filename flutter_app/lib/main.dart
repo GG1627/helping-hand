@@ -1,43 +1,22 @@
 import 'test_hand_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+
 import 'screens/main_shell.dart';
 import 'screens/start_screen.dart';
+import 'services/progress_repository.dart';
 import 'theme/warm_clay_theme.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    home: TestHandPage(),
-  ));
-}
-
-/*
-Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  /* try {
-  await FirebaseFirestore.instance
-      .collection('connection_test')
-      .add({'timestamp': DateTime.now().toIso8601String()});
-  print('Firebase connection verified!');
-} catch (e) {
-  print('Firebase connection failed: $e');
-} */
-
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-
   runApp(const HelpingHandApp());
 }
 
 class HelpingHandApp extends StatelessWidget {
-  const HelpingHandApp({super.key});
+  const HelpingHandApp({super.key, this.progressRepository});
+
+  final ProgressRepository? progressRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +24,15 @@ class HelpingHandApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Helping Hand',
       theme: WarmClayTheme.build(),
-      home: const HelpingHandRoot(),
+      home: HelpingHandRoot(progressRepository: progressRepository),
     );
   }
 }
 
 class HelpingHandRoot extends StatefulWidget {
-  const HelpingHandRoot({super.key});
+  const HelpingHandRoot({super.key, this.progressRepository});
+
+  final ProgressRepository? progressRepository;
 
   @override
   State<HelpingHandRoot> createState() => _HelpingHandRootState();
@@ -71,7 +52,6 @@ class _HelpingHandRootState extends State<HelpingHandRoot> {
         },
       );
     }
-    return const MainShell();
+    return MainShell(progressRepository: widget.progressRepository);
   }
 }
-*/
