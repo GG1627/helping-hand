@@ -11,7 +11,7 @@ class TestHandPage extends StatefulWidget {
 class _TestHandPageState extends State<TestHandPage> {
   final Flutter3DController _controller = Flutter3DController();
   
-  final List<String> letters = ['A', 'B', 'C'];
+  final List<String> letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
   String selectedLetter = 'A';
 
   void _applyPose(String letter) {
