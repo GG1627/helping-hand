@@ -107,7 +107,7 @@ rendered image in place of the source block.
 | Microcontroller | Adafruit Feather ESP32-S3 | Board revision and visible markings |
 | Finger sensing | Five flex sensors on glove | Sensor model/length if identifiable and finger-to-channel mapping |
 | Motion sensing | Six-axis accelerometer/gyroscope runtime; exact part not confirmed | Part marking, I2C address, and reported `WHO_AM_I` value |
-| Primary phone | Fairphone Gen 6 | Android version: `XXXXXX` pending device inspection |
+| Primary phone | Fairphone Gen 6 | Android 15 |
 | Power | Intended glove power source | USB/battery source, voltage, and battery capacity if applicable |
 | Network | Wi-Fi or mobile data for Firebase tests | Network type and whether a controlled offline mode was used |
 
@@ -1511,7 +1511,7 @@ English gloss assumptions or generic online descriptions.
 
 | Item | Required value |
 | --- | --- |
-| Fairphone Gen 6 Android version | `XXXXXX` |
+| Fairphone Gen 6 Android version | Android 15 |
 | Exact alpha execution commit/tag | Pending main-branch test build |
 | Exact IMU identity/marking | Pending glove inspection |
 | Intended glove power source | Pending reassembly record |
