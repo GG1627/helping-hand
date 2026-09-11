@@ -17,17 +17,29 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,49 +52,11 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: '...',
-    appId: '1:601431395453:web:9addbba5732c050fc87514',
-    messagingSenderId: '601431395453',
-    projectId: 'helping-hand-43f25',
-    authDomain: 'helping-hand-43f25.firebaseapp.com',
-    storageBucket: 'helping-hand-43f25.firebasestorage.app',
-    measurementId: 'G-QK950XH99E',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: '...',
-    appId: '1:601431395453:android:356358c589b4af77c87514',
-    messagingSenderId: '601431395453',
-    projectId: 'helping-hand-43f25',
-    storageBucket: 'helping-hand-43f25.firebasestorage.app',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: '...',
-    appId: '1:601431395453:ios:c0dc13d639365089c87514',
-    messagingSenderId: '601431395453',
-    projectId: 'helping-hand-43f25',
-    storageBucket: 'helping-hand-43f25.firebasestorage.app',
-    iosBundleId: 'com.example.flutterApp',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: '...',
-    appId: '1:601431395453:ios:c0dc13d639365089c87514',
-    messagingSenderId: '601431395453',
-    projectId: 'helping-hand-43f25',
-    storageBucket: 'helping-hand-43f25.firebasestorage.app',
-    iosBundleId: 'com.example.flutterApp',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: '...',
-    appId: '1:601431395453:web:81df2de5772b54d7c87514',
-    messagingSenderId: '601431395453',
-    projectId: 'helping-hand-43f25',
-    authDomain: 'helping-hand-43f25.firebaseapp.com',
-    storageBucket: 'helping-hand-43f25.firebasestorage.app',
-    measurementId: 'G-0W8N9RLNSG',
+    apiKey: 'AIzaSyCfzD1rf0pdoPqub4ArMmFzCbOBY6vr77s',
+    appId: '1:210072164310:android:fbeb7f260ec2036ad0b677',
+    messagingSenderId: '210072164310',
+    projectId: 'helping-hand-83137',
+    storageBucket: 'helping-hand-83137.firebasestorage.app',
   );
 }
