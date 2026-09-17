@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
 import '../../theme/warm_clay_theme.dart';
 import '../../widgets/warm_components.dart';
+import 'package:flutter_3d_controller/flutter_3d_controller.dart';
 
 class AlphabetTab extends StatelessWidget {
   final Set<String> learnedLetters;
@@ -46,6 +46,8 @@ class AlphabetTab extends StatelessWidget {
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
           practiceCard,
+          const SizedBox(height: WarmClayTheme.cardGap),
+          Hand3DViewer(selectedLetter: selectedLetter),
           const SizedBox(height: WarmClayTheme.cardGap),
           WarmCard(
             child: LayoutBuilder(
@@ -149,6 +151,53 @@ class _LearningTile extends StatelessWidget {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class Hand3DViewer extends StatefulWidget {
+  final String? selectedLetter;
+
+  const Hand3DViewer({super.key, required this.selectedLetter});
+
+  @override
+  State<Hand3DViewer> createState() => _Hand3DViewerState();
+}
+
+class _Hand3DViewerState extends State<Hand3DViewer> {
+  late Flutter3DController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = Flutter3DController();
+  }
+
+  @override
+  void didUpdateWidget(covariant Hand3DViewer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Play the animation whenever the selected letter updates
+    if (widget.selectedLetter != null && widget.selectedLetter != oldWidget.selectedLetter) {
+      _controller.playAnimation(animationName: 'Pose_${widget.selectedLetter}');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        height: 260,
+        child: Flutter3DViewer(
+          controller: _controller,
+          src: 'assets/models/test.glb',
+          onLoad: (String modelName) {
+            if (widget.selectedLetter != null) {
+              _controller.playAnimation(animationName: 'Pose_${widget.selectedLetter}');
+            }
+          },
         ),
       ),
     );
