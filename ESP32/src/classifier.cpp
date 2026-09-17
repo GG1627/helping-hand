@@ -87,7 +87,7 @@ float readOutputProbability(int index) {
   return 0.0f;
 }
 
-}  // namespace
+}
 
 bool setupClassifier() {
   mlModel = tflite::GetModel(g_asl_model_tflite);

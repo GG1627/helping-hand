@@ -7,11 +7,12 @@
 #include "flex_sensors.h"
 #include "imu_sensor.h"
 #include "telemetry.h"
+using namespace std;
 
 namespace {
 uint32_t lastSensorPacketUs = 0;
 uint64_t sensorSequence = 0;
-}  // namespace
+}
 
 void setup() {
   Serial.begin(115200);

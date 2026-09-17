@@ -1,5 +1,6 @@
 #include "imu_sensor.h"
 #include <Wire.h>
+using namespace std;
 
 namespace {
 constexpr uint8_t MPU_ADDR_LOW = 0x68;
@@ -52,7 +53,6 @@ void maybeProbeAk8963Magnetometer() {
   if (!imuReady || magnetometerProbeCompleted) return;
   magnetometerProbeCompleted = true;
 
-  // INT_PIN_CFG.BYPASS_EN exposes an MPU-9250 auxiliary I2C device to the host.
   if (!writeRegister8(imuAddress, 0x37, 0x02)) {
     Serial.println("MAG PROBE: unable to enable auxiliary-I2C bypass.");
     return;
@@ -70,8 +70,6 @@ void maybeProbeAk8963Magnetometer() {
   } else {
     Serial.println("MAG PROBE: no readable AK8963 WIA at 0x0C.");
   }
-
-  // Return the runtime to its accel/gyro-only configuration.
   writeRegister8(imuAddress, 0x37, 0x00);
 #endif
 }
@@ -80,7 +78,7 @@ bool initImuAtAddress(uint8_t addr) {
   uint8_t whoAmI = 0;
   if (!readRegister8(addr, MPU_REG_WHO_AM_I, whoAmI)) return false;
 
-  // Common init sequence for MPU6050/6500 class parts.
+  // INIT SEQUENCE FOR MPU6050/6500 CLASS PARTS.
   if (!writeRegister8(addr, 0x6B, 0x00)) return false;  // PWR_MGMT_1: wake
   delay(10);
   if (!writeRegister8(addr, 0x1C, 0x00)) return false;  // ACCEL_CONFIG: +/-2g
@@ -101,7 +99,7 @@ bool discoverAndInitImu() {
   return false;
 }
 
-}  // namespace
+} 
 
 void setupImu() {
 #if defined(PIN_I2C_POWER)
@@ -132,7 +130,7 @@ void updateImu() {
         Serial.println("IMU still not found; retrying...");
       }
     }
-    // Continue loop so flex sensor can still be tested even if IMU is offline.
+    // CONT LOOP
   }
 
 }
