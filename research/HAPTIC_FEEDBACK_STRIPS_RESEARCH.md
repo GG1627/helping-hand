@@ -19,6 +19,9 @@ evaluation. As of September 10, 2026:
   capability.
 
 ## Our Conclusions
+We plan to prototype a haptic feedback system using **two piezoelectric coin actuators on each of the four fingers and one on the thumb, for nine actuators total**. The two actuators on each finger will be activated in sequence to test whether users can distinguish cues for bending or straightening that finger. The thumb’s single actuator will use different pulse patterns to communicate corrections.
+
+We will begin with a single-finger prototype to evaluate placement, comfort, and cue recognition before expanding to the full glove. This testing will also help us select suitable piezo drivers and assess power consumption, durability, and interference with the glove’s sensors. Our goal is to provide clear tactile guidance during ASL practice while preserving natural hand movement.
 
 ## Research provenance
 
