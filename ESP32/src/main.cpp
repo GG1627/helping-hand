@@ -7,6 +7,7 @@
 #include "flex_sensors.h"
 #include "imu_sensor.h"
 #include "telemetry.h"
+#include "piezo.h"
 using namespace std;
 
 namespace {
