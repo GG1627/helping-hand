@@ -106,8 +106,13 @@ class RecordedPacketRow {
     packet.flexRaw[3],
     packet.flexRaw[4],
     packet.raw,
-    packet.isValid,
+    isAcceptedPacket,
   ];
+
+  bool get isAcceptedPacket =>
+      metadata.vocabularyVersion == 'static-asl-v1'
+          ? packet.isStaticFlexValid
+          : packet.isValid;
 }
 
 class SavedSessionFiles {
@@ -149,7 +154,7 @@ class RecordingService extends ChangeNotifier {
   String get message => _message;
   int get currentPacketCount => _currentRows.length;
   int get currentValidPacketCount =>
-      _currentRows.where((row) => row.packet.isValid).length;
+      _currentRows.where((row) => row.isAcceptedPacket).length;
   int get savedTrialCount => _savedTrials.length;
   int get discardedTrialCount => _discardedTrials.length;
   bool get hasSavedTrials => _savedTrials.isNotEmpty;
@@ -367,8 +372,8 @@ class RecordingService extends ChangeNotifier {
   }
 
   String? _validateMetadata(TrialMetadata metadata) {
-    if (!RegExp(r'^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$').hasMatch(metadata.word)) {
-      return 'Word must use lowercase letters, numbers, and underscores.';
+    if (!RegExp(r'^[a-z0-9][a-z0-9]*(?:_[a-z0-9]+)*$').hasMatch(metadata.word)) {
+      return 'Label must use lowercase letters, numbers, and underscores.';
     }
     if (!RegExp(
       r'^[A-Za-z0-9][A-Za-z0-9_.-]*$',
@@ -447,7 +452,7 @@ class RecordingService extends ChangeNotifier {
       'discarded_trials': _discardedTrials,
       'packet_count': _acceptedRows.length,
       'valid_packet_count': _acceptedRows
-          .where((row) => row.packet.isValid)
+          .where((row) => row.isAcceptedPacket)
           .length,
       'raw_packets_preserved': true,
       'magnetometer_data_present': false,
