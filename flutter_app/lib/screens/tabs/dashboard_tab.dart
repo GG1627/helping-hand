@@ -12,6 +12,8 @@ class DashboardTab extends StatelessWidget {
   final ProgressSyncStatus syncStatus;
   final String syncMessage;
   final String accountEmail;
+  final bool developerMode;
+  final ValueChanged<bool> onDeveloperModeChanged;
   final Future<void> Function() onRetrySync;
   final Future<void> Function() onResetProgress;
   final Future<void> Function() onSignOut;
@@ -25,6 +27,8 @@ class DashboardTab extends StatelessWidget {
     required this.syncStatus,
     required this.syncMessage,
     required this.accountEmail,
+    required this.developerMode,
+    required this.onDeveloperModeChanged,
     required this.onRetrySync,
     required this.onResetProgress,
     required this.onSignOut,
@@ -50,7 +54,14 @@ class DashboardTab extends StatelessWidget {
             .toStringAsFixed(0);
 
     return TabScaffold(
-      title: 'Dashboard',
+      title: 'Home',
+      actions: [
+        IconButton(
+          tooltip: 'Account and settings',
+          onPressed: () => _showAccountSettings(context),
+          icon: const Icon(Icons.account_circle_outlined),
+        ),
+      ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -108,6 +119,52 @@ class DashboardTab extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _showAccountSettings(BuildContext context) {
+    return showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Account and settings',
+                style: Theme.of(sheetContext).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                accountEmail.isEmpty
+                    ? 'Signed in'
+                    : 'Signed in as $accountEmail',
+                style: Theme.of(sheetContext).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Developer mode'),
+                subtitle: const Text(
+                  'Show Record Signs and BLE Testing tools in this session.',
+                ),
+                value: developerMode,
+                onChanged: (enabled) {
+                  onDeveloperModeChanged(enabled);
+                  Navigator.of(sheetContext).pop();
+                },
+              ),
+              const Text(
+                'This only changes which tools are visible. It does not change '
+                'your account or saved progress.',
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -7,6 +7,31 @@ Update items as the team confirms scope or runs tests. Mark unrun work as
 The learner-facing screen and tracking proposal is in
 [`BETA_APP_EXPERIENCE_PLAN.md`](BETA_APP_EXPERIENCE_PLAN.md).
 
+The course prompts transcribed to Markdown are [`M4-Beta-Build.md`](../M4-Beta-Build.md)
+and [`T2-Beta-Test-Plan.md`](../T2-Beta-Test-Plan.md).
+
+## Milestone requirements to carry into the submission
+
+The T2 prompt requires the final beta test plan to include all three of these
+sections:
+
+1. **Alpha test results:** report outcomes, how testing changed the project,
+   and how those lessons shape beta testing. The detailed alpha plan is not
+   evidence that a test was actually run; record only confirmed outcomes.
+2. **Expected behavior:** define software and hardware behavior clearly enough
+   to compare observed results against it. A flow chart, state chart, or
+   behavior table can make the main flows easier to reproduce.
+3. **Test procedures:** give unambiguous steps and measurable pass/fail
+   criteria for expected behaviors; use automated tests and hardware
+   measurements where they fit.
+
+T2 describes the plan as a reproducible document usable by readers outside the
+team. M4 additionally expects integrated features refined using alpha lessons,
+usable and responsive controls, persistent state connected to the interface
+and internal processing, known bugs documented in the README, and timestamped
+third-party evidence of effort. Keep the beta report honest about incomplete
+word-model and physical-device validation.
+
 ## Beta direction currently reported by the team
 
 - Record real ASL word sequences with the glove and collect more data.
@@ -70,6 +95,10 @@ the important outcomes and carry forward unresolved risks into beta coverage.
 
 ### Word collection and model evaluation
 
+- Candidate list in `docs/T1_ALPHA_TEST_PLAN.md` ML-01: `hello`,
+  `thank_you`, `please`, `sorry`, `yes`, `no`, `eat`, `drink`. This is an
+  eight-word provisional list, not an approved/frozen vocabulary; ASL SME
+  review and final `words-v1` selection remain pending.
 - Approved word list and vocabulary version: TBD
 - ASL review/approval and written signing instructions: TBD
 - Number of signers and pseudonymous signer IDs: TBD
@@ -130,10 +159,14 @@ the important outcomes and carry forward unresolved risks into beta coverage.
   preserved with a `.migrated` suffix.
 - Firestore progress reads/writes now require the matching authenticated UID;
   automatic anonymous sign-in was removed from the progress store.
-- Account creation/sign-in still needs Firebase Console Email/Password
-  provider enablement and real-project validation. The current environment
-  could not run Flutter analysis because the Flutter SDK cache lockfile is not
-  writable here; formatting and whitespace checks completed.
+- The team reports that email/password account creation and sign-in succeeded.
+  The exact Firebase project, app build/device, and cold-restart behavior were
+  not recorded. Cross-account isolation, offline recovery, and progress sync
+  remain to be validated end to end.
+- A new Words tab is a preview of the eight provisional Alpha-plan candidates;
+  it is not an active dynamic-sign curriculum. Developer Mode reveals a
+  Developer hub for Record Signs and BLE Testing; normal learner navigation
+  hides those research tools.
 
 ### Proposed beta account/progress tests
 
@@ -154,6 +187,7 @@ These are draft procedures for the beta test plan, not completed results:
 | Date | What was collected/tested | Result or issue | Evidence path |
 | --- | --- | --- | --- |
 | 2026-10-01 | Firebase email/password account creation and subsequent sign-in | Team-reported successful. Device/build and cold-restart persistence were not recorded. | User report; branch `gael` |
+| 2026-10-01 | Progress repository account-isolation regression suite | Passed: 8 Flutter progress repository tests, including two separate UID-scoped local stores and independent fake remotes. This does not validate live Firestore rules or cross-account requests against Firebase. | `flutter_app/test/progress_repository_test.dart`; commit `873b589` |
 
 ## Alpha-to-beta lessons
 

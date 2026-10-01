@@ -20,19 +20,23 @@ Account creation and email/password sign-in have been reported working. The
 app should continue directly to Home when the account session is already
 active.
 
-## Recommended navigation
+## Beta navigation direction
 
-Use three primary learner destinations:
+For the current beta iteration, keep four learner destinations visible:
 
 | Destination | Main purpose |
 | --- | --- |
 | Home | Welcome the learner, show a concise progress summary, offer a clear Continue Learning action, and show account/sync status. |
-| Learn | Browse Alphabet, Numbers, and Words; choose one item to practice. |
-| Progress | Show completed items and progress by learning group, with a route back to unfinished practice. |
+| Alphabet | Browse and practice the static letter curriculum. |
+| Numbers | Browse and practice the static number curriculum. |
+| Words | Preview the provisional starter vocabulary; keep practice unavailable until the words and dynamic model are validated. |
 
-Put account settings behind a profile/avatar action in the app bar: show the
-signed-in email, sync status, and Sign out. Keep the bottom navigation labels
-short and learner-focused.
+The Home screen currently summarizes progress; a dedicated Progress tab can be
+considered after usability feedback. Put account settings behind a
+profile/avatar action in the app bar. Developer Mode adds one **Developer**
+destination with links to Record Signs and BLE Testing, so the normal learner
+navigation remains uncluttered. The current toggle is session-only; decide
+whether it should persist across launches before release.
 
 ## Screen behavior
 
@@ -44,15 +48,20 @@ short and learner-focused.
 - Show a small glove connection/sync status. Link to connection help when the
   glove is unavailable; keep diagnostic packet details out of this screen.
 
-### Learn
+### Alphabet and Numbers
 
-- Group practice into **Alphabet**, **Numbers**, and **Words**.
 - Show per-item states such as Not started, In progress, and Completed only
   after the product defines the progress rules below.
 - Keep individual sign instructions visible before practice starts.
-- Keep the Words group marked as coming soon or unavailable until the word
-  vocabulary, model, and runtime pass their validation gates. Do not imply the
-  current static 36-class model recognizes dynamic words.
+
+### Words
+
+The alpha test plan ML-01 contains eight **candidate** words: `hello`,
+`thank_you`, `please`, `sorry`, `yes`, `no`, `eat`, and `drink`. This is not an
+approved `words-v1` vocabulary. Show them as a preview only; do not imply that
+the static 36-class model recognizes dynamic words or award word progress. ASL
+SME review, recording coverage, model evaluation, and runtime validation remain
+gates before word practice becomes active.
 
 ### Practice
 
@@ -120,10 +129,10 @@ progress safely, and update Firestore owner/schema rules together.
 
 ## Suggested release sequence
 
-1. Keep the current research tools usable for the team's collection and
-   verification work.
-2. Consolidate the learner experience around Home, Learn, and Progress while
-   preserving a developer/researcher route to the existing tools.
+1. Keep Record Signs and BLE Testing usable through Developer Mode for the
+   team's collection and verification work.
+2. Refine Home, Alphabet, Numbers, and the Words preview using learner feedback;
+   decide whether the navigation should later consolidate into Learn/Progress.
 3. Finalize the first word vocabulary and learning rules with an ASL reviewer;
    keep Words unavailable until the model is validated on held-out signers.
 4. Expand progress tracking only for agreed learner-visible states and

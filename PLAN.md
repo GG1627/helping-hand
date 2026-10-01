@@ -67,6 +67,11 @@ selected, or deployed, and no fixture-trained artifact is retained.
 - [ ] Select the initial 6–10-word vocabulary and define an immutable
   `vocabulary_version` (for example, `words-v1`). Avoid words whose distinction
   requires sensors the glove does not have.
+- Candidate words in `docs/T1_ALPHA_TEST_PLAN.md` ML-01 are `hello`,
+  `thank_you`, `please`, `sorry`, `yes`, `no`, `eat`, and `drink`. These eight
+  candidates are provisional only; they do not close D1. An ASL SME must review
+  them for correctness, distinctness, and observability with one glove before
+  the team freezes the final vocabulary.
 - [ ] Agree on a collection protocol: starting pose, a short still lead-in,
   one complete sign, a short still tail, and a rest interval between trials.
 - [ ] Set target data coverage: at least 3 signers, 20+ clean repetitions per

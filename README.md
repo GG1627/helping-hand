@@ -26,6 +26,8 @@ learner feedback and persistent state while preserving the previous static
 > note in [`docs/BETA_TEST_PLAN_WORKING_NOTES.md`](docs/BETA_TEST_PLAN_WORKING_NOTES.md)
 > and the learner experience direction in
 > [`docs/BETA_APP_EXPERIENCE_PLAN.md`](docs/BETA_APP_EXPERIENCE_PLAN.md).
+> The course milestone prompts are preserved in [`M4-Beta-Build.md`](M4-Beta-Build.md)
+> and [`T2-Beta-Test-Plan.md`](T2-Beta-Test-Plan.md).
 
 The completed alpha path is:
 
@@ -49,10 +51,11 @@ signed-in Firebase user. The app uses the existing document path
 raw glove recordings continue through the CSV/JSON export and team dataset
 workflow rather than the progress document.
 
-This beta auth work still needs validation against the Firebase project. Email/
-password sign-in must be enabled in Firebase Console before account operations
-will succeed, and the beta sign-in and account-isolation flows have not yet
-been validated on a device.
+The team has reported that account creation and sign-in work. The exact app
+build/device and cold-restart behavior were not recorded. Cross-account
+progress isolation, offline recovery, and cloud progress sync still need
+end-to-end validation; see the beta test-plan working notes. These are beta
+status updates and do not change the alpha results documented below.
 
 ### Status at submission
 

@@ -4,15 +4,21 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/warm_clay_theme.dart';
 
 class TabScaffold extends StatelessWidget {
-  const TabScaffold({super.key, required this.title, required this.child});
+  const TabScaffold({
+    super.key,
+    required this.title,
+    required this.child,
+    this.actions = const [],
+  });
 
   final String title;
   final Widget child;
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(title: Text(title), actions: actions),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: WarmClayTheme.screenPadding,

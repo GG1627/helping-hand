@@ -17,6 +17,8 @@ import 'tabs/ble_testing_tab.dart';
 import 'tabs/dashboard_tab.dart';
 import 'tabs/numbers_tab.dart';
 import 'tabs/record_signs_tab.dart';
+import 'tabs/developer_tools_tab.dart';
+import 'tabs/words_tab.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({
@@ -38,6 +40,7 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int tabIndex = 0;
+  bool _developerMode = false;
   late final BleConnectionService _bleService;
   late final RecordingService _recordingService;
   late final ProgressRepository _progressRepository;
@@ -152,7 +155,7 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     final progress = _progressState.progress;
     final selectedTarget = _selectedPracticeTarget;
-    final pages = [
+    final List<Widget> pages = [
       DashboardTab(
         learnedLetters: progress.learnedLetters,
         totalLetters: letters.length,
@@ -161,6 +164,8 @@ class _MainShellState extends State<MainShell> {
         syncStatus: _progressState.status,
         syncMessage: _progressState.message,
         accountEmail: widget.email,
+        developerMode: _developerMode,
+        onDeveloperModeChanged: _setDeveloperMode,
         onRetrySync: _progressRepository.retrySync,
         onResetProgress: _progressRepository.reset,
         onSignOut: widget.onSignOut,
@@ -183,12 +188,21 @@ class _MainShellState extends State<MainShell> {
         practiceCard: _practiceCard(),
         onNumberSelected: (number) => _selectPracticeTarget('$number'),
       ),
-      RecordSignsTab(
-        bleService: _bleService,
-        recordingService: _recordingService,
-      ),
-      BleTestingTab(bleService: _bleService),
+      const WordsTab(),
     ];
+    if (_developerMode) {
+      pages.addAll([
+        RecordSignsTab(
+          bleService: _bleService,
+          recordingService: _recordingService,
+        ),
+        BleTestingTab(bleService: _bleService),
+        DeveloperToolsTab(
+          onOpenRecordSigns: () => setState(() => tabIndex = 4),
+          onOpenBleTesting: () => setState(() => tabIndex = 5),
+        ),
+      ]);
+    }
 
     return Scaffold(
       body: IndexedStack(index: tabIndex, children: pages),
@@ -215,12 +229,12 @@ class _MainShellState extends State<MainShell> {
           ),
           child: NavigationBar(
             elevation: 0,
-            selectedIndex: tabIndex,
+            selectedIndex: tabIndex >= 4 ? 4 : tabIndex,
             onDestinationSelected: (index) {
-              setState(() => tabIndex = index);
+              setState(() => tabIndex = index == 4 ? 6 : index);
             },
-            destinations: const [
-              NavigationDestination(
+            destinations: [
+              const NavigationDestination(
                 icon: Icon(Icons.home_outlined),
                 selectedIcon: Icon(Icons.home_rounded),
                 label: 'Home',
@@ -235,20 +249,28 @@ class _MainShellState extends State<MainShell> {
                 selectedIcon: Icon(Icons.pin_rounded),
                 label: 'Numbers',
               ),
-              NavigationDestination(
-                icon: Icon(Icons.fiber_manual_record_outlined),
-                selectedIcon: Icon(Icons.fiber_manual_record),
-                label: 'Record Signs',
+              const NavigationDestination(
+                icon: Icon(Icons.waving_hand_outlined),
+                selectedIcon: Icon(Icons.waving_hand_rounded),
+                label: 'Words',
               ),
-              NavigationDestination(
-                icon: Icon(Icons.memory_outlined),
-                selectedIcon: Icon(Icons.memory_rounded),
-                label: 'BLE Testing',
-              ),
+              if (_developerMode)
+                const NavigationDestination(
+                  icon: Icon(Icons.build_outlined),
+                  selectedIcon: Icon(Icons.build_rounded),
+                  label: 'Developer',
+                ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _setDeveloperMode(bool enabled) {
+    setState(() {
+      _developerMode = enabled;
+      if (!enabled && tabIndex >= 4) tabIndex = 0;
+    });
   }
 }
