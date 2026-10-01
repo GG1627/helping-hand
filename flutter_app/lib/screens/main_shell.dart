@@ -19,8 +19,17 @@ import 'tabs/numbers_tab.dart';
 import 'tabs/record_signs_tab.dart';
 
 class MainShell extends StatefulWidget {
-  const MainShell({super.key, this.progressRepository});
+  const MainShell({
+    super.key,
+    required this.userId,
+    required this.email,
+    required this.onSignOut,
+    this.progressRepository,
+  });
 
+  final String userId;
+  final String email;
+  final Future<void> Function() onSignOut;
   final ProgressRepository? progressRepository;
 
   @override
@@ -53,8 +62,8 @@ class _MainShellState extends State<MainShell> {
     _progressRepository =
         widget.progressRepository ??
         ProgressRepository(
-          localStore: JsonProgressLocalStore(),
-          remoteStore: FirebaseProgressRemoteStore(),
+          localStore: JsonProgressLocalStore.forUser(widget.userId),
+          remoteStore: FirebaseProgressRemoteStore(uid: widget.userId),
         );
     _progressState = _progressRepository.state;
     _progressSubscription = _progressRepository.states.listen((state) {
@@ -151,8 +160,10 @@ class _MainShellState extends State<MainShell> {
         totalNumbers: 10,
         syncStatus: _progressState.status,
         syncMessage: _progressState.message,
+        accountEmail: widget.email,
         onRetrySync: _progressRepository.retrySync,
         onResetProgress: _progressRepository.reset,
+        onSignOut: widget.onSignOut,
       ),
       AlphabetTab(
         learnedLetters: progress.learnedLetters,

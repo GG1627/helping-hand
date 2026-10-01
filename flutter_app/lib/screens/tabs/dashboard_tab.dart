@@ -11,8 +11,10 @@ class DashboardTab extends StatelessWidget {
   final int totalNumbers;
   final ProgressSyncStatus syncStatus;
   final String syncMessage;
+  final String accountEmail;
   final Future<void> Function() onRetrySync;
   final Future<void> Function() onResetProgress;
+  final Future<void> Function() onSignOut;
 
   const DashboardTab({
     super.key,
@@ -22,8 +24,10 @@ class DashboardTab extends StatelessWidget {
     required this.totalNumbers,
     required this.syncStatus,
     required this.syncMessage,
+    required this.accountEmail,
     required this.onRetrySync,
     required this.onResetProgress,
+    required this.onSignOut,
   });
 
   @override
@@ -53,8 +57,10 @@ class DashboardTab extends StatelessWidget {
           _ProgressStorageCard(
             status: syncStatus,
             message: syncMessage,
+            accountEmail: accountEmail,
             onRetrySync: onRetrySync,
             onResetProgress: onResetProgress,
+            onSignOut: onSignOut,
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
           WarmCard(
@@ -111,14 +117,18 @@ class _ProgressStorageCard extends StatelessWidget {
   const _ProgressStorageCard({
     required this.status,
     required this.message,
+    required this.accountEmail,
     required this.onRetrySync,
     required this.onResetProgress,
+    required this.onSignOut,
   });
 
   final ProgressSyncStatus status;
   final String message;
+  final String accountEmail;
   final Future<void> Function() onRetrySync;
   final Future<void> Function() onResetProgress;
+  final Future<void> Function() onSignOut;
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +164,7 @@ class _ProgressStorageCard extends StatelessWidget {
           Text(message, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 4),
           Text(
-            'Saved on this phone first; cloud sync uses an anonymous account.',
+            accountEmail.isEmpty ? 'Signed in' : 'Signed in as $accountEmail',
             style: Theme.of(context).textTheme.labelSmall,
           ),
           const SizedBox(height: 10),
@@ -169,6 +179,11 @@ class _ProgressStorageCard extends StatelessWidget {
               TextButton(
                 onPressed: () => _confirmReset(context),
                 child: const Text('Reset progress'),
+              ),
+              TextButton.icon(
+                onPressed: onSignOut,
+                icon: const Icon(Icons.logout),
+                label: const Text('Sign out'),
               ),
             ],
           ),
