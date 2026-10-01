@@ -169,6 +169,7 @@ class _MainShellState extends State<MainShell> {
         onRetrySync: _progressRepository.retrySync,
         onResetProgress: _progressRepository.reset,
         onSignOut: widget.onSignOut,
+        onOpenTab: (index) => setState(() => tabIndex = index),
       ),
       AlphabetTab(
         learnedLetters: progress.learnedLetters,
