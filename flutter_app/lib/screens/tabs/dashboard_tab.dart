@@ -44,6 +44,7 @@ class DashboardTab extends StatelessWidget {
 
     return TabScaffold(
       title: 'Home',
+      backgroundAsset: 'assets/images/bg-1.png',
       actions: [
         IconButton(
           tooltip: 'Account and settings',

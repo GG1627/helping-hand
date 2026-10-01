@@ -154,7 +154,7 @@ class _AccountScreenState extends State<AccountScreen> {
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: WarmClayTheme.screenPadding,
+                padding: WarmClayTheme.screenPadding.copyWith(bottom: 62),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 420),
                   child: Column(
@@ -333,7 +333,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                     ),
                                   ),
                                 ],
-                                const SizedBox(height: 18),
+                                SizedBox(height: _createAccount ? 18 : 4),
                                 SizedBox(
                                   height: 50,
                                   child: DecoratedBox(
@@ -382,7 +382,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                 const SizedBox(height: 16),
                                 Row(
                                   children: [
-                                    const Expanded(child: Divider()),
+                                    const Expanded(
+                                      child: Divider(color: Color(0xFFD7DCD7)),
+                                    ),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 12,
@@ -393,10 +395,13 @@ class _AccountScreenState extends State<AccountScreen> {
                                             ?.copyWith(
                                               letterSpacing: 1,
                                               fontWeight: FontWeight.w600,
+                                              color: Color(0xFF9AA29C),
                                             ),
                                       ),
                                     ),
-                                    const Expanded(child: Divider()),
+                                    const Expanded(
+                                      child: Divider(color: Color(0xFFD7DCD7)),
+                                    ),
                                   ],
                                 ),
                                 const SizedBox(height: 8),

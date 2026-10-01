@@ -9,21 +9,44 @@ class TabScaffold extends StatelessWidget {
     required this.title,
     required this.child,
     this.actions = const [],
+    this.backgroundAsset = 'assets/images/bg-2.png',
   });
 
   final String title;
   final Widget child;
   final List<Widget> actions;
+  final String backgroundAsset;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title), actions: actions),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: WarmClayTheme.screenPadding,
-          child: child,
-        ),
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: Text(title),
+        actions: actions,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+      ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            backgroundAsset,
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+            errorBuilder: (context, error, stackTrace) =>
+                const ColoredBox(color: WarmClayColors.background),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: WarmClayTheme.screenPadding.copyWith(
+                top: WarmClayTheme.screenPadding.top + kToolbarHeight,
+              ),
+              child: child,
+            ),
+          ),
+        ],
       ),
     );
   }
