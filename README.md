@@ -23,7 +23,9 @@ learner feedback and persistent state while preserving the previous static
 
 > The sections below document the submitted M3 alpha at commit `cce9d38`.
 > Beta development is now in progress on branch `gael`; see the current work
-> note in [`docs/BETA_TEST_PLAN_WORKING_NOTES.md`](docs/BETA_TEST_PLAN_WORKING_NOTES.md).
+> note in [`docs/BETA_TEST_PLAN_WORKING_NOTES.md`](docs/BETA_TEST_PLAN_WORKING_NOTES.md)
+> and the learner experience direction in
+> [`docs/BETA_APP_EXPERIENCE_PLAN.md`](docs/BETA_APP_EXPERIENCE_PLAN.md).
 
 The completed alpha path is:
 

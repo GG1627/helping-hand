@@ -4,6 +4,9 @@ This is the shared fact tracker for drafting the Helping Hand beta test plan.
 Update items as the team confirms scope or runs tests. Mark unrun work as
 `Not run` rather than assuming it passed.
 
+The learner-facing screen and tracking proposal is in
+[`BETA_APP_EXPERIENCE_PLAN.md`](BETA_APP_EXPERIENCE_PLAN.md).
+
 ## Beta direction currently reported by the team
 
 - Record real ASL word sequences with the glove and collect more data.
@@ -150,7 +153,7 @@ These are draft procedures for the beta test plan, not completed results:
 
 | Date | What was collected/tested | Result or issue | Evidence path |
 | --- | --- | --- | --- |
-| TBD | TBD | TBD | TBD |
+| 2026-10-01 | Firebase email/password account creation and subsequent sign-in | Team-reported successful. Device/build and cold-restart persistence were not recorded. | User report; branch `gael` |
 
 ## Alpha-to-beta lessons
 
