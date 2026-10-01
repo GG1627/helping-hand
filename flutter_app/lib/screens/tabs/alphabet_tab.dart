@@ -29,51 +29,59 @@ class AlphabetTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          WarmCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('A to Z', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                Text(
-                  '$learnedCount/${letterList.length} learned',
-                  style: Theme.of(context).textTheme.labelSmall,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'A to Z',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(height: 10),
-                ProgressBar(value: progress),
-              ],
+              ),
+              Text(
+                '$learnedCount of ${letterList.length} learned',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: WarmClayColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ProgressBar(value: progress),
+          const SizedBox(height: 6),
+          Text(
+            'Choose a letter to practice its sign.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: WarmClayColors.textSecondary,
             ),
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
           practiceCard,
           const SizedBox(height: WarmClayTheme.cardGap),
-          WarmCard(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final crossAxisCount = constraints.maxWidth >= 460 ? 6 : 5;
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: letterList.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1,
-                  ),
-                  itemBuilder: (context, index) {
-                    final letter = letterList[index];
-                    final learned = learnedLetters.contains(letter);
-                    return _LearningTile(
-                      label: letter,
-                      learned: learned,
-                      selected: selectedLetter == letter,
-                      onTap: () => onLetterSelected(letter),
-                    );
-                  },
-                );
-              },
-            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisCount = constraints.maxWidth >= 460 ? 6 : 5;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: letterList.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 1,
+                ),
+                itemBuilder: (context, index) {
+                  final letter = letterList[index];
+                  final learned = learnedLetters.contains(letter);
+                  return _LearningTile(
+                    label: letter,
+                    learned: learned,
+                    selected: selectedLetter == letter,
+                    onTap: () => onLetterSelected(letter),
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
@@ -105,25 +113,18 @@ class _LearningTile extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           decoration: BoxDecoration(
-            color: learned
+            color: selected
                 ? WarmClayColors.accentPrimary
+                : learned
+                ? WarmClayColors.accentLight
                 : WarmClayColors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: learned || selected
+              color: selected
                   ? WarmClayColors.accentPrimary
                   : WarmClayColors.border,
               width: selected ? 2 : 1,
             ),
-            boxShadow: learned
-                ? const [
-                    BoxShadow(
-                      color: Color(0x2EC96A3C),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ]
-                : null,
           ),
           child: Stack(
             children: [
@@ -132,8 +133,8 @@ class _LearningTile extends StatelessWidget {
                   label,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: learned ? Colors.white : WarmClayColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                    color: selected ? Colors.white : WarmClayColors.textPrimary,
                   ),
                 ),
               ),
@@ -144,7 +145,7 @@ class _LearningTile extends StatelessWidget {
                   child: Icon(
                     Icons.check_circle_rounded,
                     size: 16,
-                    color: Colors.white,
+                    color: WarmClayColors.success,
                   ),
                 ),
             ],

@@ -21,6 +21,14 @@ learner feedback and persistent state while preserving the previous static
 
 ## Alpha build summary
 
+> The sections below document the submitted M3 alpha at commit `cce9d38`.
+> Beta development is now in progress on branch `gael`; see the current work
+> note in [`docs/BETA_TEST_PLAN_WORKING_NOTES.md`](docs/BETA_TEST_PLAN_WORKING_NOTES.md)
+> and the learner experience direction in
+> [`docs/BETA_APP_EXPERIENCE_PLAN.md`](docs/BETA_APP_EXPERIENCE_PLAN.md).
+> The course milestone prompts are preserved in [`M4-Beta-Build.md`](M4-Beta-Build.md)
+> and [`T2-Beta-Test-Plan.md`](T2-Beta-Test-Plan.md).
+
 The completed alpha path is:
 
 > Glove sensors → ESP32 static classifier → BLE packets → Flutter learner
@@ -30,6 +38,24 @@ The app also contains a Record Signs workflow and backend foundations for the
 next development phase: collecting real, labeled word-level sensor sequences
 and training a dynamic recognition model. No real dynamic word model has been
 trained, selected, or deployed yet.
+
+### Beta work in progress
+
+The current beta development opens directly to sign-in/account creation and
+adds Firebase email/password account creation, sign-in, password reset, and
+sign-out. Creating an account from the existing
+anonymous session links that identity so its cloud progress can be retained.
+Local progress files and the Firestore progress document are scoped to the
+signed-in Firebase user. The app uses the existing document path
+`users/{uid}/progress/current`; Firebase Authentication stores credentials, and
+raw glove recordings continue through the CSV/JSON export and team dataset
+workflow rather than the progress document.
+
+The team has reported that account creation and sign-in work. The exact app
+build/device and cold-restart behavior were not recorded. Cross-account
+progress isolation, offline recovery, and cloud progress sync still need
+end-to-end validation; see the beta test-plan working notes. These are beta
+status updates and do not change the alpha results documented below.
 
 ### Status at submission
 

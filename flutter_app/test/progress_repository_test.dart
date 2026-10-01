@@ -44,6 +44,54 @@ void main() {
       restored.dispose();
     });
 
+    test('progress stays separate when switching between accounts', () async {
+      final accountAStore = JsonProgressLocalStore.forUser(
+        'account_a',
+        directoryProvider: () async => temporaryDirectory,
+      );
+      final accountBStore = JsonProgressLocalStore.forUser(
+        'account_b',
+        directoryProvider: () async => temporaryDirectory,
+      );
+      final accountARemote = _FakeRemoteStore();
+      final accountBRemote = _FakeRemoteStore();
+      final accountA = ProgressRepository(
+        localStore: accountAStore,
+        remoteStore: accountARemote,
+        clock: () => DateTime.utc(2026, 9, 10, 12),
+      );
+      final accountB = ProgressRepository(
+        localStore: accountBStore,
+        remoteStore: accountBRemote,
+        clock: () => DateTime.utc(2026, 9, 10, 13),
+      );
+
+      await accountA.initialize();
+      await accountA.completeStaticTarget('A');
+      await accountB.initialize();
+
+      expect(accountA.state.progress.learnedLetters, {'A'});
+      expect(accountARemote.value?.learnedLetters, {'A'});
+      expect(accountB.state.progress.isEmpty, isTrue);
+      expect(accountBRemote.value, isNull);
+
+      await accountB.completeStaticTarget('B');
+
+      final accountARestored = ProgressRepository(
+        localStore: accountAStore,
+        remoteStore: accountARemote,
+      );
+      await accountARestored.initialize();
+
+      expect(accountARestored.state.progress.learnedLetters, {'A'});
+      expect(accountARemote.value?.learnedLetters, {'A'});
+      expect(accountBRemote.value?.learnedLetters, {'B'});
+
+      accountA.dispose();
+      accountB.dispose();
+      accountARestored.dispose();
+    });
+
     test(
       'malformed stored state safely falls back to empty progress',
       () async {
