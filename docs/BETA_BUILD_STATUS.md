@@ -1,6 +1,6 @@
 # Helping Hand Beta Build Status
 
-Updated: October 2, 2026. Development branch: `gael`.
+Updated: October 2, 2026. App snapshot: commit [`d581d19`](https://github.com/GG1627/helping-hand/commit/d581d19); README snapshot: commit [`d807ef8`](https://github.com/GG1627/helping-hand/commit/d807ef8).
 This records implementation scope; it is not a claim of completed M4 acceptance
 or a substitute for the beta report and formal T2 test-plan PDF.
 
@@ -42,7 +42,7 @@ or a substitute for the beta report and formal T2 test-plan PDF.
 
 ## Verification and evidence
 
-- Visual redesign commit: `9c5caab` on `gael` (Flutter analysis, five temporary
+- Visual redesign commit: [`9c5caab`](https://github.com/GG1627/helping-hand/commit/9c5caab) (Flutter analysis, five temporary
   responsive/interaction review checks, and production web build passed).
 - Separate practice-route update: targeted Flutter analysis passed; physical
   navigation/BLE/persistence procedures remain Not run.
@@ -66,3 +66,9 @@ or a substitute for the beta report and formal T2 test-plan PDF.
 Course prompts are preserved in [M4 Beta Build](../M4-Beta-Build.md) and
 [T2 Beta Test Plan](../T2-Beta-Test-Plan.md). The team still needs the required
 report, formal test-plan PDF, and stakeholder presentation/defense.
+
+## Next-session handoff
+
+Start the beta report/test-plan session with
+[BETA_SESSION_HANDOFF.md](BETA_SESSION_HANDOFF.md), which records the current
+implementation, evidence boundaries, remaining decisions, and drafting order.
