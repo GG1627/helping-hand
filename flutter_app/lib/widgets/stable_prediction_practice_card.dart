@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_3d_controller/flutter_3d_controller.dart';
 import '../theme/helping_hand_theme.dart';
 
 class StablePredictionPracticeCard extends StatelessWidget {
@@ -96,6 +97,10 @@ class StablePredictionPracticeCard extends StatelessWidget {
             style: theme.textTheme.bodySmall,
           ),
           if (target != null) ...[
+            const SizedBox(height: 16),
+            Hand3DViewer(selectedLetter: target),
+          ],
+          if (target != null) ...[
             const SizedBox(height: 24),
             const Divider(color: HelpingHandColors.outline),
             const SizedBox(height: 16),
@@ -172,6 +177,52 @@ class StablePredictionPracticeCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class Hand3DViewer extends StatefulWidget {
+  final String? selectedLetter;
+
+  const Hand3DViewer({super.key, required this.selectedLetter});
+
+  @override
+  State<Hand3DViewer> createState() => _Hand3DViewerState();
+}
+
+class _Hand3DViewerState extends State<Hand3DViewer> {
+  late Flutter3DController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = Flutter3DController();
+  }
+
+  @override
+  void didUpdateWidget(covariant Hand3DViewer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedLetter != null && widget.selectedLetter != oldWidget.selectedLetter) {
+      _controller.playAnimation(animationName: 'Pose_${widget.selectedLetter}');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        height: 260,
+        child: Flutter3DViewer(
+          controller: _controller,
+          src: 'assets/models/test.glb',
+          onLoad: (String modelName) {
+            if (widget.selectedLetter != null) {
+              _controller.playAnimation(animationName: 'Pose_${widget.selectedLetter}');
+            }
+          },
+        ),
       ),
     );
   }
