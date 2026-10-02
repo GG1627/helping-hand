@@ -10,7 +10,7 @@ import '../services/json_progress_local_store.dart';
 import '../services/progress_repository.dart';
 import '../services/recording_service.dart';
 import '../services/stable_prediction_tracker.dart';
-import '../theme/warm_clay_theme.dart';
+import '../theme/helping_hand_theme.dart';
 import '../widgets/stable_prediction_practice_card.dart';
 import 'tabs/alphabet_tab.dart';
 import 'tabs/ble_testing_tab.dart';
@@ -209,22 +209,28 @@ class _MainShellState extends State<MainShell> {
       body: IndexedStack(index: tabIndex, children: pages),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          color: WarmClayColors.surface,
-          border: Border(top: BorderSide(color: WarmClayColors.border)),
+          color: HelpingHandColors.surface,
+          border: Border(top: BorderSide(color: HelpingHandColors.divider)),
         ),
         child: NavigationBarTheme(
           data: NavigationBarThemeData(
-            backgroundColor: WarmClayColors.surface,
-            indicatorColor: WarmClayColors.accentLight,
-            labelTextStyle: WidgetStateProperty.all(
-              GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w500),
+            backgroundColor: HelpingHandColors.surface,
+            indicatorColor: HelpingHandColors.secondary,
+            labelTextStyle: WidgetStateProperty.resolveWith(
+              (states) => GoogleFonts.dmSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: states.contains(WidgetState.selected)
+                    ? HelpingHandColors.primary
+                    : HelpingHandColors.textSecondary,
+              ),
             ),
             iconTheme: WidgetStateProperty.resolveWith((states) {
               final selected = states.contains(WidgetState.selected);
               return IconThemeData(
                 color: selected
-                    ? WarmClayColors.accentPrimary
-                    : WarmClayColors.textSecondary,
+                    ? HelpingHandColors.primary
+                    : HelpingHandColors.textSecondary,
               );
             }),
           ),
