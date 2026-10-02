@@ -163,8 +163,9 @@ the important outcomes and carry forward unresolved risks into beta coverage.
   The exact Firebase project, app build/device, and cold-restart behavior were
   not recorded. Cross-account isolation, offline recovery, and progress sync
   remain to be validated end to end.
-- A new Words tab is a preview of the eight provisional Alpha-plan candidates;
-  it is not an active dynamic-sign curriculum. Developer Mode reveals a
+- Words lists the eight provisional Alpha-plan candidates and opens individual
+  practice pages without a coming-soon notice. It does not run a dynamic word
+  recognizer or save word completion. Developer Mode reveals a
   Developer hub for Record Signs and BLE Testing; normal learner navigation
   hides those research tools.
 
@@ -198,3 +199,40 @@ will check the fix.
 | Alpha finding | Change made/planned for beta | Beta test that verifies it | Status |
 | --- | --- | --- | --- |
 | TBD | TBD | TBD | TBD |
+
+## Separate practice-page beta procedures
+
+**Status: Not run on physical devices.** These procedures cover the current
+picker-to-practice implementation, not the earlier inline panel. Record the
+commit, app build, device/OS, firmware, tester, date, and evidence for every run.
+Use two test accounts where persistence checks require account isolation.
+Record unexpected behavior as a failure or issue rather than changing the
+expected result to match it.
+
+| ID | Preconditions and steps | Measurable expected result |
+| --- | --- | --- |
+| NAV-01 | Sign in; open each of Home's Alphabet, Numbers, and Words rows, then each bottom-navigation destination. | All six entry points reach the correct picker; zero locked Words controls or coming-soon notices. |
+| NAV-02 | For each of the 26 letters and 10 numbers, tap its tile, inspect the practice title/target, then use Back. Repeat for all eight words, including Thank You. | 44 of 44 choices open the matching practice page. Practice appears only on the separate route, never with the picker grid/list. Each Back action returns to the originating tab. |
+| NAV-03 | Scroll Alphabet to the final row and Words to Drink; open a lesson and use both toolbar Back and Android system Back in separate runs. Repeat the open/back cycle 20 times. | Correct picker and scroll position restored every time; zero duplicate pages, crashes, or lost completion checks. |
+| LIVE-01 | Connect the glove through Developer Mode > BLE Testing; open Letter A. Perform A, then a different sign, and disconnect/reconnect the glove while the route is open. | Target remains A. Reading, confidence, hold feedback, and connection labels update on the visible route without returning to the picker. Record measured update delays and packet evidence; any frozen route fails. |
+| LIVE-02 | Open a selected letter/number; produce an incomplete hold and tap Retry. Repeat after a completed hold. | Retry immediately clears hold progress and matching feedback on the visible page. The next eligible packet starts a fresh hold; no stale Matched state persists. Already saved completion remains intact. |
+| LIVE-03 | Using controlled packets or a recorded stream, submit a wrong label, confidence below 80%, fewer than five matching packets, a hold shorter than 750 ms, and a gap above 250 ms. Then submit a valid stable match. | No completion from the invalid cases. A valid matching hold at >=80% confidence, >=5 packets, and >=750 ms completes once; returning to the picker updates the check/count. Retain the current tracker threshold tests as regression coverage. |
+| WORD-01 | Complete or partially practice a static target, return, open each word page, tap Retry, and stream static predictions. Inspect local and cloud progress before/after. | Correct word title and target; connection state is visible. No invalid-target exception, static completion caused by the word page, word completion, or invented confidence/hold success. Word-model acceptance is a separate future test. |
+| UI-01 | Inspect Home, all pickers, and a short/long-target practice page at 320px and 375px phone widths, landscape, tablet, and largest system text size; enable reduced motion. | No overflow, clipped actions, unreachable targets, raster logo, or practice panel on a picker. Back/Retry stay reachable; scroll accommodates long content. Confirm at least 48 logical-pixel touch targets and meaningful screen-reader target/Back labels. |
+| PROG-05 | Complete a valid letter/number from its practice page online and offline. Back out, restart, reconnect, and compare the same account's progress. Repeat with a second account. | Saved progress survives navigation/restart, syncs to the same UID, and remains isolated between accounts. Merely tapping a tile or word adds no completion. |
+
+### Current evidence boundary
+
+- The visual redesign at commit `9c5caab` passed Flutter analysis, a production
+  web build, and five temporary widget review checks covering phone, landscape,
+  tablet, 3x text scaling, reduced motion, selection/Retry callbacks, and
+  idle/complete presentation. Those checks preceded separate practice routes;
+  they are not evidence that the new navigation or physical BLE behavior passed.
+- The subsequent separate-route change passed targeted Flutter analysis.
+  Target/Retry/packet refresh now uses a shell-owned notifier alongside BLE
+  notifications so the route can rebuild independently of the shell.
+- Real-device navigation, live BLE on the pushed route, word-model behavior,
+  Android beta build, Firebase end-to-end persistence, and external-user testing
+  remain Not run for this change. Add measured results and evidence after runs.
+- [Beta build status](BETA_BUILD_STATUS.md) separates implemented UI from
+  remaining model, hardware, and submission requirements.

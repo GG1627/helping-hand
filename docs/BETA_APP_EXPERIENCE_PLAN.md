@@ -1,6 +1,6 @@
 # Helping Hand Beta App Experience Plan
 
-**Status:** Draft direction for beta design and implementation
+**Status:** Implemented learner navigation with remaining beta integration work
 **Purpose:** Keep the learner-facing app focused while retaining the tools the
 team needs to collect and validate data.
 
@@ -13,8 +13,8 @@ learner journey.
 
 ## Recommended learner flow
 
-**Sign in / create account -> Home -> Learn -> Choose a sign -> Practice ->
-Feedback -> Progress**
+**Sign in / create account -> Home -> Alphabet / Numbers / Words -> Choose
+a target -> Dedicated live-practice page -> Back to picker / Progress**
 
 Account creation and email/password sign-in have been reported working. The
 app should continue directly to Home when the account session is already
@@ -26,10 +26,10 @@ For the current beta iteration, keep four learner destinations visible:
 
 | Destination | Main purpose |
 | --- | --- |
-| Home | Welcome the learner, show a concise progress summary, offer a clear Continue Learning action, and show account/sync status. |
-| Alphabet | Browse and practice the static letter curriculum. |
-| Numbers | Browse and practice the static number curriculum. |
-| Words | Preview the provisional starter vocabulary; keep practice unavailable until the words and dynamic model are validated. |
+| Home | Show text-based Helping Hand branding, a Practice alphabet action, saved progress, learning paths, and account/sync status. |
+| Alphabet | Choose one of 26 letters; open its separate live-practice page. |
+| Numbers | Choose one of 10 numbers; open its separate live-practice page. |
+| Words | Choose one of eight starter words; open its practice UI. Dynamic recognition and word completion remain unimplemented. |
 
 The Home screen currently summarizes progress; a dedicated Progress tab can be
 considered after usability feedback. Put account settings behind a
@@ -42,7 +42,8 @@ whether it should persist across launches before release.
 
 ### Home
 
-- Show a friendly greeting and one primary action: **Continue learning**.
+- Use the compact, single-line text wordmark and one primary action: **Practice alphabet**.
+- Open Alphabet, Numbers, or Words from the learning-path rows; Words is not locked.
 - Summarize alphabet, number, and (when available) word progress without fake
   streaks or activity.
 - Show a small glove connection/sync status. Link to connection help when the
@@ -50,29 +51,37 @@ whether it should persist across launches before release.
 
 ### Alphabet and Numbers
 
-- Show per-item states such as Not started, In progress, and Completed only
-  after the product defines the progress rules below.
-- Keep individual sign instructions visible before practice starts.
+- Show saved completion counts and a target grid without an embedded practice panel.
+- Teal identifies the selected target; mint plus a check identifies a learned target.
+- Tapping a tile selects its target and pushes a dedicated practice route. Back
+  returns to the same picker and tab. Merely opening a lesson must not award progress.
+- Reviewed sign-specific instructional media remains a content dependency.
 
 ### Words
 
 The alpha test plan ML-01 contains eight **candidate** words: `hello`,
 `thank_you`, `please`, `sorry`, `yes`, `no`, `eat`, and `drink`. This is not an
-approved `words-v1` vocabulary. Show them as a preview only; do not imply that
-the static 36-class model recognizes dynamic words or award word progress. ASL
-SME review, recording coverage, model evaluation, and runtime validation remain
-gates before word practice becomes active.
+approved `words-v1` vocabulary. The rows now open dedicated practice pages;
+there is no coming-soon notice, preview badge, or locked Home row. These pages
+share the target, connection, and practice presentation. They do not submit
+words to the static tracker or award word progress. ASL SME review, recording
+coverage, model evaluation, runtime integration, and word progress storage
+remain requirements for recognition-based word practice.
 
 ### Practice
 
+- Present practice on a separate scrollable page with a target title and Back control.
 - Show the target sign and concise instructions, with a visible glove
   connection state and a Retry action.
 - Keep prediction/confidence feedback close to the practice task.
 - Preserve the current static acceptance gate for letters/numbers (matching
   label, at least 80% confidence, five packets, and at least 750 ms) unless
   beta testing supports a deliberate change.
-- For words, select and document a separate gate after the word model is
-  evaluated. Show an understandable retry state when confidence is low.
+- Target changes, packet feedback, connection changes, and Retry must refresh
+  the practice route independently of the underlying shell rebuild. The shell
+  retains ownership of BLE, the static tracker, and the progress repository.
+- For words, the current page has no matching/confidence result or completion
+  gate. Select and document a separate gate after the word model is evaluated.
 - After completion, confirm what was recorded and offer the next item.
 
 ### Progress
@@ -131,10 +140,10 @@ progress safely, and update Firestore owner/schema rules together.
 
 1. Keep Record Signs and BLE Testing usable through Developer Mode for the
    team's collection and verification work.
-2. Refine Home, Alphabet, Numbers, and the Words preview using learner feedback;
+2. Refine Home, Alphabet, Numbers, Words, and separate practice pages using learner feedback;
    decide whether the navigation should later consolidate into Learn/Progress.
 3. Finalize the first word vocabulary and learning rules with an ASL reviewer;
-   keep Words unavailable until the model is validated on held-out signers.
+   enable word recognition/completion only after validation on held-out signers.
 4. Expand progress tracking only for agreed learner-visible states and
    add tests for account isolation, offline sync, and progress restoration.
 
@@ -148,3 +157,10 @@ progress safely, and update Firestore owner/schema rules together.
 - Should development tools live in a separate test build or a developer mode
   inside the same app?
 - Which fields should carry over when progress is viewed on a second device?
+
+## Current implementation and validation
+
+See [Beta build status](BETA_BUILD_STATUS.md) for current scope and known
+limitations, and [Beta test working notes](BETA_TEST_PLAN_WORKING_NOTES.md)
+for reproducible navigation and practice procedures. The brand system is
+documented in [App design guide](APP_DESIGN_GUIDE.md).

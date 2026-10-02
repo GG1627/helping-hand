@@ -41,7 +41,7 @@ class TabScaffold extends StatelessWidget {
           SafeArea(
             child: SingleChildScrollView(
               padding: WarmClayTheme.screenPadding.copyWith(
-                top: WarmClayTheme.screenPadding.top + kToolbarHeight,
+                top: kToolbarHeight - 50,
               ),
               child: child,
             ),

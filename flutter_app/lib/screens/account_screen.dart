@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../services/firebase_auth_service.dart';
-import '../theme/warm_clay_theme.dart';
-import '../widgets/warm_components.dart';
+import '../theme/helping_hand_theme.dart';
+import '../widgets/auth_components.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key, required this.authService});
@@ -132,322 +132,252 @@ class _AccountScreenState extends State<AccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return Theme(
+      data: HelpingHandTheme.build().copyWith(
+        inputDecorationTheme: AuthStyles.inputTheme,
+      ),
+      child: Builder(
+        builder: (context) => Scaffold(
+          backgroundColor: HelpingHandColors.background,
+          body: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, viewport) {
+                final wide = viewport.maxWidth >= 840;
+                final gutter = viewport.maxWidth < 360 ? 16.0 : 24.0;
+                final brand = AuthBrandHeader(
+                  createAccount: _createAccount,
+                  wide: wide,
+                );
+                final form = ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: _buildForm(context),
+                );
+                return SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: viewport.maxHeight),
+                    child: wide
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(48),
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 1040,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(child: brand),
+                                    const SizedBox(width: 64),
+                                    Expanded(child: form),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              brand,
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                  gutter,
+                                  _createAccount ? 32 : 16,
+                                  gutter,
+                                  32,
+                                ),
+                                child: Center(child: form),
+                              ),
+                            ],
+                          ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForm(BuildContext context) {
+    final theme = Theme.of(context);
     final linkingAnonymous =
         widget.authService.currentUser?.isAnonymous == true;
-    final theme = Theme.of(context);
-    final heading = _createAccount ? 'Create your account' : 'Welcome back';
-    final description = _createAccount
-        ? 'Save your learning progress and pick up anytime.'
-        : 'Sign in to continue your ASL practice.';
-
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.asset(
-            'assets/images/login-signin.png',
-            fit: BoxFit.cover,
-            alignment: Alignment.center,
-            errorBuilder: (context, error, stackTrace) =>
-                const ColoredBox(color: WarmClayColors.background),
-          ),
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: WarmClayTheme.screenPadding.copyWith(bottom: 62),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Center(
-                        child: Image.asset(
-                          'assets/images/hh-logo.png',
-                          width: 128,
-                          height: 128,
-                          fit: BoxFit.contain,
-                          semanticLabel: 'Helping Hand logo',
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Helping Hand',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.headlineLarge?.copyWith(
-                          fontSize: 34,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'ASL practice, one sign at a time.',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: WarmClayColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      if (linkingAnonymous)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: WarmClayColors.accentLight,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.cloud_done_outlined,
-                                  color: WarmClayColors.accentPrimary,
-                                ),
-                                SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    'Create an account to keep progress from this device.',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      WarmCard(
-                        child: Form(
-                          key: _formKey,
-                          child: AutofillGroup(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  heading,
-                                  style: theme.textTheme.headlineMedium,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  description,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: WarmClayColors.textSecondary,
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                TextFormField(
-                                  controller: _emailController,
-                                  keyboardType: TextInputType.emailAddress,
-                                  textInputAction: TextInputAction.next,
-                                  autofillHints: const [AutofillHints.email],
-                                  autocorrect: false,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Email address',
-                                  ),
-                                  validator: (value) {
-                                    final email = value?.trim() ?? '';
-                                    return email.contains('@')
-                                        ? null
-                                        : 'Enter a valid email address.';
-                                  },
-                                ),
-                                const SizedBox(height: 14),
-                                TextFormField(
-                                  controller: _passwordController,
-                                  obscureText: _obscurePassword,
-                                  textInputAction: _createAccount
-                                      ? TextInputAction.next
-                                      : TextInputAction.done,
-                                  onFieldSubmitted: _createAccount
-                                      ? null
-                                      : (_) => _submit(),
-                                  autofillHints: _createAccount
-                                      ? const [AutofillHints.newPassword]
-                                      : const [AutofillHints.password],
-                                  decoration: InputDecoration(
-                                    labelText: 'Password',
-                                    suffixIcon: IconButton(
-                                      tooltip: _obscurePassword
-                                          ? 'Show password'
-                                          : 'Hide password',
-                                      onPressed: () => setState(
-                                        () => _obscurePassword =
-                                            !_obscurePassword,
-                                      ),
-                                      icon: Icon(
-                                        _obscurePassword
-                                            ? Icons.visibility_outlined
-                                            : Icons.visibility_off_outlined,
-                                      ),
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    final password = value ?? '';
-                                    if (password.isEmpty) {
-                                      return 'Enter a password.';
-                                    }
-                                    if (_createAccount && password.length < 6) {
-                                      return 'Use at least 6 characters.';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                                if (_createAccount) ...[
-                                  const SizedBox(height: 14),
-                                  TextFormField(
-                                    controller: _confirmPasswordController,
-                                    obscureText: true,
-                                    textInputAction: TextInputAction.done,
-                                    autofillHints: const [
-                                      AutofillHints.newPassword,
-                                    ],
-                                    decoration: const InputDecoration(
-                                      labelText: 'Confirm password',
-                                    ),
-                                    validator: (value) =>
-                                        value == _passwordController.text
-                                        ? null
-                                        : 'Passwords do not match.',
-                                  ),
-                                ],
-                                if (!_createAccount)
-                                  Align(
-                                    alignment: Alignment.centerRight,
-                                    child: TextButton(
-                                      onPressed: _busy
-                                          ? null
-                                          : _sendPasswordReset,
-                                      child: const Text(
-                                        'Forgot password?',
-                                        style: TextStyle(
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                if (_message != null) ...[
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    _message!,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: _showSuccessMessage
-                                          ? const Color(0xFF3C8C62)
-                                          : theme.colorScheme.error,
-                                    ),
-                                  ),
-                                ],
-                                SizedBox(height: _createAccount ? 18 : 4),
-                                SizedBox(
-                                  height: 50,
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      color: _createAccount
-                                          ? WarmClayColors.accentPrimary
-                                          : null,
-                                      gradient: _createAccount
-                                          ? null
-                                          : const LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Color(0xFF4B7964),
-                                                WarmClayColors.accentPrimary,
-                                              ],
-                                            ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: FilledButton(
-                                      onPressed: _busy ? null : _submit,
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: Colors.transparent,
-                                        disabledBackgroundColor:
-                                            Colors.transparent,
-                                        foregroundColor: Colors.white,
-                                        disabledForegroundColor: Colors.white70,
-                                        shadowColor: Colors.transparent,
-                                      ),
-                                      child: _busy
-                                          ? const SizedBox.square(
-                                              dimension: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: Colors.white,
-                                              ),
-                                            )
-                                          : Text(
-                                              _createAccount
-                                                  ? 'Create account'
-                                                  : 'Sign in',
-                                            ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  children: [
-                                    const Expanded(
-                                      child: Divider(color: Color(0xFFD7DCD7)),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: Text(
-                                        'OR',
-                                        style: theme.textTheme.labelSmall
-                                            ?.copyWith(
-                                              letterSpacing: 1,
-                                              fontWeight: FontWeight.w600,
-                                              color: Color(0xFF9AA29C),
-                                            ),
-                                      ),
-                                    ),
-                                    const Expanded(
-                                      child: Divider(color: Color(0xFFD7DCD7)),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Wrap(
-                                  alignment: WrapAlignment.center,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    Text(
-                                      _createAccount
-                                          ? 'Already have an account?'
-                                          : 'New to Helping Hand?',
-                                      style: theme.textTheme.bodyMedium,
-                                    ),
-                                    TextButton(
-                                      onPressed: _busy
-                                          ? null
-                                          : () => _switchMode(!_createAccount),
-                                      child: Text(
-                                        _createAccount
-                                            ? 'Sign in'
-                                            : 'Create account',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (_createAccount)
-                        Text(
-                          'Use at least 6 characters for your password.',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.labelSmall,
-                        ),
-                    ],
+    return Form(
+      key: _formKey,
+      child: AutofillGroup(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              header: true,
+              child: Text(
+                _createAccount ? 'Create your account' : 'Welcome back',
+                style: theme.textTheme.headlineMedium,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _createAccount
+                  ? 'Save your progress. Find your rhythm.'
+                  : 'Sign in to continue your ASL practice.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 24),
+            if (linkingAnonymous) ...[
+              const AuthNotice(
+                message: 'Create an account to keep progress from this device.',
+                icon: Icons.cloud_done_outlined,
+              ),
+              const SizedBox(height: 24),
+            ],
+            TextFormField(
+              key: ValueKey('email-$_createAccount'),
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              autofillHints: const [AutofillHints.email],
+              autocorrect: false,
+              decoration: const InputDecoration(labelText: 'Email address'),
+              validator: (value) {
+                final email = value?.trim() ?? '';
+                return email.contains('@')
+                    ? null
+                    : 'Enter a valid email address.';
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              key: ValueKey('password-$_createAccount'),
+              controller: _passwordController,
+              obscureText: _obscurePassword,
+              textInputAction: _createAccount
+                  ? TextInputAction.next
+                  : TextInputAction.done,
+              onFieldSubmitted: _createAccount ? null : (_) => _submit(),
+              autofillHints: _createAccount
+                  ? const [AutofillHints.newPassword]
+                  : const [AutofillHints.password],
+              decoration: InputDecoration(
+                labelText: 'Password',
+                helperText: _createAccount
+                    ? 'Use at least 6 characters.'
+                    : null,
+                helperMaxLines: 3,
+                suffixIcon: IconButton(
+                  tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
                   ),
                 ),
               ),
+              validator: (value) {
+                final password = value ?? '';
+                if (password.isEmpty) {
+                  return 'Enter a password.';
+                }
+                if (_createAccount && password.length < 6) {
+                  return 'Use at least 6 characters.';
+                }
+                return null;
+              },
             ),
-          ),
-        ],
+            if (_createAccount) ...[
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _confirmPasswordController,
+                obscureText: true,
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.newPassword],
+                decoration: const InputDecoration(
+                  labelText: 'Confirm password',
+                ),
+                validator: (value) => value == _passwordController.text
+                    ? null
+                    : 'Passwords do not match.',
+              ),
+            ],
+            if (!_createAccount)
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: _busy ? null : _sendPasswordReset,
+                  child: const Text(
+                    'Forgot password?',
+                    style: TextStyle(decoration: TextDecoration.underline),
+                  ),
+                ),
+              ),
+
+            if (_message != null) ...[
+              const SizedBox(height: 16),
+              AuthNotice(
+                message: _message!,
+                success: _showSuccessMessage,
+                error: !_showSuccessMessage,
+                icon: _showSuccessMessage
+                    ? Icons.check_circle_outline
+                    : Icons.error_outline,
+              ),
+            ],
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: _busy ? null : _submit,
+              child: _busy
+                  ? Semantics(
+                      label: 'Please wait',
+                      child: const SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: HelpingHandColors.textSecondary,
+                        ),
+                      ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            _createAccount ? 'Create account' : 'Sign in',
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Icon(Icons.arrow_forward_rounded, size: 20),
+                      ],
+                    ),
+            ),
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 4,
+              children: [
+                Text(
+                  _createAccount
+                      ? 'Already have an account?'
+                      : 'New to Helping Hand?',
+                  style: theme.textTheme.bodySmall,
+                ),
+                TextButton(
+                  onPressed: _busy ? null : () => _switchMode(!_createAccount),
+                  child: Text(
+                    _createAccount ? 'Sign in' : 'Create account',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -57,6 +57,27 @@ progress isolation, offline recovery, and cloud progress sync still need
 end-to-end validation; see the beta test-plan working notes. These are beta
 status updates and do not change the alpha results documented below.
 
+### Current beta learning flow
+
+The reviewed beta UI now uses text-based Helping Hand branding across login,
+signup, and Home, with matching learning-screen styling. Alphabet and Numbers
+are target pickers; Words is an active vocabulary picker with no coming-soon
+notice. Tapping any letter, number, or word opens a separate live-practice page,
+and Back returns to its picker. The grid/list no longer contains practice.
+
+Letters and numbers retain the existing stable-prediction acceptance and
+account-scoped progress behavior. Word pages currently provide the practice UI
+and glove connection feedback; dynamic word recognition and word completion
+are not implemented. The current static model is not used to validate words.
+
+See [Beta build status and known limitations](docs/BETA_BUILD_STATUS.md),
+[Beta app experience](docs/BETA_APP_EXPERIENCE_PLAN.md), and
+[Beta test procedures](docs/BETA_TEST_PLAN_WORKING_NOTES.md). The new route
+change passed targeted Flutter analysis; device navigation, BLE, Firebase,
+and Android beta validation remain to be run. Prior visual/build checks are
+listed separately from this route change. Static selection remains active
+after Back, so beta testing must review completion outside the visible lesson.
+
 ### Status at submission
 
 | Area | Alpha status | Evidence and boundary |

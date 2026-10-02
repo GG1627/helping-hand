@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../theme/warm_clay_theme.dart';
-import 'warm_components.dart';
+import '../theme/helping_hand_theme.dart';
 
 class StablePredictionPracticeCard extends StatelessWidget {
   const StablePredictionPracticeCard({
@@ -25,233 +23,156 @@ class StablePredictionPracticeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final complete = target != null && progress >= 1;
-    final progressValue = progress.clamp(0.0, 1.0);
-
-    return WarmCard(
-      padding: const EdgeInsets.all(18),
+    final reducedMotion = MediaQuery.disableAnimationsOf(context);
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: HelpingHandColors.secondary,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
+            alignment: WrapAlignment.spaceBetween,
             children: [
               Text(
-                'LIVE PRACTICE',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  letterSpacing: 1.2,
-                  fontWeight: FontWeight.w700,
-                  color: WarmClayColors.textSecondary,
+                'Live practice',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: HelpingHandColors.primary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              const Spacer(),
-              _ConnectionStatus(connected: connected),
+              Text(
+                connected ? 'Glove connected' : 'Glove disconnected',
+                style: theme.textTheme.bodySmall,
+              ),
             ],
           ),
           const SizedBox(height: 16),
           AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.04),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
-              ),
-            ),
-            child: Container(
+            duration: reducedMotion
+                ? Duration.zero
+                : const Duration(milliseconds: 180),
+            child: Align(
               key: ValueKey(target ?? 'no-target'),
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-              decoration: BoxDecoration(
-                color: WarmClayColors.accentLight,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 54,
-                    height: 62,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: WarmClayColors.surface,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      target ?? '—',
-                      style: Theme.of(context).textTheme.headlineLarge
-                          ?.copyWith(
-                            fontSize: 36,
-                            color: WarmClayColors.accentPrimary,
+              alignment: Alignment.centerLeft,
+              child: target == null
+                  ? const Icon(
+                      Icons.sign_language_outlined,
+                      size: 48,
+                      color: HelpingHandColors.primary,
+                    )
+                  : Semantics(
+                      label: 'Your target: $target',
+                      child: ExcludeSemantics(
+                        child: Text(
+                          target!,
+                          style: theme.textTheme.headlineLarge?.copyWith(
+                            fontSize: target!.length > 1 ? 32 : 64,
+                            height: 1.1,
+                            color: HelpingHandColors.primary,
+                            fontWeight: FontWeight.w700,
                           ),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          target == null ? 'Choose a target' : 'Your target',
-                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        const SizedBox(height: 3),
-                        Text(
-                          target == null
-                              ? 'Select a letter or number below to begin.'
-                              : 'Make the sign and hold it steady.',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: WarmClayColors.textSecondary),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
             ),
           ),
+          const SizedBox(height: 12),
+          Text(
+            target == null ? 'Choose a target' : 'Your target',
+            style: theme.textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            target == null
+                ? 'Select a letter or number to begin.'
+                : 'Make the sign and hold it steady.',
+            style: theme.textTheme.bodySmall,
+          ),
           if (target != null) ...[
-            const SizedBox(height: 18),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            const SizedBox(height: 24),
+            const Divider(color: HelpingHandColors.outline),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        complete ? 'Matched' : 'Current reading',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        predictedLabel ?? 'Listening for a sign…',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: complete
-                                  ? WarmClayColors.success
-                                  : WarmClayColors.textPrimary,
-                            ),
-                      ),
-                    ],
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      complete ? 'Matched' : 'Current reading',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      predictedLabel ?? 'Listening for a sign...',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ],
                 ),
                 if (predictedConfidence != null)
                   Text(
                     '${predictedConfidence!.toStringAsFixed(0)}%',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: WarmClayColors.textSecondary,
-                    ),
+                    semanticsLabel:
+                        'Confidence ${predictedConfidence!.toStringAsFixed(0)} percent',
+                    style: theme.textTheme.titleMedium,
                   ),
                 if (complete)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8),
-                    child: Icon(
-                      Icons.check_circle_rounded,
-                      color: WarmClayColors.success,
-                      size: 20,
-                    ),
+                  const Icon(
+                    Icons.check_circle_outline,
+                    size: 24,
+                    color: HelpingHandColors.success,
                   ),
               ],
             ),
-            const SizedBox(height: 14),
-            _PracticeProgress(value: progressValue, complete: complete),
-            const SizedBox(height: 12),
-          ] else ...[
-            const SizedBox(height: 14),
-          ],
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  message,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: complete
-                        ? WarmClayColors.success
-                        : WarmClayColors.textSecondary,
-                  ),
-                ),
-              ),
-              if (target != null)
-                TextButton.icon(
-                  onPressed: onRetry,
-                  icon: const Icon(Icons.refresh_rounded, size: 18),
-                  label: const Text('Retry'),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PracticeProgress extends StatelessWidget {
-  const _PracticeProgress({required this.value, required this.complete});
-
-  final double value;
-  final bool complete;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) => Stack(
-        children: [
-          Container(
-            height: 5,
-            decoration: BoxDecoration(
-              color: WarmClayColors.border,
-              borderRadius: BorderRadius.circular(WarmClayTheme.pillRadius),
+            const SizedBox(height: 16),
+            Text(
+              complete ? 'Hold complete' : 'Hold progress',
+              style: theme.textTheme.bodySmall,
             ),
-          ),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOut,
-            width: constraints.maxWidth * value,
-            height: 5,
-            decoration: BoxDecoration(
+            const SizedBox(height: 8),
+            LinearProgressIndicator(
+              value: progress.clamp(0.0, 1.0),
+              minHeight: 6,
+              borderRadius: BorderRadius.circular(8),
               color: complete
-                  ? WarmClayColors.success
-                  : WarmClayColors.accentPrimary,
-              borderRadius: BorderRadius.circular(WarmClayTheme.pillRadius),
+                  ? HelpingHandColors.success
+                  : HelpingHandColors.primary,
+              backgroundColor: HelpingHandColors.surface,
+              semanticsLabel: 'Hold progress',
+            ),
+          ],
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: complete
+                  ? HelpingHandColors.success
+                  : HelpingHandColors.textSecondary,
             ),
           ),
+          if (target != null) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                label: const Text('Retry'),
+              ),
+            ),
+          ],
         ],
       ),
-    );
-  }
-}
-
-class _ConnectionStatus extends StatelessWidget {
-  const _ConnectionStatus({required this.connected});
-
-  final bool connected;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = connected
-        ? WarmClayColors.success
-        : WarmClayColors.textSecondary;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 7,
-          height: 7,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 7),
-        Text(
-          connected ? 'Glove connected' : 'Glove disconnected',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color),
-        ),
-      ],
     );
   }
 }
