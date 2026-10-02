@@ -1,33 +1,36 @@
-# Helping Hand — M3 Alpha Build
+# Helping Hand — M4 Beta Build
 
 Helping Hand is a wearable-assisted American Sign Language (ASL) learning
-system developed for **CEN3908C Senior Design**. A sensor glove captures finger
+system developed for **CEN4908C Senior Design**. A sensor glove captures finger
 bend and wrist-motion data, an ESP32 processes the glove signals and sends
 telemetry over Bluetooth Low Energy (BLE), and an Android Flutter application
 provides live feedback, guided practice, recording tools, and persistent
 learner progress.
 
-This repository is the primary submission artifact for the **M3 Alpha Build**.
-The alpha demonstrates an integrated vertical slice from physical sensing to
-learner feedback and persistent state while preserving the previous static
-36-class classifier as the working regression baseline.
+This repository contains the Helping Hand source, hardware documentation, and
+evidence for the **M4 Beta Build**. The beta iterates on the M3 integrated
+sensor-to-learner path and retains the static 36-class classifier as a
+regression baseline while account flows and dedicated practice routes are
+refined. The beta is intended for extended testing; this README distinguishes
+implemented behavior from features and checks that remain incomplete.
 
 - **Repository:** <https://github.com/GG1627/helping-hand>
-- **Submission branch:** `main`
-- **Validated implementation commit:** [`cce9d38`](https://github.com/GG1627/helping-hand/commit/cce9d3887c5e52fafd4e35753f8e0de516051f79)
+- **Beta development branch:** [`gael`](https://github.com/GG1627/helping-hand/tree/gael)
+- **Current beta application commit:** [`d581d19`](https://github.com/GG1627/helping-hand/commit/d581d19)
+- **Historical alpha validation commit:** [`cce9d38`](https://github.com/GG1627/helping-hand/commit/cce9d3887c5e52fafd4e35753f8e0de516051f79)
 - **Android package:** `com.example.flutter_app`
 - **Firebase project:** `helping-hand-83137`
 - **Team:** Brian, Gael, Kali, and Srinitha
 
-## Alpha build summary
+## Milestone overview
 
-> The sections below document the submitted M3 alpha at commit `cce9d38`.
-> Beta development is now in progress on branch `gael`; see the current work
-> note in [`docs/BETA_TEST_PLAN_WORKING_NOTES.md`](docs/BETA_TEST_PLAN_WORKING_NOTES.md)
-> and the learner experience direction in
-> [`docs/BETA_APP_EXPERIENCE_PLAN.md`](docs/BETA_APP_EXPERIENCE_PLAN.md).
-> The course milestone prompts are preserved in [`M4-Beta-Build.md`](M4-Beta-Build.md)
-> and [`T2-Beta-Test-Plan.md`](T2-Beta-Test-Plan.md).
+> The alpha details and validation results below refer specifically to commit
+> `cce9d38`. Current beta scope and known limitations are summarized here and in
+> [`docs/BETA_BUILD_STATUS.md`](docs/BETA_BUILD_STATUS.md). The course prompts
+> are preserved in [`M4-Beta-Build.md`](M4-Beta-Build.md) and
+> [`T2-Beta-Test-Plan.md`](T2-Beta-Test-Plan.md). The current report and test
+> plan are [`output/pdf/Helping_Hand_M4_Beta_Build_Report.pdf`](output/pdf/Helping_Hand_M4_Beta_Build_Report.pdf)
+> and [`output/pdf/T2_Beta_Test_Plan.pdf`](output/pdf/T2_Beta_Test_Plan.pdf).
 
 The completed alpha path is:
 
@@ -39,7 +42,7 @@ next development phase: collecting real, labeled word-level sensor sequences
 and training a dynamic recognition model. No real dynamic word model has been
 trained, selected, or deployed yet.
 
-### Beta work in progress
+### Beta implementation
 
 The current beta development opens directly to sign-in/account creation and
 adds Firebase email/password account creation, sign-in, password reset, and
@@ -54,8 +57,8 @@ workflow rather than the progress document.
 The team has reported that account creation and sign-in work. The exact app
 build/device and cold-restart behavior were not recorded. Cross-account
 progress isolation, offline recovery, and cloud progress sync still need
-end-to-end validation; see the beta test-plan working notes. These are beta
-status updates and do not change the alpha results documented below.
+end-to-end validation; see the beta test plan. These beta updates do not change
+the historical alpha results documented below.
 
 ### Current beta learning flow
 
@@ -70,15 +73,26 @@ account-scoped progress behavior. Word pages currently provide the practice UI
 and glove connection feedback; dynamic word recognition and word completion
 are not implemented. The current static model is not used to validate words.
 
-See [Beta build status and known limitations](docs/BETA_BUILD_STATUS.md),
+See [Beta build status](docs/BETA_BUILD_STATUS.md),
 [Beta app experience](docs/BETA_APP_EXPERIENCE_PLAN.md), and
-[Beta test procedures](docs/BETA_TEST_PLAN_WORKING_NOTES.md). The new route
-change passed targeted Flutter analysis; device navigation, BLE, Firebase,
-and Android beta validation remain to be run. Prior visual/build checks are
-listed separately from this route change. Static selection remains active
-after Back, so beta testing must review completion outside the visible lesson.
+[Beta test plan](output/pdf/T2_Beta_Test_Plan.pdf). The separate-route change
+passed targeted Flutter analysis; device navigation, BLE, Firebase, and
+Android beta validation remain Not run. Prior visual/build checks are listed
+separately from this route change. Static selection remains active after Back;
+see the known-issues section below.
 
-### Status at submission
+### M4 work and rubric status
+
+| M4 area | Beta implementation | Evidence boundary |
+| --- | --- | --- |
+| Usability, interface, and navigation | Account screens, styled Home and learning screens, active Alphabet/Numbers/Words pickers, and separate target practice routes with Back. | Route-level targeted analysis exists. Current-device navigation and non-team usability sessions remain Not run. |
+| Perception and feedback | Static practice exposes prediction, confidence, hold progress, Retry, and BLE connection state. Account and progress flows expose their current status. | Physical glove feedback on the current beta build remains unverified. |
+| Responsiveness | BLE notifications and Firebase work are asynchronous; the learner route observes state owned by the app shell. | Analysis/automated checks do not replace latency measurements on target phone/hardware. |
+| Integrated features and persistent state | Existing letter/number static classifier and local-first UID-scoped progress remain; Firebase email/password account flows are present. | Live Firestore isolation, offline recovery, and restart synchronization remain unverified end to end. |
+| Build quality and robustness | Existing static-sign path is retained while practice navigation and visual identity are refined. | Full beta regression, edge-case, stress, and current-hardware checks remain Not run. |
+| Dynamic word recognition | Word vocabulary pages are navigable; word model inference and word completion are not integrated. | This is an incomplete feature, not a validated recognition capability. |
+
+### Historical alpha feature status
 
 | Area | Alpha status | Evidence and boundary |
 | --- | --- | --- |
@@ -92,7 +106,7 @@ after Back, so beta testing must review completion outside the visible lesson.
 | Dynamic word models | Architecture foundation only | TCN, CNN-GRU, and CNN-LSTM candidates build and convert in software tests, but none has been trained or evaluated on a real Helping Hand word dataset. |
 | Glove haptics | Research/design direction only | Research recommends beginning with small LRA actuators and a closed-loop driver. No haptic circuit, firmware command path, or physical validation exists yet. |
 
-### Assignment traceability
+### Historical alpha rubric traceability
 
 | Alpha requirement | Helping Hand implementation |
 | --- | --- |
@@ -249,12 +263,12 @@ Firebase persistence, stable-prediction completion logic, and Record Signs
 workflow were validated through the current automated tests and emulator build;
 they were not present in exactly this form in the historical video.
 
-## App navigation and use
+## Beta app navigation and use
 
 ### 1. Start and Dashboard
 
-1. Launch the app and select **Get Started**.
-2. The Dashboard loads the local progress copy immediately.
+1. Launch the app and create an account or sign in with email and password.
+2. Home loads the signed-in user's local progress copy.
 3. The Progress storage card reports whether data is loading, saved locally,
    syncing, synced, offline, or failed.
 4. **Retry sync** appears when remote synchronization is unavailable.
@@ -301,7 +315,7 @@ recordings to Git.
 
 ## Prerequisites
 
-The alpha was validated on Windows with:
+The documented alpha validation environment on Windows used:
 
 - Git;
 - Flutter `3.41.6` stable and Dart `3.11.4`;
@@ -343,9 +357,12 @@ The debug APK is generated at:
 flutter_app/build/app/outputs/flutter-apk/app-debug.apk
 ```
 
-The Android Firebase client configuration is already generated for the alpha
-project. Running the app does not require a service-account key. Anonymous
-authentication is silent; there is no account-entry screen in this alpha.
+The Android Firebase client configuration targets the project listed above.
+Running the app does not require a service-account key. Use a team-provided
+test account; do not put credentials in this repository. The current beta
+provides email/password account creation and sign-in. The older alpha used
+anonymous authentication; that historical behavior is not the current account
+flow.
 
 For project maintainers only, Firestore rules are defined in
 [`flutter_app/firestore.rules`](flutter_app/firestore.rules). Always verify the
@@ -483,37 +500,40 @@ pin contract and hardware photographs are the accurate repository evidence for
 the alpha implementation. An updated as-built electrical schematic remains a
 documentation task for the next hardware assembly.
 
-## Known limitations and next phase
+## Known bugs and incomplete beta features
 
-- The glove was disassembled during the summer, so the exact current alpha
-  source has not been physically regression-tested as a complete glove.
-- The firmware contains an unlimited USB serial readiness wait at startup;
-  standalone boot behavior should be rechecked and the wait bounded if it
-  blocks without a serial host.
-- Forty hertz is the configured recording target; current phone-side packet
-  rate, ordering, loss, and long-notification integrity have not been recorded
-  as a formal stress result.
-- The exact installed IMU part marking and magnetometer capability are not
-  confirmed. `WHO_AM_I=0x70` is compatible with MPU-6500/MPU-9250-class devices
-  but does not prove a usable magnetometer.
-- The first immutable 6–10-word vocabulary and real labeled multi-signer
-  dataset have not been approved or collected.
-- No dynamic word model has been trained, benchmarked, quantized, selected, or
-  deployed. Synthetic fixtures are not performance evidence.
-- Real Record Signs export/share behavior and backend validation should be
-  repeated on the reassembled glove and target phone.
-- Haptic feedback remains research-only. The preferred LRA direction still
-  requires component procurement, driver/circuit integration, power and
-  thermal checks, and measurement of IMU interference.
-- Packet CRC/checksum protection is not implemented.
-- The Android release configuration currently uses debug signing; this alpha
-  produces a debug APK rather than a production-store artifact.
+This list separates observed implementation behavior from tests that have not
+yet been run. A validation gap is not represented as a confirmed defect. The
+separate [beta test plan](output/pdf/T2_Beta_Test_Plan.pdf) defines procedures
+for the unrun checks.
 
-The next phase is to reassemble and revalidate the glove, freeze the initial
-word vocabulary, collect consented recordings across signers and wrist
-orientations, compare orientation preprocessing and model candidates, measure
-target-runtime latency, and deploy only a real-data-validated word model. Static
-classification remains the regression baseline throughout that work.
+| ID | Type | Known behavior and impact | Reproduction / current status |
+| --- | --- | --- | --- |
+| HH-BUG-01 | Firmware startup | `ESP32/src/main.cpp` waits for the USB `Serial` interface without a timeout. If no serial host opens the port, firmware setup can remain blocked before normal BLE/sensor initialization. | Power the board without opening a serial monitor and observe whether BLE advertising begins. Fix: not implemented; standalone boot needs revalidation. |
+| HH-BUG-02 | Practice lifecycle | A selected letter or number remains active after leaving its practice page. The app shell can continue accepting matching packets and may record completion while the learner is back on the picker. | Select a letter/number, return with Back, and continue sending its matching sign. Behavior is confirmed; whether to clear selection on Back is an unresolved product decision. |
+| HH-FEAT-01 | Incomplete beta feature | Word pages are navigable but do not perform dynamic word recognition or save word completion. The static character/digit model is not a word recognizer. | Open a word practice page. Word recognition is not integrated; do not claim a recognized word or word progress. |
+| HH-FEAT-02 | Incomplete beta feature | Target-specific ASL instructional media is not integrated; practice pages provide a target and generic hold guidance. | Open a target practice page. Review and integration of instruction remain outstanding. |
+
+The following are open validation gates rather than confirmed bugs: current
+assembled-glove regression, sustained BLE loss/order/timing, route interaction
+on the target Android device, Firebase account isolation and offline recovery,
+accessibility checks on-device, and usability sessions with non-team testers.
+These checks are **Not run** for the current beta route change. The recording
+rate of 40 Hz is a configured target, not a measured phone-side result. The
+installed IMU's exact part and magnetometer capability are unconfirmed.
+
+The as-built wiring schematic is also outstanding. The drawing in
+`design_draft/schematic/` describes an older ESP32-C3/LSM9DS1 concept and must
+not be used as a schematic for the Feather ESP32-S3 glove. Haptic feedback is
+research-only; no haptic circuit or firmware control path is integrated. The
+Android package currently builds with debug signing, not a store-ready release
+signature. Packet CRC/checksum protection is not implemented.
+
+The next phase is to resolve the practice completion lifecycle, test the
+assembled glove and account flows, approve a word vocabulary, collect
+consented multi-signer recordings across wrist orientations, compare dynamic
+model candidates, measure target-runtime latency, and only then integrate a
+validated word model. The static classifier remains the regression baseline.
 
 ## AI-assisted development disclosure
 
