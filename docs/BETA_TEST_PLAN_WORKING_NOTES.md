@@ -145,7 +145,7 @@ the important outcomes and carry forward unresolved risks into beta coverage.
   already holds the account identity. Add one only for specific app profile
   fields the team decides to support.
 
-### Account work started on branch `gael`
+### Beta account-flow work
 
 - The app now opens directly to sign-in/account creation instead of the former
   Get Started screen.
@@ -187,7 +187,7 @@ These are draft procedures for the beta test plan, not completed results:
 
 | Date | What was collected/tested | Result or issue | Evidence path |
 | --- | --- | --- | --- |
-| 2026-10-01 | Firebase email/password account creation and subsequent sign-in | Team-reported successful. Device/build and cold-restart persistence were not recorded. | User report; branch `gael` |
+| 2026-10-01 | Firebase email/password account creation and subsequent sign-in | Team-reported successful. Device/build and cold-restart persistence were not recorded. | User report |
 | 2026-10-01 | Progress repository account-isolation regression suite | Passed: 8 Flutter progress repository tests, including two separate UID-scoped local stores and independent fake remotes. This does not validate live Firestore rules or cross-account requests against Firebase. | `flutter_app/test/progress_repository_test.dart`; commit `873b589` |
 
 ## Alpha-to-beta lessons

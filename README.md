@@ -15,8 +15,7 @@ refined. The beta is intended for extended testing; this README distinguishes
 implemented behavior from features and checks that remain incomplete.
 
 - **Repository:** <https://github.com/GG1627/helping-hand>
-- **Beta development branch:** [`gael`](https://github.com/GG1627/helping-hand/tree/gael)
-- **Current beta application commit:** [`d581d19`](https://github.com/GG1627/helping-hand/commit/d581d19)
+- **Current beta application snapshot:** [`d581d19`](https://github.com/GG1627/helping-hand/commit/d581d19)
 - **Historical alpha validation commit:** [`cce9d38`](https://github.com/GG1627/helping-hand/commit/cce9d3887c5e52fafd4e35753f8e0de516051f79)
 - **Android package:** `com.example.flutter_app`
 - **Firebase project:** `helping-hand-83137`
@@ -29,7 +28,7 @@ implemented behavior from features and checks that remain incomplete.
 > [`docs/BETA_BUILD_STATUS.md`](docs/BETA_BUILD_STATUS.md). The course prompts
 > are preserved in [`M4-Beta-Build.md`](M4-Beta-Build.md) and
 > [`T2-Beta-Test-Plan.md`](T2-Beta-Test-Plan.md). The current report and test
-> plan are [`output/pdf/Helping_Hand_M4_Beta_Build_Report.pdf`](output/pdf/Helping_Hand_M4_Beta_Build_Report.pdf)
+> work outline and test plan are [`output/pdf/M4_Beta_Build_Work_Outline.pdf`](output/pdf/M4_Beta_Build_Work_Outline.pdf)
 > and [`output/pdf/T2_Beta_Test_Plan.pdf`](output/pdf/T2_Beta_Test_Plan.pdf).
 
 The completed alpha path is:

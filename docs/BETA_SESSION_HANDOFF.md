@@ -1,7 +1,7 @@
 # Beta Build / Beta Test Plan Session Handoff
 
 Prepared October 2, 2026 for the user's next session using GPT Luna.
-Branch: `gael`. Latest implementation/documentation commit: `d581d19`.
+Snapshot: beta application commit `d581d19`; README commit `d807ef8`.
 The subsequent handoff commit changes documentation only.
 
 ## Next session objective
