@@ -48,3 +48,14 @@ split strategy in addition to accuracy. Before implementing quaternion fusion,
 confirm the installed IMU capabilities: the current runtime exposes
 accelerometer and gyroscope data, while magnetometer-stabilized yaw correction
 may require different hardware or a fallback strategy.
+
+## Beta documentation work
+
+For Beta Build or Beta Test Plan sessions, start with
+`docs/BETA_SESSION_HANDOFF.md`, then `docs/BETA_BUILD_STATUS.md` and
+`docs/BETA_TEST_PLAN_WORKING_NOTES.md`. Preserve the original course prompts
+in `M4-Beta-Build.md` and `T2-Beta-Test-Plan.md`. Keep historical alpha evidence
+separate from current beta validation, and label unrun procedures `Not run`.
+Word practice pages are accessible UI; dynamic word recognition and word
+completion are not yet integrated. See the handoff for current navigation,
+remaining decisions, and submission requirements.

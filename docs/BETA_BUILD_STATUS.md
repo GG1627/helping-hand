@@ -66,3 +66,9 @@ or a substitute for the beta report and formal T2 test-plan PDF.
 Course prompts are preserved in [M4 Beta Build](../M4-Beta-Build.md) and
 [T2 Beta Test Plan](../T2-Beta-Test-Plan.md). The team still needs the required
 report, formal test-plan PDF, and stakeholder presentation/defense.
+
+## Next-session handoff
+
+Start the beta report/test-plan session with
+[BETA_SESSION_HANDOFF.md](BETA_SESSION_HANDOFF.md), which records the current
+implementation, evidence boundaries, remaining decisions, and drafting order.

@@ -236,3 +236,9 @@ expected result to match it.
   remain Not run for this change. Add measured results and evidence after runs.
 - [Beta build status](BETA_BUILD_STATUS.md) separates implemented UI from
   remaining model, hardware, and submission requirements.
+
+## Next-session handoff
+
+Start the beta report/test-plan session with
+[BETA_SESSION_HANDOFF.md](BETA_SESSION_HANDOFF.md), which records the current
+implementation, evidence boundaries, remaining decisions, and drafting order.
