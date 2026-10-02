@@ -75,3 +75,15 @@ The submission must include the following components:
 In addition to all source code and hardware designs, the project repository should include a README outlining completed work, a description of the project's architecture, and all known bugs. **Failure to document bugs is grounds for grade reduction.**
 
 It is also **critical** that all teams have time-stamped third-party evidence (e.g., remote source code repository pushes, online documents, etc.; action logging is **not** acceptable as it doesn't constitute proof of work) of all effort invested in the project. Teams may include additional documentation, as necessary, to demonstrate the work completed. **Failure to establish sufficient evidence to prove effort investment will result in a proportional grade deduction.**
+
+---
+
+## Helping Hand implementation companion
+
+The course specification above is preserved. Current project scope, known
+limitations, and validation boundaries are in
+[Beta build status](docs/BETA_BUILD_STATUS.md). The implemented learner flow is
+in [Beta app experience](docs/BETA_APP_EXPERIENCE_PLAN.md); reproducible beta
+procedures and unrun checks are in
+[Beta test working notes](docs/BETA_TEST_PLAN_WORKING_NOTES.md).
+These repository notes do not replace the required formal submission.

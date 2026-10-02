@@ -1,0 +1,3 @@
+# Firebase MCP needs outbound access to Google Firebase and Cloud APIs.
+[sandbox_workspace_write]
+network_access = true

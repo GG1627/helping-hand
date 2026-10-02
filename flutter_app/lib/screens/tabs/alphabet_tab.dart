@@ -6,12 +6,10 @@ class AlphabetTab extends StatelessWidget {
     super.key,
     required this.learnedLetters,
     required this.selectedLetter,
-    required this.practiceCard,
     required this.onLetterSelected,
   });
   final Set<String> learnedLetters;
   final String? selectedLetter;
-  final Widget practiceCard;
   final void Function(String) onLetterSelected;
   @override
   Widget build(BuildContext context) => LearningScaffold(
@@ -22,18 +20,14 @@ class AlphabetTab extends StatelessWidget {
       children: [
         LearningProgress(learned: learnedLetters.length, total: 26),
         const SizedBox(height: 24),
-        LearningWorkspace(
-          practice: practiceCard,
-          selectorFirst: false,
-          selector: LearningTargetGrid(
-            title: 'Choose a letter',
-            labels: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-            learned: learnedLetters,
-            selected: selectedLetter,
-            onSelected: onLetterSelected,
-            maxColumns: 6,
-            minimumTileWidth: 56,
-          ),
+        LearningTargetGrid(
+          title: 'Choose a letter',
+          labels: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+          learned: learnedLetters,
+          selected: selectedLetter,
+          onSelected: onLetterSelected,
+          maxColumns: 6,
+          minimumTileWidth: 56,
         ),
       ],
     ),

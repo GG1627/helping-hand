@@ -170,11 +170,11 @@ class DashboardTab extends StatelessWidget {
                               onTap: () => onOpenTab(2),
                             ),
                             const Divider(),
-                            const _LearningPathRow(
+                            _LearningPathRow(
                               icon: Icons.waving_hand_outlined,
                               title: 'Words',
-                              detail: 'Coming soon',
-                              comingSoon: true,
+                              detail: 'Everyday vocabulary',
+                              onTap: () => onOpenTab(3),
                             ),
                             if (!needsAttention) ...[
                               const SizedBox(height: 24),
@@ -361,13 +361,11 @@ class _LearningPathRow extends StatelessWidget {
     required this.title,
     required this.detail,
     this.onTap,
-    this.comingSoon = false,
   });
   final IconData icon;
   final String title;
   final String detail;
   final VoidCallback? onTap;
-  final bool comingSoon;
 
   @override
   Widget build(BuildContext context) {
@@ -375,13 +373,7 @@ class _LearningPathRow extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(vertical: 12),
       minLeadingWidth: 40,
       leading: ExcludeSemantics(
-        child: Icon(
-          icon,
-          size: 28,
-          color: comingSoon
-              ? HelpingHandColors.textSecondary
-              : HelpingHandColors.primary,
-        ),
+        child: Icon(icon, size: 28, color: HelpingHandColors.primary),
       ),
       title: Text(title, style: Theme.of(context).textTheme.titleMedium),
       subtitle: Padding(
@@ -389,7 +381,7 @@ class _LearningPathRow extends StatelessWidget {
         child: Text(detail, style: Theme.of(context).textTheme.bodySmall),
       ),
       trailing: Icon(
-        comingSoon ? Icons.lock_outline_rounded : Icons.arrow_forward_rounded,
+        Icons.arrow_forward_rounded,
         size: 20,
         color: HelpingHandColors.textSecondary,
       ),

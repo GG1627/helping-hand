@@ -40,3 +40,15 @@ Here are some examples of testable parameters and appropriate test methods:
 ## Submission
 
 Submissions will be on Canvas in the form of a PDF file containing the **beta test plan**.
+
+---
+
+## Helping Hand implementation companion
+
+The course specification above is preserved. Current project scope, known
+limitations, and validation boundaries are in
+[Beta build status](docs/BETA_BUILD_STATUS.md). The implemented learner flow is
+in [Beta app experience](docs/BETA_APP_EXPERIENCE_PLAN.md); reproducible beta
+procedures and unrun checks are in
+[Beta test working notes](docs/BETA_TEST_PLAN_WORKING_NOTES.md).
+These repository notes do not replace the required formal submission.

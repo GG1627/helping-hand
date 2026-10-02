@@ -12,6 +12,7 @@ import '../services/recording_service.dart';
 import '../services/stable_prediction_tracker.dart';
 import '../theme/helping_hand_theme.dart';
 import '../widgets/stable_prediction_practice_card.dart';
+import 'learning_screen.dart';
 import 'tabs/alphabet_tab.dart';
 import 'tabs/ble_testing_tab.dart';
 import 'tabs/dashboard_tab.dart';
@@ -50,6 +51,8 @@ class _MainShellState extends State<MainShell> {
 
   StreamSubscription<BlePacket>? _recordingPacketSubscription;
   StreamSubscription<ProgressRepositoryState>? _progressSubscription;
+  final ValueNotifier<int> _practiceRevision = ValueNotifier(0);
+  String? _selectedPracticeWord;
   String? _selectedPracticeTarget;
   StablePredictionResult _predictionResult =
       const StablePredictionResult.idle();
@@ -87,19 +90,27 @@ class _MainShellState extends State<MainShell> {
     if (_ownsProgressRepository) _progressRepository.dispose();
     _recordingService.dispose();
     _bleService.dispose();
+    _practiceRevision.dispose();
     super.dispose();
   }
 
   void _selectPracticeTarget(String target) {
     setState(() {
+      _selectedPracticeWord = null;
       _selectedPracticeTarget = target.toUpperCase();
       _predictionResult = _predictionTracker.selectTarget(target);
     });
+    _practiceRevision.value++;
   }
 
   void _retryPracticeTarget() {
+    if (_selectedPracticeWord != null) {
+      _practiceRevision.value++;
+      return;
+    }
     if (_selectedPracticeTarget == null) return;
     setState(() => _predictionResult = _predictionTracker.reset());
+    _practiceRevision.value++;
   }
 
   void _handleLearnerPacket(BlePacket packet) {
@@ -107,6 +118,7 @@ class _MainShellState extends State<MainShell> {
     final result = _predictionTracker.add(packet);
     if (!mounted) return;
     setState(() => _predictionResult = result);
+    _practiceRevision.value++;
     if (result.justCompleted) {
       unawaited(
         _progressRepository.completeStaticTarget(_selectedPracticeTarget!),
@@ -136,15 +148,45 @@ class _MainShellState extends State<MainShell> {
     };
   }
 
+  void _openPractice({
+    required String category,
+    required String target,
+    required String title,
+  }) {
+    if (category == 'words') {
+      // The current recognition baseline only supports A-Z and 0-9.
+      // Word lessons share the live UI without feeding words to that tracker.
+      setState(() {
+        _selectedPracticeTarget = null;
+        _selectedPracticeWord = title;
+        _predictionResult = const StablePredictionResult.idle();
+      });
+      _practiceRevision.value++;
+    } else {
+      _selectPracticeTarget(target);
+    }
+    LearningScreen.open(
+      context,
+      category: category,
+      target: target,
+      title: title,
+      practice: _practiceCard(),
+    );
+  }
+
   Widget _practiceCard() {
     return AnimatedBuilder(
-      animation: _bleService,
+      animation: Listenable.merge([_bleService, _practiceRevision]),
       builder: (context, _) => StablePredictionPracticeCard(
-        target: _selectedPracticeTarget,
+        target: _selectedPracticeWord ?? _selectedPracticeTarget,
         predictedLabel: _predictionResult.predictedLabel,
         predictedConfidence: _predictionResult.predictedConfidence,
         progress: _predictionResult.progress,
-        message: _practiceMessage,
+        message: _selectedPracticeWord == null
+            ? _practiceMessage
+            : _bleService.isConnected
+            ? 'Make the sign and hold it steady.'
+            : 'Connect the glove from BLE Testing to practice.',
         connected: _bleService.isConnected,
         onRetry: _retryPracticeTarget,
       ),
@@ -178,18 +220,33 @@ class _MainShellState extends State<MainShell> {
                 RegExp(r'^[A-Z]$').hasMatch(selectedTarget)
             ? selectedTarget
             : null,
-        practiceCard: _practiceCard(),
-        onLetterSelected: _selectPracticeTarget,
+        onLetterSelected: (letter) => _openPractice(
+          category: 'alphabet',
+          target: letter,
+          title: 'Letter $letter',
+        ),
       ),
       NumbersTab(
         learnedNumbers: progress.learnedNumbers,
         selectedNumber: selectedTarget == null
             ? null
             : int.tryParse(selectedTarget),
-        practiceCard: _practiceCard(),
-        onNumberSelected: (number) => _selectPracticeTarget('$number'),
+        onNumberSelected: (number) => _openPractice(
+          category: 'numbers',
+          target: '$number',
+          title: 'Number $number',
+        ),
       ),
-      const WordsTab(),
+      WordsTab(
+        onWordSelected: (word) => _openPractice(
+          category: 'words',
+          target: word,
+          title: word
+              .split('_')
+              .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+              .join(' '),
+        ),
+      ),
     ];
     if (_developerMode) {
       pages.addAll([

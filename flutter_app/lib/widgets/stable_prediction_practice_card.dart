@@ -73,7 +73,7 @@ class StablePredictionPracticeCard extends StatelessWidget {
                         child: Text(
                           target!,
                           style: theme.textTheme.headlineLarge?.copyWith(
-                            fontSize: 64,
+                            fontSize: target!.length > 1 ? 32 : 64,
                             height: 1.1,
                             color: HelpingHandColors.primary,
                             fontWeight: FontWeight.w700,

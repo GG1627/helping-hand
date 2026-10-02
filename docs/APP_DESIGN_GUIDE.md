@@ -19,18 +19,23 @@ landscape, 3× text scaling, sync states, and navigation/settings callbacks.
 ### Learning implementation
 
 Alphabet, Numbers, and Words use the same ivory/teal/mint theme as Home and
-authentication, with open headers and the shared curved brand trail. Alphabet
-places live practice above its letter grid on phones; Numbers leads with its
-compact keypad. Wide layouts place practice beside selection. Shared outlined
+authentication, with open headers and the shared curved brand trail. Alphabet and Numbers are lesson pickers with progress and a target grid.
+Tapping any letter, number, or word opens a separate, scrollable live-practice
+page. Back returns to the same picker; no practice panel remains in the grid. Shared outlined
 tiles use teal for selection and mint plus a check for learned targets; grid
 columns and tile heights adapt to available width and system text size.
 
 Live practice is one mint surface with a large target, unchanged connection,
 prediction/confidence, hold progress, feedback, and Retry behavior. Target fades
-respect reduced motion. Words remains a preview with a single availability
-notice and divided rows, preserving the draft vocabulary and review caveat.
-No new recognition or learning functionality was added. Review covered phone,
-landscape, tablet, 3x text scaling, target callbacks, and idle/complete states.
+respect reduced motion. Words uses tappable divided vocabulary rows without a coming-soon notice.
+Letters, numbers, and words each open a dedicated live-practice page with
+a target title and Back control. Word pages share the practice UI and glove
+connection state; the static recognition tracker remains limited to A-Z and 0-9. Home also opens the Words destination.
+No new recognition model was added. The preceding visual redesign was reviewed
+on phone, landscape, tablet, 3x text scaling, target callbacks, and idle/complete
+states. The separate-route update passed targeted Flutter analysis; its new
+on-device navigation and live BLE procedures remain Not run. See
+[BETA_BUILD_STATUS.md](BETA_BUILD_STATUS.md) for the current evidence boundary.
 
 ### Authentication implementation
 
@@ -232,8 +237,8 @@ and larger groups, 32 between sections, and 48 for major entry composition.
 - Standard toolbar plus system safe area; start content 16 below the header.
   Avoid compensating offsets for overlapping app bars.
 - Form/practice maximum width: 560. General page maximum width: 960, centered.
-- At 600+ width use 32 gutters; at 840+ a practice stage and target list may sit
-  side by side with logical reading/focus order.
+- At 600+ width use 32 gutters. Pickers have a 960 maximum width; separate
+  practice pages use a 560 maximum width and one scroll region.
 - Derive grid columns from available width and 12 gaps, with minimum 48 × 48
   hit areas; prefer roughly 56–72 tiles on phones. Permit height growth with
   text scaling; do not constrain multiline metrics to fixed aspect ratios.
@@ -310,10 +315,10 @@ and haptics remain optional supplements.
 | Password reset / auth error | Recover access | Feedback near the form action; invalid input by its field; success with icon/text rather than a separate celebratory screen. |
 | Startup loading / failure | Enter or retry | Ivory, compact brand, labeled loading state; failure with padded recovery text and one Retry action. |
 | Home | Start or resume practice | Compact shared wordmark and trail, flat mint practice invitation with a prominent teal action, compact saved-progress band, open path rows. Healthy sync stays quiet; failure exposes Retry. Do not invent a last-practiced target if not stored. |
-| Alphabet | Choose and practice | Open count/header and progress track, one mint practice stage, exposed tiles. Selected target/check/type provide identity. No enclosing grid card. |
-| Numbers | Choose and practice | Same count format, target type, stage, gaps, and state treatment as Alphabet; columns adapt to available width and content. |
+| Alphabet | Choose a lesson | Open completion count/track and letter tiles. Tapping a letter opens its separate mint live-practice page. |
+| Numbers | Choose a lesson | Same progress and tile states as Alphabet, with a compact numeric grid. Each number opens separate live practice. |
 | Live practice | Understand the next step | Idle: choose target. Disconnected: connection recovery. Waiting: readable state. Holding: labeled hold track. Low confidence/mismatch: supportive correction. Complete: check and saved-progress status. Distinguish hold progress from learning progress. |
-| Words preview | Understand availability | One “Word practice coming soon” notice and divided vocabulary rows. Preserve provisional-vocabulary limitations without repeated badges or prominent internal model prose. Preview browsing must not imply recognition is ready. |
+| Words | Choose a lesson | Tappable divided vocabulary rows with forward arrows; no coming-soon notice. Each word opens its practice page; word recognition is not yet integrated. |
 | Account/settings sheet | Manage preferences | White sheet, aligned rows, readable email, native switch, separated reset/sign-out actions; no illustration or promotion. |
 | Reset confirmation | Choose knowingly | Clear consequences, secondary Cancel, error-colored Reset; preserve confirmation behavior. |
 | Developer tools | Open research tasks | Common canvas/type/controls, compact Research mode context, two divided tool rows. Denser grouping rather than a separate brand. |
@@ -328,7 +333,7 @@ raw packet inspection remains in research tools. No new screen exists yet.
 Future session results and word lessons reuse this system: reviewed sign media,
 one primary action, open breakdown rows, and real completion data. Historical
 mockups' streaks, accuracy, battery, and session metrics must not appear unless
-backed by supported data. Keep Words forthcoming until its flow is validated.
+backed by supported data. Word lesson pages use the live-practice UI; word recognition still requires model validation.
 
 ## 6. Later implementation acceptance and rollout
 
@@ -346,7 +351,7 @@ Suggested later rollout:
 
 1. Shared theme, controls, and responsive layout foundations.
 2. Home and Alphabet pilot, including connection recovery and practice states.
-3. Numbers, Words preview, authentication, settings, and confirmations.
+3. Remaining settings and confirmations, after the implemented learning/authentication passes.
 4. Recording, BLE diagnostics, and the experimental tester if retained.
 5. Reviewed instructional media and word lessons as content/models become ready.
 

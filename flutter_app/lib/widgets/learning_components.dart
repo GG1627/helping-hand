@@ -97,42 +97,6 @@ class LearningProgress extends StatelessWidget {
   );
 }
 
-/// Wide layouts put the target and its selector within the same visual field.
-class LearningWorkspace extends StatelessWidget {
-  const LearningWorkspace({
-    super.key,
-    required this.practice,
-    required this.selector,
-    this.selectorFirst = false,
-  });
-  final Widget practice;
-  final Widget selector;
-  final bool selectorFirst;
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      if (constraints.maxWidth >= 840) {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: practice),
-            const SizedBox(width: 32),
-            Expanded(child: selector),
-          ],
-        );
-      }
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          selectorFirst ? selector : practice,
-          const SizedBox(height: 24),
-          selectorFirst ? practice : selector,
-        ],
-      );
-    },
-  );
-}
-
 class LearningTargetGrid extends StatelessWidget {
   const LearningTargetGrid({
     super.key,
