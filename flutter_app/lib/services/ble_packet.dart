@@ -116,4 +116,11 @@ class BlePacket {
   final String? expectedLabel;
 
   bool get isValid => issues.isEmpty;
+
+  /// Static letter/number collection needs a timestamped flex frame, but not
+  /// motion data. Dynamic word collection must continue to use [isValid].
+  bool get isStaticFlexValid =>
+      deviceSequence != null &&
+      deviceTimestampMs != null &&
+      flexRaw.every((value) => value != null);
 }

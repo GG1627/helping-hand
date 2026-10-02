@@ -1,157 +1,41 @@
 import 'package:flutter/material.dart';
-import '../../theme/warm_clay_theme.dart';
-import '../../widgets/warm_components.dart';
 import 'package:flutter_3d_controller/flutter_3d_controller.dart';
+import '../../widgets/learning_components.dart';
 
 class AlphabetTab extends StatelessWidget {
-  final Set<String> learnedLetters;
-  final String? selectedLetter;
-  final Widget practiceCard;
-  final void Function(String letter) onLetterSelected;
-
   const AlphabetTab({
     super.key,
     required this.learnedLetters,
     required this.selectedLetter,
-    required this.practiceCard,
     required this.onLetterSelected,
   });
+  
+  final Set<String> learnedLetters;
+  final String? selectedLetter;
+  final void Function(String) onLetterSelected;
 
   @override
   Widget build(BuildContext context) {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    final letterList = letters.split('');
-    final learnedCount = learnedLetters.length;
-    final progress = learnedCount / letterList.length;
-
-    return TabScaffold(
+    return LearningScaffold(
       title: 'Alphabet',
+      subtitle: 'A to Z. Choose a letter and practice its sign.',
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          WarmCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('A to Z', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                Text(
-                  '$learnedCount/${letterList.length} learned',
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-                const SizedBox(height: 10),
-                ProgressBar(value: progress),
-              ],
-            ),
-          ),
-          const SizedBox(height: WarmClayTheme.cardGap),
-          practiceCard,
-          const SizedBox(height: WarmClayTheme.cardGap),
+          LearningProgress(learned: learnedLetters.length, total: 26),
+          const SizedBox(height: 16),
           Hand3DViewer(selectedLetter: selectedLetter),
-          const SizedBox(height: WarmClayTheme.cardGap),
-          WarmCard(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final crossAxisCount = constraints.maxWidth >= 460 ? 6 : 5;
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: letterList.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1,
-                  ),
-                  itemBuilder: (context, index) {
-                    final letter = letterList[index];
-                    final learned = learnedLetters.contains(letter);
-                    return _LearningTile(
-                      label: letter,
-                      learned: learned,
-                      selected: selectedLetter == letter,
-                      onTap: () => onLetterSelected(letter),
-                    );
-                  },
-                );
-              },
-            ),
+          const SizedBox(height: 24),
+          LearningTargetGrid(
+            title: 'Choose a letter',
+            labels: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+            learned: learnedLetters,
+            selected: selectedLetter,
+            onSelected: onLetterSelected,
+            maxColumns: 6,
+            minimumTileWidth: 56,
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _LearningTile extends StatelessWidget {
-  const _LearningTile({
-    required this.label,
-    required this.learned,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool learned;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            color: learned
-                ? WarmClayColors.accentPrimary
-                : WarmClayColors.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: learned || selected
-                  ? WarmClayColors.accentPrimary
-                  : WarmClayColors.border,
-              width: selected ? 2 : 1,
-            ),
-            boxShadow: learned
-                ? const [
-                    BoxShadow(
-                      color: Color(0x2EC96A3C),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Stack(
-            children: [
-              Center(
-                child: Text(
-                  label,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: learned ? Colors.white : WarmClayColors.textPrimary,
-                  ),
-                ),
-              ),
-              if (learned)
-                const Positioned(
-                  right: 6,
-                  top: 6,
-                  child: Icon(
-                    Icons.check_circle_rounded,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -178,7 +62,6 @@ class _Hand3DViewerState extends State<Hand3DViewer> {
   @override
   void didUpdateWidget(covariant Hand3DViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Play the animation whenever the selected letter updates
     if (widget.selectedLetter != null && widget.selectedLetter != oldWidget.selectedLetter) {
       _controller.playAnimation(animationName: 'Pose_${widget.selectedLetter}');
     }

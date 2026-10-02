@@ -40,4 +40,15 @@ void main() {
     expect(packet.issues, contains('Missing or invalid ax'));
     expect(packet.issues, contains('Malformed field: broken-field'));
   });
+
+  test('accepts an IMU-offline frame for static flex collection only', () {
+    const raw =
+        'seq=42,t_ms=1234,imu=offline,flex0_raw=500,flex1_raw=450,'
+        'flex2_raw=400,flex3_raw=350,flex4_raw=300';
+
+    final packet = BlePacket.parse(raw);
+
+    expect(packet.isValid, isFalse);
+    expect(packet.isStaticFlexValid, isTrue);
+  });
 }

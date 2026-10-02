@@ -92,6 +92,15 @@ class BleConnectionService extends ChangeNotifier {
         DateTime.now().toUtc().difference(packet.receivedAt) <= maximumAge;
   }
 
+  bool hasFreshStaticFlexPacket({
+    Duration maximumAge = const Duration(seconds: 2),
+  }) {
+    final packet = _lastPacket;
+    return packet != null &&
+        packet.isStaticFlexValid &&
+        DateTime.now().toUtc().difference(packet.receivedAt) <= maximumAge;
+  }
+
   String deviceName(BluetoothDevice device) {
     final platformName = device.platformName.trim();
     return platformName.isNotEmpty ? platformName : device.remoteId.str;

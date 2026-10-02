@@ -13,5 +13,9 @@ __pycache__/
 # trained model files
 models/asl_model.keras
 models/asl_model.tflite
+flutter_app.zip
+
+
+oracleJdk-27
 
 .vscode/

@@ -21,6 +21,14 @@ learner feedback and persistent state while preserving the previous static
 
 ## Alpha build summary
 
+> The sections below document the submitted M3 alpha at commit `cce9d38`.
+> Beta development is now in progress on branch `gael`; see the current work
+> note in [`docs/BETA_TEST_PLAN_WORKING_NOTES.md`](docs/BETA_TEST_PLAN_WORKING_NOTES.md)
+> and the learner experience direction in
+> [`docs/BETA_APP_EXPERIENCE_PLAN.md`](docs/BETA_APP_EXPERIENCE_PLAN.md).
+> The course milestone prompts are preserved in [`M4-Beta-Build.md`](M4-Beta-Build.md)
+> and [`T2-Beta-Test-Plan.md`](T2-Beta-Test-Plan.md).
+
 The completed alpha path is:
 
 > Glove sensors → ESP32 static classifier → BLE packets → Flutter learner
@@ -31,6 +39,45 @@ next development phase: collecting real, labeled word-level sensor sequences
 and training a dynamic recognition model. No real dynamic word model has been
 trained, selected, or deployed yet.
 
+### Beta work in progress
+
+The current beta development opens directly to sign-in/account creation and
+adds Firebase email/password account creation, sign-in, password reset, and
+sign-out. Creating an account from the existing
+anonymous session links that identity so its cloud progress can be retained.
+Local progress files and the Firestore progress document are scoped to the
+signed-in Firebase user. The app uses the existing document path
+`users/{uid}/progress/current`; Firebase Authentication stores credentials, and
+raw glove recordings continue through the CSV/JSON export and team dataset
+workflow rather than the progress document.
+
+The team has reported that account creation and sign-in work. The exact app
+build/device and cold-restart behavior were not recorded. Cross-account
+progress isolation, offline recovery, and cloud progress sync still need
+end-to-end validation; see the beta test-plan working notes. These are beta
+status updates and do not change the alpha results documented below.
+
+### Current beta learning flow
+
+The reviewed beta UI now uses text-based Helping Hand branding across login,
+signup, and Home, with matching learning-screen styling. Alphabet and Numbers
+are target pickers; Words is an active vocabulary picker with no coming-soon
+notice. Tapping any letter, number, or word opens a separate live-practice page,
+and Back returns to its picker. The grid/list no longer contains practice.
+
+Letters and numbers retain the existing stable-prediction acceptance and
+account-scoped progress behavior. Word pages currently provide the practice UI
+and glove connection feedback; dynamic word recognition and word completion
+are not implemented. The current static model is not used to validate words.
+
+See [Beta build status and known limitations](docs/BETA_BUILD_STATUS.md),
+[Beta app experience](docs/BETA_APP_EXPERIENCE_PLAN.md), and
+[Beta test procedures](docs/BETA_TEST_PLAN_WORKING_NOTES.md). The new route
+change passed targeted Flutter analysis; device navigation, BLE, Firebase,
+and Android beta validation remain to be run. Prior visual/build checks are
+listed separately from this route change. Static selection remains active
+after Back, so beta testing must review completion outside the visible lesson.
+
 ### Status at submission
 
 | Area | Alpha status | Evidence and boundary |
@@ -40,7 +87,7 @@ trained, selected, or deployed yet.
 | BLE interface | Implemented; historically physically validated | The app scans for `HelpingHand-Glove`, connects, subscribes to notifications, parses packets, and handles disconnect/reconnect states. Historical videos below show physical glove/sensor data reaching the phone. |
 | Learner practice | Implemented and automated-test validated | A tile selects a target. Progress is awarded only after a matching prediction at or above 80% confidence remains stable for at least 750 ms and five packets. |
 | Persistent progress | Implemented and automated-test validated | Learned letters, learned numbers, and completed exercises are saved locally first and synchronized to Firestore through anonymous authentication. |
-| Record Signs | Implemented and automated-test validated | The app labels, records, reviews, discards, saves, and exports app-private CSV/JSON sessions. A new real-device export has not yet been used as model evidence. |
+| Record Signs | Implemented; pilot physically exercised | The simplified static-sign flow selects a letter/number, counts down for three seconds, records live packets, and saves/exports CSV/JSON. A real-device pilot export is preserved in `backend/recorded_data/`; it is not model evidence because it has one signer and mostly one trial per label. |
 | Word preprocessing | Implemented and automated-test validated | Schema validation, quality reports, fixed-rate resampling, fixed windows, deterministic splits, and train-only standardization are present. |
 | Dynamic word models | Architecture foundation only | TCN, CNN-GRU, and CNN-LSTM candidates build and convert in software tests, but none has been trained or evaluated on a real Helping Hand word dataset. |
 | Glove haptics | Research/design direction only | Research recommends beginning with small LRA actuators and a closed-loop driver. No haptic circuit, firmware command path, or physical validation exists yet. |

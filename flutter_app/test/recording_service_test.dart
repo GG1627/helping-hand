@@ -120,6 +120,23 @@ void main() {
     },
   );
 
+  test('accepts a single digit static-sign label', () {
+    expect(
+      service.startTrial(
+        const TrialMetadata(
+          word: '7',
+          vocabularyVersion: 'static-asl-v1',
+          signerId: 'signer_01',
+          orientationCondition: 'neutral',
+          trialId: 'static_7_0001',
+        ),
+        isConnected: true,
+        hasFreshValidPacket: true,
+      ),
+      isNull,
+    );
+  });
+
   test('persists discard metadata without adding packet rows', () async {
     expect(
       service.startTrial(

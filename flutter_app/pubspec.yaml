@@ -66,9 +66,17 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  fonts:
+    - family: HelpingHandWordmark
+      fonts:
+        - asset: assets/fonts/Fraunces-Italic.ttf
+          weight: 600
+          style: italic
+
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/fonts/Fraunces-OFL.txt
     - assets/models/test.glb
   #   - images/a_dot_ham.jpeg
 

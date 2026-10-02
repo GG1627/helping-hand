@@ -10,8 +10,34 @@ class JsonProgressLocalStore implements ProgressLocalStore {
     this.fileName = 'helping_hand_progress.json',
   }) : _directoryProvider = directoryProvider ?? getApplicationSupportDirectory;
 
+  factory JsonProgressLocalStore.forUser(
+    String uid, {
+    Future<Directory> Function()? directoryProvider,
+  }) {
+    if (!RegExp(r'^[A-Za-z0-9_-]+$').hasMatch(uid)) {
+      throw ArgumentError.value(uid, 'uid', 'Invalid Firebase user ID.');
+    }
+    return JsonProgressLocalStore(
+      directoryProvider: directoryProvider,
+      fileName: 'helping_hand_progress_$uid.json',
+    );
+  }
+
   final Future<Directory> Function() _directoryProvider;
   final String fileName;
+
+  static Future<void> migrateLegacyProgress(String uid) async {
+    final legacy = JsonProgressLocalStore();
+    final legacyFile = await legacy._file();
+    final migratedFile = File('${legacyFile.path}.migrated');
+    if (!await legacyFile.exists() || await migratedFile.exists()) return;
+
+    final accountStore = JsonProgressLocalStore.forUser(uid);
+    if (await accountStore.read() == null) {
+      await accountStore.write(await legacyFile.readAsString());
+    }
+    await legacyFile.rename(migratedFile.path);
+  }
 
   Future<File> _file() async {
     final directory = await _directoryProvider();

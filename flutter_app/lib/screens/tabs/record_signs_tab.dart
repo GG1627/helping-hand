@@ -7,6 +7,8 @@ import '../../services/recording_service.dart';
 import '../../theme/warm_clay_theme.dart';
 import '../../widgets/warm_components.dart';
 
+/// A deliberately small collection flow for the existing static ASL baseline.
+/// The `word` column stores the selected character in lowercase (or a digit).
 class RecordSignsTab extends StatefulWidget {
   const RecordSignsTab({
     super.key,
@@ -22,27 +24,21 @@ class RecordSignsTab extends StatefulWidget {
 }
 
 class _RecordSignsTabState extends State<RecordSignsTab> {
-  final TextEditingController _wordController = TextEditingController();
-  final TextEditingController _vocabularyController = TextEditingController(
-    text: 'words-draft',
-  );
-  final TextEditingController _signerController = TextEditingController(
-    text: 'signer_01',
-  );
-  final TextEditingController _trialController = TextEditingController(
-    text: 'trial_001',
-  );
-  String _orientation = 'neutral';
-  Timer? _elapsedTimer;
+  static final _targets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
+  final _signerController = TextEditingController(text: 'signer_01');
   late final Listenable _services;
+  Timer? _countdownTimer;
+  Timer? _elapsedTimer;
+  String? _selectedTarget;
+  int? _countdownSeconds;
+  int _nextTrialNumber = 1;
 
   @override
   void initState() {
     super.initState();
     _services = Listenable.merge([widget.bleService, widget.recordingService]);
     _elapsedTimer = Timer.periodic(const Duration(milliseconds: 250), (_) {
-      if (mounted &&
-          widget.recordingService.state == TrialRecordingState.recording) {
+      if (mounted && widget.recordingService.state == TrialRecordingState.recording) {
         setState(() {});
       }
     });
@@ -50,11 +46,9 @@ class _RecordSignsTabState extends State<RecordSignsTab> {
 
   @override
   void dispose() {
+    _countdownTimer?.cancel();
     _elapsedTimer?.cancel();
-    _wordController.dispose();
-    _vocabularyController.dispose();
     _signerController.dispose();
-    _trialController.dispose();
     super.dispose();
   }
 
@@ -63,26 +57,26 @@ class _RecordSignsTabState extends State<RecordSignsTab> {
     return AnimatedBuilder(
       animation: _services,
       builder: (context, _) {
-        final ble = widget.bleService;
         final recording = widget.recordingService;
-        final livePacketReady = ble.hasFreshValidPacket();
-        final fieldsEnabled = recording.state == TrialRecordingState.idle;
+        final live = widget.bleService.hasFreshStaticFlexPacket();
+        final isBusy = _countdownSeconds != null ||
+            recording.state != TrialRecordingState.idle;
         return TabScaffold(
           title: 'Record Signs',
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildConnectionCard(context, livePacketReady),
+              _connectionCard(context, live),
               const SizedBox(height: WarmClayTheme.cardGap),
-              _buildMetadataCard(context, fieldsEnabled),
+              _targetCard(context, disabled: isBusy),
               const SizedBox(height: WarmClayTheme.cardGap),
-              _buildRecordingCard(context, livePacketReady),
+              _captureCard(context, live),
               if (recording.currentWarnings.isNotEmpty) ...[
                 const SizedBox(height: WarmClayTheme.cardGap),
-                _buildWarningsCard(context),
+                _warningsCard(context),
               ],
               const SizedBox(height: WarmClayTheme.cardGap),
-              _buildSessionCard(context),
+              _sessionCard(context),
             ],
           ),
         );
@@ -90,266 +84,151 @@ class _RecordSignsTabState extends State<RecordSignsTab> {
     );
   }
 
-  Widget _buildConnectionCard(BuildContext context, bool livePacketReady) {
-    final ble = widget.bleService;
-    final status = !ble.isConnected
-        ? 'Not connected'
-        : livePacketReady
-        ? 'Connected; complete packets are arriving'
-        : 'Connected; waiting for a complete recent packet';
-    return WarmCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Glove connection',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(status, style: Theme.of(context).textTheme.bodyLarge),
-          const SizedBox(height: 6),
-          Text(
-            '${ble.connectedDeviceName} • ${ble.status}',
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Live rate: ${ble.observedSampleRateHz.toStringAsFixed(1)} Hz • '
-            'Latest packet: ${ble.lastPacket?.isValid == true ? 'valid' : 'unavailable/invalid'}',
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-          if (!ble.isConnected) ...[
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: ble.isScanning
-                  ? null
-                  : () => unawaited(ble.startScan()),
-              icon: const Icon(Icons.bluetooth_searching),
-              label: Text(ble.isScanning ? 'Scanning…' : 'Find glove'),
+  Widget _connectionCard(BuildContext context, bool live) => WarmCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Glove connection', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(
+              !widget.bleService.isConnected
+                  ? 'Connect the glove from BLE Testing first.'
+                  : live
+                      ? 'Connected — live sensor packets are ready.'
+                      : 'Connected — waiting for a complete sensor packet.',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${widget.bleService.connectedDeviceName} • '
+              '${widget.bleService.observedSampleRateHz.toStringAsFixed(1)} Hz',
+              style: Theme.of(context).textTheme.labelSmall,
             ),
           ],
-        ],
-      ),
-    );
-  }
+        ),
+      );
 
-  Widget _buildMetadataCard(BuildContext context, bool enabled) {
-    return WarmCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Trial metadata',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Use pseudonymous signer IDs. The vocabulary is still a draft until checkpoint D1 is approved.',
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _wordController,
-            enabled: enabled,
-            decoration: const InputDecoration(
-              labelText: 'Word label',
-              hintText: 'for example: thank_you',
+  Widget _targetCard(BuildContext context, {required bool disabled}) => WarmCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('1. Choose the sign', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(
+              'Pick a letter or number. You will get three seconds to form it.',
+              style: Theme.of(context).textTheme.labelSmall,
             ),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _vocabularyController,
-            enabled: enabled,
-            decoration: const InputDecoration(
-              labelText: 'Vocabulary version',
-              helperText:
-                  'Keep words-draft until an immutable vocabulary is approved.',
+            const SizedBox(height: 12),
+            TextField(
+              controller: _signerController,
+              enabled: !disabled,
+              decoration: const InputDecoration(
+                labelText: 'Signer ID',
+                helperText: 'Use a pseudonym such as signer_01.',
+              ),
             ),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _signerController,
-            enabled: enabled,
-            decoration: const InputDecoration(labelText: 'Signer ID'),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: _orientation,
-            decoration: const InputDecoration(
-              labelText: 'Orientation condition',
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final target in _targets)
+                  ChoiceChip(
+                    label: Text(target),
+                    selected: _selectedTarget == target,
+                    onSelected: disabled
+                        ? null
+                        : (_) => setState(() => _selectedTarget = target),
+                  ),
+              ],
             ),
-            items: const [
-              DropdownMenuItem(value: 'neutral', child: Text('Neutral')),
-              DropdownMenuItem(value: 'pitch_up', child: Text('Pitch up')),
-              DropdownMenuItem(value: 'roll_left', child: Text('Roll left')),
-              DropdownMenuItem(value: 'yaw_right', child: Text('Yaw right')),
-            ],
-            onChanged: enabled
-                ? (value) => setState(() => _orientation = value ?? 'neutral')
-                : null,
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _trialController,
-            enabled: enabled,
-            decoration: const InputDecoration(labelText: 'Trial ID'),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 
-  Widget _buildRecordingCard(BuildContext context, bool livePacketReady) {
-    final ble = widget.bleService;
+  Widget _captureCard(BuildContext context, bool live) {
     final recording = widget.recordingService;
-    final stateLabel = switch (recording.state) {
-      TrialRecordingState.idle => 'Ready',
-      TrialRecordingState.recording => 'RECORDING',
-      TrialRecordingState.review => 'Review required',
-    };
-    final rate = recording.state == TrialRecordingState.idle
-        ? ble.observedSampleRateHz
-        : recording.observedSampleRateHz;
+    final seconds = _countdownSeconds;
+    final isRecording = recording.state == TrialRecordingState.recording;
+    final label = _selectedTarget ?? 'a sign';
+    final detail = seconds != null
+        ? 'Get ready: $seconds'
+        : isRecording
+            ? 'Recording $label — hold the sign, then tap Stop & save.'
+            : 'Select a sign, then start a three-second countdown.';
     return WarmCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(
-                recording.state == TrialRecordingState.recording
-                    ? Icons.fiber_manual_record
-                    : Icons.radio_button_unchecked,
-                color: recording.state == TrialRecordingState.recording
-                    ? Theme.of(context).colorScheme.error
-                    : WarmClayColors.textSecondary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  stateLabel,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 20,
-            runSpacing: 8,
-            children: [
-              _StatusMetric(
-                label: 'Elapsed',
-                value: _formatDuration(recording.elapsed),
-              ),
-              _StatusMetric(
-                label: 'Packets',
-                value: '${recording.currentPacketCount}',
-              ),
-              _StatusMetric(
-                label: 'Valid',
-                value: '${recording.currentValidPacketCount}',
-              ),
-              _StatusMetric(
-                label: 'Rate',
-                value: '${rate.toStringAsFixed(1)} Hz',
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            recording.message,
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
+          Text('2. Capture', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Text(detail, style: Theme.of(context).textTheme.bodyLarge),
+          const SizedBox(height: 10),
+          if (isRecording)
+            Text(
+              '${_formatDuration(recording.elapsed)} • '
+              '${recording.currentPacketCount} packets • '
+              '${recording.observedSampleRateHz.toStringAsFixed(1)} Hz',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              if (recording.state == TrialRecordingState.idle)
+              if (seconds == null && recording.state == TrialRecordingState.idle)
                 FilledButton.icon(
-                  onPressed: ble.isConnected && livePacketReady
-                      ? _startTrial
-                      : null,
-                  icon: const Icon(Icons.fiber_manual_record),
-                  label: const Text('Start recording'),
+                  onPressed: live && _selectedTarget != null ? _beginCountdown : null,
+                  icon: const Icon(Icons.timer_outlined),
+                  label: const Text('Start 3-second countdown'),
                 ),
-              if (recording.state == TrialRecordingState.recording)
+              if (isRecording)
                 FilledButton.icon(
-                  onPressed: _stopTrial,
-                  icon: const Icon(Icons.stop),
-                  label: const Text('Stop'),
-                ),
-              if (recording.state == TrialRecordingState.review)
-                FilledButton.icon(
-                  onPressed: _saveTrial,
+                  onPressed: _stopAndSave,
                   icon: const Icon(Icons.save_outlined),
-                  label: const Text('Save trial'),
+                  label: const Text('Stop & save'),
                 ),
-              if (recording.state != TrialRecordingState.idle)
+              if (seconds != null || recording.state != TrialRecordingState.idle)
                 OutlinedButton.icon(
-                  onPressed: _discardTrial,
-                  icon: const Icon(Icons.delete_outline),
-                  label: const Text('Discard'),
+                  onPressed: _cancelCapture,
+                  icon: const Icon(Icons.close),
+                  label: const Text('Cancel'),
                 ),
             ],
           ),
-          if (!ble.isConnected || !livePacketReady) ...[
-            const SizedBox(height: 10),
-            Text(
-              'Recording is disabled until the glove is connected and a complete packet arrives.',
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWarningsCard(BuildContext context) {
-    return WarmCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          const SizedBox(height: 12),
           Text(
-            'Quality warnings',
-            style: Theme.of(context).textTheme.titleMedium,
+            'Ring sensor note: its actual raw value is saved as received. Do not fill it from the label or another finger during collection; that would leak the answer into training data.',
+            style: Theme.of(context).textTheme.labelSmall,
           ),
-          const SizedBox(height: 8),
-          for (final warning in widget.recordingService.currentWarnings)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Text(
-                '• $warning',
-                style: Theme.of(context).textTheme.labelSmall,
-              ),
-            ),
         ],
       ),
     );
   }
 
-  Widget _buildSessionCard(BuildContext context) {
+  Widget _warningsCard(BuildContext context) => WarmCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Capture warnings', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            for (final warning in widget.recordingService.currentWarnings)
+              Text('• $warning', style: Theme.of(context).textTheme.labelSmall),
+          ],
+        ),
+      );
+
+  Widget _sessionCard(BuildContext context) {
     final recording = widget.recordingService;
     return WarmCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Session', style: Theme.of(context).textTheme.titleMedium),
+          Text('Saved data', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
-          SelectableText(
-            recording.sessionId ?? 'Created when the first trial starts',
-            style: Theme.of(context).textTheme.labelSmall,
-          ),
-          const SizedBox(height: 6),
           Text(
-            '${recording.savedTrialCount} saved • '
-            '${recording.discardedTrialCount} discarded • '
-            'schema $wordRecordingSchemaVersion',
-            style: Theme.of(context).textTheme.labelSmall,
+            '${recording.savedTrialCount} sign sample(s) saved locally.',
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
           if (recording.lastSavedFiles != null) ...[
             const SizedBox(height: 6),
@@ -362,81 +241,83 @@ class _RecordSignsTabState extends State<RecordSignsTab> {
           OutlinedButton.icon(
             onPressed: recording.hasSavedTrials ? _exportSession : null,
             icon: const Icon(Icons.ios_share_outlined),
-            label: const Text('Export session CSV + JSON'),
+            label: const Text('Export CSV + manifest'),
           ),
         ],
       ),
     );
   }
 
-  void _startTrial() {
+  void _beginCountdown() {
+    if (_selectedTarget == null ||
+        !widget.bleService.hasFreshStaticFlexPacket()) {
+      return;
+    }
+    setState(() => _countdownSeconds = 3);
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final remaining = _countdownSeconds;
+      if (!mounted || remaining == null) {
+        timer.cancel();
+        return;
+      }
+      if (remaining > 1) {
+        setState(() => _countdownSeconds = remaining - 1);
+        return;
+      }
+      timer.cancel();
+      setState(() => _countdownSeconds = null);
+      _startCapture();
+    });
+  }
+
+  void _startCapture() {
+    final target = _selectedTarget;
+    if (target == null) return;
     final error = widget.recordingService.startTrial(
       TrialMetadata(
-        word: _wordController.text,
-        vocabularyVersion: _vocabularyController.text,
+        word: target,
+        vocabularyVersion: 'static-asl-v1',
         signerId: _signerController.text,
-        orientationCondition: _orientation,
-        trialId: _trialController.text,
+        orientationCondition: 'neutral',
+        trialId: 'static_${target.toLowerCase()}_${_nextTrialNumber.toString().padLeft(4, '0')}',
       ),
       isConnected: widget.bleService.isConnected,
-      hasFreshValidPacket: widget.bleService.hasFreshValidPacket(),
+      hasFreshValidPacket: widget.bleService.hasFreshStaticFlexPacket(),
     );
     _showError(error);
   }
 
-  void _stopTrial() => _showError(widget.recordingService.stopTrial());
-
-  Future<void> _saveTrial() async {
-    final error = await widget.recordingService.saveTrial();
+  Future<void> _stopAndSave() async {
+    final stopError = widget.recordingService.stopTrial();
+    if (stopError != null) {
+      _showError(stopError);
+      return;
+    }
+    final saveError = await widget.recordingService.saveTrial();
     if (!mounted) return;
-    _showError(error);
-    if (error == null) _advanceTrialId();
+    if (saveError == null) {
+      setState(() => _nextTrialNumber += 1);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${_selectedTarget ?? 'Sign'} saved. Pick the next sign.')),
+      );
+    } else {
+      _showError(saveError);
+    }
   }
 
-  Future<void> _discardTrial() async {
-    final reason = await showDialog<String>(
-      context: context,
-      builder: (context) => SimpleDialog(
-        title: const Text('Why discard this trial?'),
-        children: [
-          for (final reason in const [
-            'bad_sign',
-            'BLE_drop',
-            'wrong_label',
-            'interrupted',
-            'other',
-          ])
-            SimpleDialogOption(
-              onPressed: () => Navigator.pop(context, reason),
-              child: Text(reason),
-            ),
-        ],
-      ),
-    );
-    if (reason == null || !mounted) return;
-    final error = await widget.recordingService.discardTrial(reason);
-    if (mounted) _showError(error);
+  Future<void> _cancelCapture() async {
+    _countdownTimer?.cancel();
+    _countdownTimer = null;
+    if (_countdownSeconds != null) setState(() => _countdownSeconds = null);
+    if (widget.recordingService.state != TrialRecordingState.idle) {
+      await widget.recordingService.discardTrial('cancelled');
+    }
   }
 
   Future<void> _exportSession() async {
     final box = context.findRenderObject() as RenderBox?;
-    final origin = box == null
-        ? null
-        : box.localToGlobal(Offset.zero) & box.size;
-    final error = await widget.recordingService.exportSession(
-      sharePositionOrigin: origin,
-    );
-    if (mounted) _showError(error);
-  }
-
-  void _advanceTrialId() {
-    final match = RegExp(
-      r'^(.*?)(\d+)$',
-    ).firstMatch(_trialController.text.trim());
-    if (match == null) return;
-    final digits = match.group(2)!;
-    final next = (int.parse(digits) + 1).toString().padLeft(digits.length, '0');
-    _trialController.text = '${match.group(1)}$next';
+    final origin = box == null ? null : box.localToGlobal(Offset.zero) & box.size;
+    _showError(await widget.recordingService.exportSession(sharePositionOrigin: origin));
   }
 
   void _showError(String? error) {
@@ -447,31 +328,6 @@ class _RecordSignsTabState extends State<RecordSignsTab> {
   static String _formatDuration(Duration value) {
     final minutes = value.inMinutes.toString().padLeft(2, '0');
     final seconds = (value.inSeconds % 60).toString().padLeft(2, '0');
-    final tenths = ((value.inMilliseconds % 1000) ~/ 100).toString();
-    return '$minutes:$seconds.$tenths';
-  }
-}
-
-class _StatusMetric extends StatelessWidget {
-  const _StatusMetric({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: Theme.of(context).textTheme.labelSmall),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
-        ),
-      ],
-    );
+    return '$minutes:$seconds';
   }
 }
