@@ -1,0 +1,177 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[letterpaper,margin=0.72in,headheight=14pt,footskip=0.34in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{booktabs,longtable,tabularx,array}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\usepackage{url}
+\hypersetup{pdftitle={Helping Hand T2 Beta Test Plan},pdfauthor={Helping Hand Team}}
+\setstretch{1.02}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt plus 1pt minus 1pt}
+\setlength{\emergencystretch}{2em}
+\setlist{nosep,leftmargin=*}
+\captionsetup{font=small,labelfont=bf,justification=raggedright,singlelinecheck=false}
+\renewcommand{\arraystretch}{1.08}
+\setlength{\tabcolsep}{3pt}
+\setlength{\LTpre}{3pt}
+\setlength{\LTpost}{4pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Helping Hand | T2 Beta Test Plan}
+\fancyhead[R]{CEN4908C}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.35pt}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\status}{\textit{Not run on the current beta build}}
+\newcommand{\code}[1]{\texttt{\small #1}}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\thispagestyle{empty}
+\vspace*{0.55in}
+{\large University of Florida\par}
+{\normalsize Herbert Wertheim College of Engineering\par}
+\vspace{1.0in}
+{\Huge\bfseries T2: Beta Test Plan\par}
+\vspace{0.16in}
+{\LARGE Helping Hand\par}
+\vspace{0.36in}
+\rule{\textwidth}{0.6pt}
+\vspace{0.22in}
+\begin{tabularx}{\textwidth}{@{}P{1.5in}Y@{}}
+\textbf{Project} & Helping Hand \\
+\textbf{Assignment} & T2: Beta Test Plan \\
+\textbf{Team members} & Gael Garcia; Kali Schuchhardt; Brian Paz; Srinitha Srikanth \\
+\textbf{Course} & Senior Design 2, CEN4908C, Section 23346 \\
+\textbf{Instructor} & Jeremiah Blanchard \\
+\textbf{Date} & October 2, 2026 \\
+\end{tabularx}
+\vspace{0.22in}
+\rule{\textwidth}{0.6pt}
+\vfill
+\begin{minipage}{\textwidth}
+\small This plan defines measurable, repeatable beta checks for the Helping Hand wearable-assisted ASL learning system. It separates recorded alpha evidence from beta work that has not been executed and treats dynamic word recognition as a beta objective that remains unvalidated.
+\end{minipage}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+
+\section{Alpha Test Results}
+\subsection{Recorded outcomes}
+The results below are repository-documented outcomes, not new beta runs. The original T1 plan contains procedures and proposed thresholds; it is not, by itself, evidence that each procedure was executed.
+
+\begin{longtable}{@{}P{1.14in}P{3.65in}P{2.1in}@{}}
+\caption{Alpha evidence and limits}\label{tab:alpha}\\
+\toprule
+\textbf{Area/date} & \textbf{Documented outcome} & \textbf{Limit carried into beta}\\
+\midrule
+\endfirsthead
+\toprule\textbf{Area/date} & \textbf{Documented outcome} & \textbf{Limit carried into beta}\\\midrule
+\endhead
+\bottomrule
+\endlastfoot
+Automated checks, Sep. 10, 2026; \code{cce9d38} & Flutter analysis passed; 16 Flutter tests passed; Android debug APK and Feather ESP32-S3 PlatformIO builds passed; backend suite passed 23 tests. TFLite emitted three non-failing deprecation warnings. Firmware report: 37.6\% RAM and 83.9\% configured application flash. & Historical alpha environment only; not an Android beta release or physical beta regression. \\
+Firebase alpha setup & README reports the project was checked, Anonymous Authentication enabled, Firestore available, owner-only rules deployed/read back, and emulator showed Synced. & Does not demonstrate live email-account isolation, cold restart, cross-account rejection, or offline recovery on the beta build. \\
+Physical demonstration & Archived demonstrations show glove flex changes received on Android over BLE, with static prediction/confidence displayed. & Earlier assembly/source; no current assembled-glove regression or formal packet-stress record. \\
+Record Signs pilot, Sep. 17, 2026 & Export contains 35 static-sign trials and 5,518 valid BLE frames from one signer at neutral orientation; five flex and six IMU channels; observed trial rates about 39.7--40.5 Hz. & Static pilot only; not a word dataset and not a model accuracy result. \\
+Account work, Oct. 1 notes & Team notes report email/password creation and sign-in; eight UID-isolation repository tests passed at \code{873b589}, using local stores and fake remotes. & Not live Firestore or physical cold-restart/cross-account evidence. \\
+Beta UI and routes & Visual commit \code{9c5caab} passed analysis, production web build, and five temporary responsive/interaction checks. Separate-route commit \code{d581d19} passed targeted Flutter analysis. & Temporary checks are not device usability results. Current route navigation and BLE updates remain unrun on a phone. \\
+\end{longtable}
+
+\subsection{Findings and effect on beta strategy}
+Recorded limitations include a glove that had been disassembled and not revalidated in its current assembly, a firmware startup wait tied to serial readiness, unmeasured phone-side BLE loss under sustained use, unknown exact IMU identity/magnetometer capability, and no real multi-signer word-model evaluation. These are documented risks, not asserted alpha test failures. The repository does not tie specific UI changes to measured participant feedback.
+
+Beta work adds email/password account flows, UID-scoped local progress, separate practice routes, and route-level live state updates while retaining the static 36-class baseline. The beta plan therefore prioritizes boot without a serial host; current-assembly sensor/BLE checks; Back, retry, and stale-state transitions; account isolation and sync; recording/export integrity; and independent usability. Word practice pages are accessible UI; dynamic recognition and word completion are not yet integrated.
+
+\section{Expected Behavior}
+\subsection{System operation}
+The glove samples five flex channels and six accelerometer/gyroscope channels on a Feather ESP32-S3. Firmware targets 40 Hz and transmits timestamped, sequenced sensor and static prediction data over BLE. Flutter displays connection and prediction state, permits static letter/number practice, records labeled sensor trials, and stores progress locally under the signed-in Firebase UID with asynchronous Firestore synchronization. Dynamic word recognition is a beta goal; it must not be represented as available until a real-data-trained model passes the gates in Test ML-02.
+
+\begin{figure}[ht]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[x=1in,y=1in,
+ b/.style={draw,rounded corners=1pt,align=center,text width=1.48in,minimum height=0.52in,font=\footnotesize},
+ c/.style={draw,rounded corners=1pt,align=center,text width=2.25in,minimum height=0.52in,font=\footnotesize},a/.style={-{Latex},thick}]
+\node[b] (sens) at (0,0) {Glove\\5 flex + six-axis IMU};
+\node[b] (mcu) at (1.8,0) {Feather ESP32-S3\\Static TFLite; BLE};
+\node[b] (app) at (3.6,0) {Flutter\\telemetry and practice};
+\node[c] (cloud) at (2.35,-1.1) {UID-scoped local progress\\asynchronous Firebase sync};
+\node[c] (words) at (4.8,-1.1) {Word-trial export\\preprocessing and dynamic-model evaluation};
+\draw[a] (sens)--(mcu);
+\draw[a] (mcu)--node[above,font=\scriptsize]{BLE}(app);
+\draw[a] (app)--(cloud);
+\draw[a] (app)--(words);
+\end{tikzpicture}
+}%
+\caption{System data paths. The word-model branch is planned beta work, not a validated runtime feature.}
+\label{fig:system}
+\end{figure}
+
+\subsection{Behavior requirements}
+\begin{longtable}{@{}P{0.78in}P{3.15in}P{2.95in}@{}}
+\caption{Observable expected behavior}\label{tab:behavior}\\
+\toprule\textbf{ID} & \textbf{Expected behavior} & \textbf{Observable evidence}\\\midrule
+\endfirsthead\toprule\textbf{ID} & \textbf{Expected behavior} & \textbf{Observable evidence}\\\midrule\endhead\bottomrule\endlastfoot
+HW-01 & With the recorded power source and no serial host, the board boots, initializes sensors, and advertises \code{HelpingHand-Glove}. Use the source manufacturer's voltage/current limits. & Boot/discovery time, supply voltage/current, reset count, source identity, abnormal heat or damage. \\
+HW-02 & Each flex channel responds to its mapped finger. IMU acceleration and gyro values are finite and respond to motion. Do not claim absolute yaw unless hardware supports it. & Five raw flex channels, six IMU values, timestamps, mapping and identity. \\
+BLE-01 & App scans, connects, subscribes, parses complete packets, reports lost connection, and resumes fresh data after reconnect. Stale packets are not shown as live. & UI state, first-packet time, packet age, sequence/time gaps, parse errors and reconnect count. \\
+APP-01 & Alphabet, Numbers, and Words open the selected target's own practice route; Back returns to the originating picker. Routes remain responsive while BLE work is asynchronous. & Target title, route, Back destination, scroll/selection state, update latency, BLE connection count. \\
+APP-02 & Static progress is awarded once only for the selected A--Z/0--9 label at confidence $\geq80\%$, held for $\geq750$ ms and at least five consecutive packets; any packet gap $>250$ ms resets the hold. & Prediction/confidence, packet count, hold duration/gaps, local and remote progress delta. \\
+AUTH-01 & Credentials belong to Firebase Authentication, never Firestore. Progress is scoped to the signed-in UID. Offline use retains local progress and reports sync state. & Auth state, UID-scoped document path, local/remote snapshots, errors and sync timestamps. \\
+REC-01 & Recording requires complete metadata and fresh complete sensor data. Save and discard are distinct; export preserves original trials and metadata. & Readiness reason, trial counts, discard reason, CSV/JSON hashes, backend validation report. \\
+WORD-01 & Word pages show the selected target and connection state but cannot claim a word match or save word completion until approved dynamic inference is integrated and validated. & Screen recording and before/after local/cloud progress. \\
+\end{longtable}
+
+\section{Test Procedures}
+\subsection{Execution and evidence rules}
+The reference configuration is branch \code{gael}, source commit \code{14f7aad}, Flutter package \code{1.0.0+1}, Adafruit Feather ESP32-S3, and the T1 reference phone Fairphone Gen 6 / Android 15. Record the actual app artifact, phone/OS, firmware, IMU marking, power source, date, tester, and reviewer for every run; deviations from the reference configuration are permitted but must be stated. Firebase project ID is \code{helping-hand-83137}; use test accounts or the Firebase emulator, never change production rules as part of a test.
+
+Every procedure below is \status{}; older unit/build evidence is not a pass for a new beta route or physical setup. Use pseudonymous participant IDs, obtain required consent before recording people, and retain original data. For each run record the test ID, numbered attempt, measured values, Pass/Fail/Blocked/Not run, defect and retest commit, and evidence filenames. A case blocked by missing physical hardware, consent, reviewer, or trained model is recorded as Blocked with its reason.
+
+\small
+\begin{longtable}{@{}P{0.68in}P{1.46in}P{1.95in}P{1.72in}P{0.77in}@{}}
+\caption{Reproducible beta test cases; acceptance targets marked T1 are proposed alpha-plan gates, not measured results.}\label{tab:tests}\\
+\toprule
+\textbf{ID / name} & \textbf{Purpose, requirement, setup, preconditions} & \textbf{Steps and expected result} & \textbf{Metric and pass/fail criteria} & \textbf{Data/logs}\\\midrule
+\endfirsthead
+\multicolumn{5}{c}{\tablename\ \thetable{} -- continued}\\\toprule
+\textbf{ID / name} & \textbf{Purpose, requirement, setup, preconditions} & \textbf{Steps and expected result} & \textbf{Metric and pass/fail criteria} & \textbf{Data/logs}\\\midrule
+\endhead
+\midrule\multicolumn{5}{r}{Continued on next page}\\\endfoot
+\bottomrule\endlastfoot
+HW-01\\Power & Verify safe readiness and standalone boot. Inspected glove, its identified source, meter, BLE phone. No serial monitor. & Inspect wiring and source label. Measure idle/start/stream voltage and current; perform five cold boots and scan. Each boot advertises without serial input. & No damage, resets, or abnormal heating; readings remain inside manufacturer limits. T1 gate: 5/5 advertisements within 15 s. & Source, limits, V/I, boot times, photos, firmware. \\
+HW-02\\Sensors & Verify mapped inputs and preserve the static baseline. Glove, logger, practiced signer, frozen 36-label list. & Capture rest then five isolated bends per finger; rotate each accessible IMU axis both directions. Run 5 trials per static label; report per-class results. & Flex excursion $\geq100$ ADC counts and $\geq5\times$ rest noise. IMU rest mean 0.8--1.2 g; rotation peak $\geq20$ deg/s. Static T1: representative subset $\geq80\%$ top-1; report full 36-class top-1, macro F1 and confusion matrix (initial overall target 70\%, macro F1 0.65). & Raw packets, part ID, mapping, trial list, predictions, confusion matrix. \\
+BLE-01\\Connect & Verify discovery, permissions and connection timeout/recovery. Android phone, glove, screen/timestamp capture. & Ten attempts: scan, select device, wait for subscription/first valid packet; separately deny permission and disable Bluetooth, restore and retry. UI explains required action and remains usable. & T1 gates: discovery $\geq9/10$ within 15 s; connection/subscription $\geq9/10$ within 10 s. Recovery completes after permission/Bluetooth restoration; no crash. & Per-attempt timestamps, permission/state, error text, phone/OS, screen video. \\
+BLE-02\\Stream & Measure packet timing, validity, loss and reconnect under app use. Stable glove link and raw packet logger. & Stream ten minutes while moving fingers and navigating between picker and practice. Force three disconnects; reconnect and check freshness each time. & T1 gates: average $\geq38$ Hz; receive $\geq95\%$ of 24,000 expected packets; $\geq99\%$ complete parseable frames; missing IDs $\leq5\%$; no accepted duplicate/decreasing IDs. Reconnect 3/3 within 15 s. & Original capture, rates/gaps, malformed count, disconnect and reconnect times, app build. \\
+APP-01\\Routes & Verify target routes, Back, Retry, async BLE updates. Phone, app, glove; targets A, 7 and each word. & Open each picker and sample targets; check title and Back destination. On letter/number route, stream updates, Retry, disconnect/reconnect, Back, and inspect selected-target behavior. & Every target opens correct route and Back returns correctly; no crash or duplicate BLE connection. UI reflects controlled state change within T1 target of 1 s. Document whether completion continues after Back; do not treat this as accepted until team review. & Route checklist, target list, event and display times, packet age, video, defects. \\
+APP-02\\Static gate & Verify valid completion and rejection cases. Phone/glove/logger; local/cloud progress snapshots. & Submit valid match, then wrong label, 79.9\% confidence, four packets, under 750 ms, and a gap over 250 ms. Only valid stable match may award one completion. & Zero awards for invalid cases; exactly one for valid case at 80\%/5 packets/750 ms with no gap over 250 ms. Repeated packets do not double-count. & Injected packet trace, confidence, timings, before/after progress and logs. \\
+AUTH-01\\Isolation & Verify email/password flows and UID boundaries. Test project or emulator; two team-controlled test accounts. & Create A and B, sign out/in, force-stop and relaunch. Inspect each progress document; attempt read/write as the other UID using the existing rules test path. Password reset and invalid credentials show recoverable feedback. & Correct UID restored after relaunch; no cross-account read/write; no password in Firestore; both accounts can sign out/in without crash. & UID aliases, environment/rules revision, auth results, sanitized snapshots, errors. \\
+AUTH-02\\Offline & Verify local-first behavior and async sync. Two accounts, controlled network toggle, timestamps. & Complete one target online; go offline, complete another, restart offline, reconnect. Compare local state to Firestore and retry a failed sync. & Local restore within 3 s (T1); online state displays Synced within 15 s on stable network (T1); no loss, duplicate, or cross-account progress. Offline failure is visible and app remains navigable. & Network transitions, local and remote snapshots, sync and error times, account pseudonym, logs. \\
+REC-01\\Record & Verify readiness, save/discard, integrity and validation. Glove, phone, approved vocabulary, pseudonymous signer, team storage, backend validator. & Reject missing metadata and stale/incomplete packet; record one trial and save; record another and discard with reason. Export CSV/JSON, hash before/after team transfer, then validate the valid export and a deliberately malformed copy with the word-sequence preparation script. & Invalid start remains blocked with reason; saved trial appears, discarded one does not. Original hashes match after transfer; valid fixture passes, malformed fixture is flagged; no raw trial enters account progress. & Consent reference, manifest, export hashes, discard reason, validator result, transfer record. \\
+WORD-01\\Word UI & Prevent false dynamic recognition while model is absent. Phone, test account, optional static stream. & Open all eight provisional word pages; use Retry and stream static predictions. Compare UI and progress before/after. & Correct target/connection may display; static classifier cannot claim word match or save word completion. Pass only if zero false completions and no invalid-target error. & Checklist, progress delta, video, build and model IDs. \\
+ML-01\\Dataset & Build a real, reviewed dataset for beta dynamic recognition. Consent, glove, session logger, ASL-qualified reviewer, restricted team storage. Candidate vocabulary: hello, thank\_you, please, sorry, yes, no, eat, drink. & Reviewer freezes gloss/instruction/version before collection. Recruit 4--5 signers; collect four orientations (neutral, pitch-up, roll-left, yaw-right), five pilot trials per word and orientation, then at least 20 accepted trials per cell after protocol review. Preserve rejects and reasons. & No training claim until vocabulary/reviewer/consent complete. T1 collection target: 800 pilot trials at five signers; full target 3,200 at five or 2,560 at four. Each accepted trial has complete sensor, label, time, signer, and orientation metadata. & Pseudonyms, consent log, vocabulary version, raw hashes, per-cell counts, exclusions and reasons. \\
+ML-02\\Model & Verify dynamic word goal only on real data, with signer-held-out evidence. Frozen dataset, backend, candidate models, selected phone/ESP32 runtime. & Validate schema; split complete trials and signers before training; fit scaling on train only. Compare TCN, CNN-GRU and CNN-LSTM candidates with fixed seeds; report held-out results, confusion matrix, orientation change, size and latency. Convert best qualified model and run end-to-end signs without replacing static baseline. & T1 proposed gates: held-signer top-1 $\geq70\%$, macro F1 $\geq0.65$, top-5 $\geq90\%$ for $>5$ words, orientation drop $\leq15$ percentage points; median inference $<100$ ms, P95 $<150$ ms, visible output P95 $\leq300$ ms. Zero split leakage; static regression retained. If model/integration is absent, result is Blocked, not passed. & Dataset/split hashes, seeds, metrics, confusion matrix, model size/hash, runtime and latency traces, signer groups. \\
+UI-01\\Usability & Verify controls and basic independent usability. Three non-team participants, consent, moderator, current Android beta build. & Ask each to sign in, find an assigned letter/number/word, return with Back, connect/retry, and locate progress/sync state without coaching. Check large text, contrast, target size, TalkBack labels. & T1 proposed: $\geq80\%$ tasks complete without coaching; every critical task succeeds in at least 2/3 attempts; median ease $\geq4/5$. No clipped controls at system large text; tappable controls $\geq48$ dp. & Coded task outcomes, task times and errors, ease score, device settings, accessibility findings. \\
+\end{longtable}
+\normalsize
+
+\subsection{Run record and exit decision}
+For every attempt, retain one row with test ID/run, date/time, tester/reviewer, commit and artifact hash, phone/OS, board/IMU/firmware/source, Firebase environment, measured values, status, defect/retest link, and evidence filenames. Never store passwords or direct participant identifiers in logs. Do not modify criteria after seeing results without versioning the plan and recording the rationale.
+
+The beta is not fully validated until hardware/stream, navigation/live route, authentication/isolation, offline/sync, recording/export, outside-user accessibility/usability, and dynamic word model/integration cases have recorded results. Any unmet model gate is reported as a measured limitation; keep the static baseline. A no-model result is not recast as a successful word test. Resolve the existing static-completion-after-Back behavior before final release assessment.
+
+\small\textit{Evidence sources:} repository README and M3 alpha record; beta build-status and test-working-notes documents; T1 Alpha Test Plan (proposed gates); recorded-data and preprocessing documentation; Issue 7 IMU word-level research.
+
+\end{document}
