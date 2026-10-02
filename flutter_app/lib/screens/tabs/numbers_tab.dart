@@ -46,32 +46,30 @@ class NumbersTab extends StatelessWidget {
           const SizedBox(height: WarmClayTheme.cardGap),
           practiceCard,
           const SizedBox(height: WarmClayTheme.cardGap),
-          WarmCard(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final crossAxisCount = constraints.maxWidth >= 460 ? 5 : 4;
-                return GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: totalCount,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 1,
-                  ),
-                  itemBuilder: (context, index) {
-                    final learned = learnedNumbers.contains(index);
-                    return _LearningTile(
-                      label: '$index',
-                      learned: learned,
-                      selected: selectedNumber == index,
-                      onTap: () => onNumberSelected(index),
-                    );
-                  },
-                );
-              },
-            ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final crossAxisCount = constraints.maxWidth >= 460 ? 5 : 4;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: totalCount,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 1,
+                ),
+                itemBuilder: (context, index) {
+                  final learned = learnedNumbers.contains(index);
+                  return _LearningTile(
+                    label: '$index',
+                    learned: learned,
+                    selected: selectedNumber == index,
+                    onTap: () => onNumberSelected(index),
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
@@ -103,25 +101,18 @@ class _LearningTile extends StatelessWidget {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
           decoration: BoxDecoration(
-            color: learned
+            color: selected
                 ? WarmClayColors.accentPrimary
+                : learned
+                ? WarmClayColors.accentLight
                 : WarmClayColors.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: learned || selected
+              color: selected
                   ? WarmClayColors.accentPrimary
                   : WarmClayColors.border,
               width: selected ? 2 : 1,
             ),
-            boxShadow: learned
-                ? const [
-                    BoxShadow(
-                      color: Color(0x2EC96A3C),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ]
-                : null,
           ),
           child: Stack(
             children: [
@@ -130,19 +121,19 @@ class _LearningTile extends StatelessWidget {
                   label,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    color: learned ? Colors.white : WarmClayColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                    color: selected ? Colors.white : WarmClayColors.textPrimary,
                   ),
                 ),
               ),
               if (learned)
-                const Positioned(
+                Positioned(
                   right: 6,
                   top: 6,
                   child: Icon(
                     Icons.check_circle_rounded,
                     size: 16,
-                    color: Colors.white,
+                    color: selected ? Colors.white : WarmClayColors.success,
                   ),
                 ),
             ],

@@ -44,7 +44,7 @@ class DashboardTab extends StatelessWidget {
 
     return TabScaffold(
       title: 'Home',
-      backgroundAsset: 'assets/images/bg-1.png',
+      backgroundAsset: 'assets/images/bg-2.png',
       actions: [
         IconButton(
           tooltip: 'Account and settings',
@@ -306,31 +306,37 @@ class _LearningPathRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 2),
-      leading: Container(
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: WarmClayColors.accentLight,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, color: WarmClayColors.accentPrimary, size: 22),
-      ),
-      title: Text(title, style: Theme.of(context).textTheme.titleMedium),
-      subtitle: Text(detail),
-      trailing: comingSoon
-          ? const Icon(
-              Icons.lock_outline_rounded,
-              size: 18,
-              color: WarmClayColors.textSecondary,
-            )
-          : const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 15,
-              color: WarmClayColors.textSecondary,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: WarmClayTheme.cardGap),
+      child: WarmCard(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+          leading: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: WarmClayColors.accentLight,
+              borderRadius: BorderRadius.circular(12),
             ),
-      onTap: onTap,
+            child: Icon(icon, color: WarmClayColors.accentPrimary, size: 22),
+          ),
+          title: Text(title, style: Theme.of(context).textTheme.titleMedium),
+          subtitle: Text(detail),
+          trailing: comingSoon
+              ? const Icon(
+                  Icons.lock_outline_rounded,
+                  size: 18,
+                  color: WarmClayColors.textSecondary,
+                )
+              : const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 15,
+                  color: WarmClayColors.textSecondary,
+                ),
+          onTap: onTap,
+        ),
+      ),
     );
   }
 }

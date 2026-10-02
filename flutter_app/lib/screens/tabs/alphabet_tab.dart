@@ -29,29 +29,36 @@ class AlphabetTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'A to Z',
-                  style: Theme.of(context).textTheme.titleMedium,
+          WarmCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'A to Z',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    Text(
+                      '$learnedCount of ${letterList.length} learned',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: WarmClayColors.textSecondary,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Text(
-                '$learnedCount of ${letterList.length} learned',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: WarmClayColors.textSecondary,
+                const SizedBox(height: 10),
+                ProgressBar(value: progress),
+                const SizedBox(height: 6),
+                Text(
+                  'Choose a letter to practice its sign.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: WarmClayColors.textSecondary,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ProgressBar(value: progress),
-          const SizedBox(height: 6),
-          Text(
-            'Choose a letter to practice its sign.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: WarmClayColors.textSecondary,
+              ],
             ),
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
@@ -139,13 +146,13 @@ class _LearningTile extends StatelessWidget {
                 ),
               ),
               if (learned)
-                const Positioned(
+                Positioned(
                   right: 6,
                   top: 6,
                   child: Icon(
                     Icons.check_circle_rounded,
                     size: 16,
-                    color: WarmClayColors.success,
+                    color: selected ? Colors.white : WarmClayColors.success,
                   ),
                 ),
             ],
