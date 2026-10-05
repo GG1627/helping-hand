@@ -13,6 +13,7 @@ The outline targets dynamic recognition integration by presentation day. It is n
 
 ## Files
 
+- `../docs/BETA_PRESENTATION_SESSION_HANDOFF.md`: Codex session progress, confirmed decisions, reviewed commit, and next-session work order.
 - `index.html`, `styles.css`, `presentation.js`: slide content, styles, and presentation controls.
 - `speaker_notes.md`: outline, timing, and speaker assignments.
 - `demo_checklist.md`: live demo preparation.

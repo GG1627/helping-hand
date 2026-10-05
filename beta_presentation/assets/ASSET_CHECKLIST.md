@@ -6,7 +6,7 @@ PNG preferred for screenshots; JPG or PNG for photos. Preserve original resoluti
 
 Current deck placeholders: `hardware/glove-current.jpg` and `hardware/circuit-current.jpg`. After adding a file, enable its entry in `asset-manifest.js`, reload, and regenerate the PDF. The historical alpha glove is available as `hardware/glove-alpha.jpeg`. Slide 6 now uses an architecture diagram; the Hello screenshot is optional future supporting material after model integration.
 
-- [ ] `hardware/glove-current.jpg`: current complete glove, all fingers and wrist visible, uncluttered background, landscape framing with space around the glove. Slides 1/3/10.
+- [ ] `hardware/glove-current.jpg`: current complete glove, all fingers and wrist visible, uncluttered background, landscape framing with space around the glove. Current placeholder: slide 3. Slide 1 already uses the supplied generated product visualization; slide 10 does not require a photo.
 - [ ] `hardware/circuit-current.jpg`: sharp overhead or angled close-up showing the actual ESP32, IMU, flex-sensor connections, and wiring. No labels needed; add them in the deck. Slide 3 or supporting hardware detail.
 - [x] `hardware/glove-alpha.jpeg`: supplied historical alpha glove photo. Slide 4; clearly identified as alpha.
 
