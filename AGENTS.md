@@ -59,3 +59,9 @@ separate from current beta validation, and label unrun procedures `Not run`.
 Word practice pages are accessible UI; dynamic word recognition and word
 completion are not yet integrated. See the handoff for current navigation,
 remaining decisions, and submission requirements.
+
+## Beta presentation
+
+For HTML slides for `Beta_Presentation_Guidelines.md`, use
+`docs/BETA_PRESENTATION_STYLE_GUIDE.md` for the app-matched palette, typography,
+visual treatment, and evidence labels. The assignment guidelines govern content.
