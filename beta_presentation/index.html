@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Helping Hand beta build presentation — October 6, 2026.">
+  <title>Helping Hand · Beta Build</title>
+  <link rel="icon" href="assets/diagrams/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script src="assets/asset-manifest.js" defer></script>
+  <script src="presentation.js" defer></script>
+</head>
+<body>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="icon-hand" viewBox="0 0 64 64"><path d="M23 34V13a4 4 0 0 1 8 0v18-22a4 4 0 0 1 8 0v23-18a4 4 0 0 1 8 0v20-13a4 4 0 0 1 8 0v22c0 12-7 19-18 19-7 0-12-3-16-9L10 35a4 4 0 0 1 6-5l7 7"/></symbol>
+      <symbol id="icon-chip" viewBox="0 0 64 64"><rect x="17" y="17" width="30" height="30" rx="4"/><rect x="25" y="25" width="14" height="14" rx="2"/><path d="M24 7v10m16-10v10M24 47v10m16-10v10M7 24h10M7 40h10m30-16h10M47 40h10"/></symbol>
+      <symbol id="icon-ble" viewBox="0 0 64 64"><path d="M20 17l27 28-14 12V7l14 12-27 28"/></symbol>
+      <symbol id="icon-phone" viewBox="0 0 64 64"><rect x="17" y="5" width="30" height="54" rx="6"/><path d="M28 12h8m-5 39h2M24 32l6 6 12-15"/></symbol>
+      <symbol id="icon-feedback" viewBox="0 0 64 64"><path d="M53 31c0 12-10 21-22 21h-9L10 59V45a21 21 0 1 1 43-14Z"/><path d="M21 31l7 7 13-15"/></symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+      <symbol id="icon-photo" viewBox="0 0 64 64"><rect x="8" y="12" width="48" height="40" rx="4"/><circle cx="23" cy="25" r="5"/><path d="m9 45 14-10 10 7 11-16 12 17"/></symbol>
+    </defs>
+  </svg>
+  <main id="stage" aria-label="Beta build slide presentation">
+    <div id="deck">
+      <section class="slide cover is-active" id="slide-1" aria-labelledby="title-1" data-title="Helping Hand" data-seconds="15">
+        <img class="full-bleed" src="assets/illustrations/intro-product-scene.png" alt="Staged product visualization of a sensor glove being worn beside a phone showing Helping Hand.">
+        <div class="cover-copy">
+          <p class="eyebrow">Beta build · October 6, 2026</p>
+          <h1 id="title-1" class="wordmark">Helping<br>Hand</h1>
+          <svg class="brand-trail" viewBox="0 0 280 35" aria-hidden="true"><path d="M3 17c65-31 163 26 231-4"/><circle cx="263" cy="13" r="8"/></svg>
+          <p class="cover-pitch">A Wearable ASL<br>Learning System</p>
+          <div class="team"><span>Srinitha Srikanth</span><span>Brian Paz</span><span>Gael Garcia</span><span>Kali Schuchhardt</span></div>
+        </div>
+        <footer class="slide-footer"><span>Helping Hand</span><span> <b>01</b></span></footer>
+        <template class="slide-notes"><p>Speaker: TBD · 15 seconds</p><p>Introduce Helping Hand as a wearable-assisted ASL learning system. Name the four team members. The intro is a generated product visualization based on supplied references.</p></template>
+      </section>
+      <section class="slide problem" id="slide-2" aria-labelledby="title-2" data-title="The learning problem" data-seconds="25">
+        <img class="full-bleed" src="assets/illustrations/learning-problem.png" alt="Conceptual illustration of a learner comparing their hand position with a printed reference.">
+        <div class="problem-copy"><p class="eyebrow">The problem</p><h2 id="title-2">Learning ASL needs<br><em>feedback.</em></h2><div class="problem-stat"><strong>&gt;90%</strong><p>of deaf children are born<br>to hearing parents.</p></div><div class="problem-points"><p>Books and videos show the sign.</p><p>2D examples cannot assess your hand position.</p><p>No live correction from the reference alone.</p></div></div>
+        <footer class="slide-footer"><span>Source: <a href="https://www.nidcd.nih.gov/health/statistics/quick-statistics-hearing" target="_blank" rel="noopener">NIH/NIDCD</a> · Mitchell &amp; Karchmer (2004)</span><span> <b>02</b></span></footer>
+        <template class="slide-notes"><p>Speaker: TBD · 25 seconds</p><p>NIDCD reports that more than 90% of deaf children are born to hearing parents, citing Mitchell and Karchmer (2004). This motivates accessible opportunities for families to learn ASL; it does not measure ASL proficiency or prove the effectiveness of our glove. Books and ordinary prerecorded videos teach through observation but do not measure the learner's own hand position or provide personalized live correction by themselves. Helping Hand aims to add sensor-based feedback. Do not generalize this gap to every app or instructor. Source verified October 5, 2026; see sources.md.</p></template>
+      </section>
+      <section class="slide system" id="slide-3" aria-labelledby="title-3" data-title="Our solution" data-seconds="30">
+        <header><p class="eyebrow">Our solution</p><h2 id="title-3">Wear. Sign. Get feedback.</h2></header>
+        <div class="system-flow" role="img" aria-label="Flex and IMU readings go to ESP32, through BLE to recognition in Flutter, then learner feedback.">
+          <div class="flow-step"><svg class="diagram-icon"><use href="#icon-hand"/></svg><h3>Sensor glove</h3><p>Flex + IMU</p></div><svg class="flow-arrow"><use href="#icon-arrow"/></svg>
+          <div class="flow-step"><svg class="diagram-icon"><use href="#icon-chip"/></svg><h3>ESP32</h3><p>Capture readings</p></div><svg class="flow-arrow"><use href="#icon-arrow"/></svg>
+          <div class="flow-step"><svg class="diagram-icon"><use href="#icon-ble"/></svg><h3>BLE</h3><p>Stream packets</p></div><svg class="flow-arrow"><use href="#icon-arrow"/></svg>
+          <div class="flow-step"><svg class="diagram-icon"><use href="#icon-phone"/></svg><h3>Flutter app</h3><p>Recognize signs</p></div><svg class="flow-arrow"><use href="#icon-arrow"/></svg>
+          <div class="flow-step"><svg class="diagram-icon"><use href="#icon-feedback"/></svg><h3>Feedback</h3><p>Guide practice</p></div>
+        </div>
+        <div class="hardware-slots">
+          <figure class="asset-slot" data-asset="hardware/glove-current.jpg" data-alt="Current Helping Hand glove"><div class="asset-fallback"><svg><use href="#icon-photo"/></svg><div><strong>Current glove</strong><span>Hardware photo pending</span></div></div><figcaption>Glove · flex sensors and IMU</figcaption></figure>
+          <figure class="asset-slot" data-asset="hardware/circuit-current.jpg" data-alt="Current ESP32 and IMU circuit"><div class="asset-fallback"><svg><use href="#icon-chip"/></svg><div><strong>ESP32 + sensor circuit</strong><span>Hardware photo pending</span></div></div><figcaption>Electronics · sampling and wireless transmission</figcaption></figure>
+        </div>
+        <footer class="slide-footer"><span>Helping Hand · Beta build</span><span><b>03</b></span></footer>
+        <template class="slide-notes"><p>Speaker: TBD · 30 seconds</p><p>Flex sensors capture finger bending; IMU readings capture motion/orientation. ESP32 samples and sends BLE packets to Flutter. The app processes readings and displays practice feedback. Tactile feedback is a future addition. Current hardware photo slots are placeholders.</p></template>
+      </section>
+      <section class="slide alpha" id="slide-4" aria-labelledby="title-4" data-title="What alpha established" data-seconds="25">
+        <header><p class="eyebrow">Alpha vertical slice</p><h2 id="title-4">The first complete pipeline</h2></header>
+        <div class="alpha-layout"><div class="alpha-photo-group"><figure class="alpha-glove"><img src="assets/hardware/glove-alpha.jpeg" alt="Historical alpha glove with mounted finger flex sensors."><figcaption>Alpha glove</figcaption></figure><figure class="alpha-phone"><img src="assets/screenshots/alpha-app.png" alt="Historical alpha application dashboard."><figcaption>Alpha interface</figcaption></figure></div><div class="alpha-milestones"><div><span class="milestone-number">01</span><h3>Sensor capture</h3><p>Finger bend + motion readings</p></div><div><span class="milestone-number">02</span><h3>Wireless streaming</h3><p>Glove → BLE → app</p></div><div><span class="milestone-number">03</span><h3>Static classification</h3><p>36-class TFLite baseline</p></div></div></div>
+        <footer class="slide-footer"><span>Historical alpha materials</span><span><b>04</b></span></footer>
+        <template class="slide-notes"><p>Speaker: TBD · 25 seconds</p><p>Alpha established the sensor-to-app vertical slice and static TFLite baseline. These are supplied historical alpha materials, not fresh beta validation. The previous deck's 78%/94% figures are omitted because evaluation context has not been supplied. Preserve the static model as a regression baseline while adding words.</p></template>
+      </section>
+      <section class="slide app" id="slide-5" aria-labelledby="title-5" data-title="What beta adds" data-seconds="40">
+        <header><p class="eyebrow">The beta app</p><h2 id="title-5">A clearer path to practice</h2><p class="subtitle">Firebase sign-in · dedicated practice pages · account-specific progress</p></header>
+        <div class="app-journey">
+          <figure><div class="screen-frame"><img src="assets/screenshots/beta-sign-in.png" alt="Supplied beta sign-in screen."></div><figcaption><span>01</span> Sign in</figcaption></figure>
+          <figure><div class="screen-frame"><img src="assets/screenshots/beta-home.png" alt="Supplied beta Home with progress and learning paths."></div><figcaption><span>02</span> Choose a path</figcaption></figure>
+          <figure><div class="screen-frame"><img src="assets/screenshots/beta-alphabet.png" alt="Supplied beta alphabet target picker."></div><figcaption><span>03</span> Pick a target</figcaption></figure>
+          <figure><div class="screen-frame"><img src="assets/screenshots/beta-static-practice.png" alt="Supplied letter B practice screen in the glove-disconnected state."></div><figcaption><span>04</span> Practice</figcaption></figure>
+          <figure><div class="screen-frame"><img src="assets/screenshots/beta-words.png" alt="Supplied beta beginner vocabulary picker."></div><figcaption><span>05</span> Explore words</figcaption></figure>
+        </div>
+        <footer class="slide-footer"><span>Supplied beta UI screens</span><span><b>05</b></span></footer>
+        <template class="slide-notes"><p>Speaker: TBD · 40 seconds</p><p>Show sign-in, learning paths, target selection, and dedicated practice routes. Firebase accounts own static progress. Words opens beginner vocabulary pages. The supplied practice screen is disconnected, not a successful recognition result. These screens do not establish dynamic recognition validation or word completion.</p></template>
+      </section>
+      <section class="slide motion" id="slide-6" aria-labelledby="title-6" data-title="Recognizing motion" data-seconds="35">
+        <header><p class="eyebrow">Dynamic word recognition</p><h2 id="title-6">Recognizing words with a sequence model</h2></header>
+        <div class="ml-comparison"><div><span>Alpha · MLP</span><p>One sensor snapshot → static class</p></div><div><span>Beta · sequence model</span><p>Sensor window → word prediction</p></div></div>
+        <figure class="architecture" aria-label="Proposed CNN-GRU architecture, subject to model selection"><figcaption>Proposed CNN-GRU pipeline</figcaption>
+          <div class="architecture-flow">
+            <div class="architecture-step"><h3>Sensor window</h3><svg class="architecture-visual" viewBox="0 0 280 132" role="img" aria-label="Illustrative sensor readings over time"><rect x="79" y="14" width="126" height="102" rx="4" fill="#c8f0dd" stroke="none"/><path d="M10 43h25l12-7 16 9 18-8 15 4 15-16 15 5 16 40 16-29 16-13 16 23 15-8 21 2 22-6 20 5 23-3" stroke="#007a70"/><path d="M10 92h23l16-3 16 4 15-2 17 5 17 10 14-17 15-38 16 21 16 34 17-18 15 6 17-4 17 5 18-3 18 1" stroke="#79aa91"/><path d="M10 16v105h260" stroke="#d9e2dc"/><path d="M79 13v107m126-107v107" stroke="#007a70" stroke-dasharray="4 4"/></svg><p>Time × sensor features</p></div>
+            <svg class="architecture-arrow"><use href="#icon-arrow"/></svg>
+            <div class="architecture-step"><h3>1D CNN</h3><svg class="architecture-visual feature-maps" viewBox="0 0 280 132" aria-hidden="true"><rect x="65" y="18" width="155" height="63" rx="6" fill="#e8f4e9"/><rect x="49" y="33" width="155" height="63" rx="6" fill="#d9eee0"/><rect x="33" y="48" width="155" height="63" rx="6" fill="#c8f0dd"/><path d="m47 78 14-7 14 18 13-15 16 5 14-14 15 22 16-8 23 3" stroke="#007a70"/></svg><p>Local sensor patterns</p><small>Convolution + pooling</small></div>
+            <svg class="architecture-arrow"><use href="#icon-arrow"/></svg>
+            <div class="architecture-step"><h3>GRU</h3><svg class="architecture-visual recurrent-cells" viewBox="0 0 280 132" role="img" aria-label="GRU states connected across successive time steps"><path d="M37 17h208m-6-6 6 6-6 6" stroke="#79aa91"/><rect x="11" y="39" width="67" height="62" rx="10" fill="#c8f0dd"/><rect x="106" y="39" width="67" height="62" rx="10" fill="#c8f0dd"/><rect x="201" y="39" width="67" height="62" rx="10" fill="#c8f0dd"/><path d="M79 70h25m-7-6 7 6-7 6m77-6h25m-7-6 7 6-7 6"/><text x="44" y="78">t₁</text><text x="139" y="78">t₂</text><text x="234" y="78">t₃</text></svg><p>Information across time</p><small>Recurrent sequence memory</small></div>
+            <svg class="architecture-arrow"><use href="#icon-arrow"/></svg>
+            <div class="architecture-step"><h3>Dense + softmax</h3><div class="architecture-output"><span>Example word</span><strong>Hello</strong></div><p>Word probabilities</p></div>
+          </div>
+        </figure>
+        <div class="architecture-options"><p><strong>CNN-LSTM</strong> · comparison candidate</p><p>Demo target · <strong>3–4 beginner words</strong></p></div>
+        <footer class="slide-footer"><span>Candidate architecture · illustrative traces/output · model selection pending</span><span><b>06</b></span></footer>
+        <template class="slide-notes"><p>Speaker: TBD · 35 seconds</p><p>Alpha's MLP classifies a sensor snapshot. For beta words, use a time window: a 1D CNN extracts local patterns; a GRU carries information across time; dense/softmax layers predict word probabilities. The diagram summarizes a candidate, omitting normalization, dropout, and intermediate implementation details for clarity. Research recommends CNN-GRU first, comparing CNN-LSTM. Current backend builders support both and a TCN candidate; this does not establish a selected trained/deployed model. Hello and 3–4 words remain provisional demo scope. Traces/output are illustrative, with no measured accuracy claimed. REQUIRED FOLLOW-UP: update this slide after training/model selection and integration to match the actual architecture, vocabulary, preprocessing, and measured device performance. See CONTENT_REVIEW.md.</p></template>
+      </section>
+      <section class="slide live" id="slide-7" aria-labelledby="title-7" data-title="Live demo" data-seconds="90">
+        <div class="live-ring" aria-hidden="true"></div><div class="live-copy"><p class="eyebrow">Helping Hand in action</p><h2 id="title-7">LIVE<br><span>DEMO!!!</span></h2><div class="live-route"><span>Static sign</span><svg><use href="#icon-arrow"/></svg><span>Hello</span></div></div>
+        <footer class="slide-footer"><span>Live glove + app demonstration</span><span><b>07</b></span></footer>
+        <template class="slide-notes"><p>Speaker/demo operator: TBD · 90 seconds</p><p>Use the actual glove/app live, as confirmed with instructors. Demonstrate a rehearsed static target, then Hello and the actual available feedback. Set up login and connection in advance. If recognition fails, explain what happened and demonstrate remaining live functions. Do not substitute video for live use.</p></template>
+      </section>
+      <section class="slide state" id="slide-8" aria-labelledby="title-8" data-title="Current state and limitations" data-seconds="25">
+        <header><p class="eyebrow">Current project state</p><h2 id="title-8">Beta features and acceptance rules</h2></header>
+        <div class="status-columns"><div class="status-column"><span class="status-tag implemented">Completed implementation</span><h3>Core experience</h3><ul><li>36-class static baseline</li><li>Firebase accounts + lessons</li><li>Account-scoped static progress</li></ul></div><div class="status-column"><span class="status-tag experimental">In progress</span><h3>Dynamic words</h3><ul><li>3–4-word demo target</li><li>Sequence-model comparison</li><li>Orientation + signer robustness</li></ul></div><div class="status-column"><span class="status-tag planned">Planned</span><h3>Tactile guidance</h3><ul><li>10 planned piezo elements</li><li>Error-to-vibration mapping</li><li>Calibration + user testing</li></ul></div></div>
+        <div class="static-rules"><strong>Static completion rules</strong><div><p><b>≥80%</b><span>Confidence</span></p><p><b>≥750 ms</b><span>Stable matching hold</span></p><p><b>≥5</b><span>Matching packets</span></p><p><b>≤250 ms</b><span>Gap between packets</span></p></div></div>
+        <footer class="slide-footer"><span>Implemented rules · current physical-device beta procedures: Not run</span><span><b>08</b></span></footer>
+        <template class="slide-notes"><p>Speaker: TBD · 25 seconds</p><p>Separate implemented static software, sequence-model development, and planned haptics. Static progress requires the correct target label, confidence at least 80%, a stable hold of at least 750 ms, at least five matching packets, and packet gaps no greater than 250 ms. These are implementation thresholds from StablePredictionTracker, not measured accuracy or latency. They do not apply to dynamic words. Current physical-device route/BLE, Firebase end-to-end, and external-user beta procedures remain Not run in the repository notes; update only with recorded evidence. Confirm the actual dynamic demo build before presenting.</p></template>
+      </section>
+      <section class="slide haptics" id="slide-9" aria-labelledby="title-9" data-title="Next: haptic feedback" data-seconds="35">
+        <header><p class="eyebrow">Next milestone</p><h2 id="title-9">Feel what needs correcting.</h2></header>
+        <div class="haptic-layout"><div class="haptic-copy"><p class="haptic-count">5 <span>+</span> 5</p><p class="haptic-placement">X pattern + one on each finger</p><p class="haptic-description">Planned piezo feedback for<br>incorrect positioning.</p><div class="feedback-concept"><span>Estimated deviation</span><svg><use href="#icon-arrow"/></svg><strong>Pulse pattern / intensity</strong></div><p class="haptic-caveat">Placement, error mapping, and tactile response need calibration.</p></div><figure class="haptic-art"><img src="assets/illustrations/haptic-concept.png" alt="Conceptual glove with vibration marks; proposed layout is five piezo elements in an X pattern plus one per finger."><figcaption>Concept illustration · planned feature</figcaption></figure></div>
+        <div class="roadmap" aria-label="Proposed milestones for team review"><div><time>Oct 7–13</time><strong>Mount + wire</strong><span>Actuators and drivers</span></div><div><time>Oct 14–20</time><strong>Calibrate guidance</strong><span>Error → tactile response</span></div><div><time>Oct 21–27</time><strong>Refine recognition</strong><span>Orientation + signer trials</span></div><div><time>Oct 28–Nov 3</time><strong>Test + polish</strong><span>User trials and release prep</span></div></div>
+        <footer class="slide-footer"><span>Proposed milestones · dates for team review</span><span><b>09</b></span></footer>
+        <template class="slide-notes"><p>Speaker: TBD · 35 seconds</p><p>Plan five piezo elements in an X pattern and one per finger, ten total as understood. Goal: indicate incorrect positioning and degree of deviation. Confidence alone is not a positional error estimate; establish a calibrated deviation measure and feedback mapping. Validate tactile response and drivers. Artwork is conceptual, not an exact mounting schematic. Dates are proposed and require team review; the final deadline is unknown. Explain mount/wire → calibrate → recognition variation trials → user tests/polish.</p></template>
+      </section>
+      <section class="slide closing" id="slide-10" aria-labelledby="title-10" data-title="Questions" data-seconds="10">
+        <div class="closing-trail" aria-hidden="true"><svg viewBox="0 0 1600 900"><path d="M-100 820C250 350 650 1090 1050 640S1440 235 1730 390"/><circle cx="1050" cy="640" r="15"/></svg></div><div class="closing-copy"><p class="wordmark">Helping Hand</p><h2 id="title-10">Thank you.<br><em>Questions?</em></h2><p>Practice with feedback.<br>Next: guidance you can feel.</p></div>
+        <footer class="slide-footer"><span>October 6, 2026</span><span><b>10</b></span></footer>
+        <template class="slide-notes"><p>All speakers available · 10-second closing + 1–2 minutes Q&amp;A</p><p>Connect the current wearable/app experience with corrective tactile guidance. Answer using actual implementation/evidence. Prepare for questions on vocabulary, training data, orientation, BLE, progress, and haptic calibration.</p></template>
+      </section>
+    </div>
+  </main>
+  <div id="slide-progress" role="progressbar" aria-label="Slide progress" aria-valuemin="0" aria-valuemax="10" aria-valuenow="1" aria-valuetext="Slide 1 of 10"><span></span></div>
+  <dialog id="overview-dialog" aria-labelledby="overview-title"><div class="dialog-heading"><h2 id="overview-title">Slide overview</h2><button class="close-dialog" aria-label="Close slide overview">×</button></div><div id="overview-list"></div></dialog>
+  <dialog id="notes-dialog" aria-labelledby="notes-title"><div class="dialog-heading"><h2 id="notes-title">Speaker notes</h2><button class="close-dialog" aria-label="Close speaker notes">×</button></div><div id="notes-content"></div></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title"><div class="dialog-heading"><h2 id="help-title">Presentation shortcuts</h2><button class="close-dialog" aria-label="Close keyboard shortcuts">×</button></div><dl class="shortcut-list"><div><dt>← / → · Space</dt><dd>Previous / next slide</dd></div><div><dt>Home / End</dt><dd>First / last slide</dd></div><div><dt>O</dt><dd>Slide overview</dd></div><div><dt>N</dt><dd>Speaker notes</dd></div><div><dt>F</dt><dd>Full screen</dd></div><div><dt>P</dt><dd>Print / save PDF</dd></div><div><dt>Esc</dt><dd>Close dialog / exit full screen</dd></div></dl></dialog>
+  <p id="announcement" class="sr-only" aria-live="polite"></p>
+  <noscript><p class="noscript-message">JavaScript is disabled. All slides are shown below; print to save the deck.</p></noscript>
+</body>
+</html>

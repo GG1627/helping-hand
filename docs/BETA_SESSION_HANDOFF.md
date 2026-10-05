@@ -1,5 +1,11 @@
 # Beta Build / Beta Test Plan Session Handoff
 
+For presentation work, start with
+[BETA_PRESENTATION_SESSION_HANDOFF.md](BETA_PRESENTATION_SESSION_HANDOFF.md),
+updated October 5, 2026 with the reviewed/pushed deck and remaining tasks.
+The report/test-plan snapshot below remains dated October 2; presentation
+progress does not establish new app or physical-device validation.
+
 Prepared October 2, 2026 for the user's next session using GPT Luna.
 Snapshot: beta application commit `d581d19`; README commit `d807ef8`.
 The subsequent handoff commit changes documentation only.
