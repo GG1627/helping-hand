@@ -78,8 +78,6 @@ heavy shadows, and competing colors.
   reset confirmation, startup loading/failure, and practice feedback states.
 - Shared theme and components: `warm_clay_theme.dart`, `warm_components.dart`,
   `stable_prediction_practice_card.dart`, and `hand_visualizer_widget.dart`.
-- `test_hand_page.dart`: experimental 3D tester, imported by `main.dart` but
-  not presented by the current root or shell navigation.
 - Logo, glove, both backgrounds, and login illustration; all six images in
   `app_glove_pictures_and_vids/`; combined historical Figma mockups; and the
   three hand-model development images.
