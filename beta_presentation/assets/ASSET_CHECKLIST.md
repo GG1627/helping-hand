@@ -4,7 +4,7 @@ PNG preferred for screenshots; JPG or PNG for photos. Preserve original resoluti
 
 ## Real photographs
 
-Current deck placeholders: `hardware/glove-current.jpg` and `hardware/circuit-current.jpg`. After adding a file, enable its entry in `asset-manifest.js`, reload, and regenerate the PDF. The historical alpha glove is available as `hardware/glove-alpha.jpeg`. Slide 6 now uses an architecture diagram; the Hello screenshot is optional future supporting material after model integration.
+Current deck placeholders: `hardware/glove-current.jpg` and `hardware/circuit-current.jpg`. After adding a file, enable its entry in `asset-manifest.js`, reload, and regenerate the PDF. The historical alpha glove is available as `hardware/glove-alpha.jpeg`. Slide 6 uses an editable diagram of the integrated TCN. A Hello screenshot is optional supporting material after fresh live recognition.
 
 - [ ] `hardware/glove-current.jpg`: current complete glove, all fingers and wrist visible, uncluttered background, landscape framing with space around the glove. Current placeholder: slide 3. Slide 1 already uses the supplied generated product visualization; slide 10 does not require a photo.
 - [ ] `hardware/circuit-current.jpg`: sharp overhead or angled close-up showing the actual ESP32, IMU, flex-sensor connections, and wiring. No labels needed; add them in the deck. Slide 3 or supporting hardware detail.
@@ -19,7 +19,7 @@ Capture from the same current beta build, full resolution, without editor/browse
 - [x] `screenshots/beta-alphabet.png`: supplied alphabet target picker. Slide 5.
 - [x] `screenshots/beta-static-practice.png`: supplied letter B practice page in the disconnected state. Slide 5; not evidence of recognition success.
 - [x] `screenshots/beta-words.png`: supplied beginner word picker including Hello. Slide 5.
-- [ ] Optional `screenshots/beta-hello-practice.png`: Hello practice page from the actual integrated demo build. Capture after integration; use if useful when revising slide 6. No current placeholder depends on this file.
+- [ ] Optional `screenshots/beta-hello-practice.png`: Hello practice page from the actual integrated demo build. Capture after fresh live validation and label the actual state. No current placeholder depends on this file.
 - [x] `screenshots/alpha-app.png`: supplied historical alpha screen. Slide 4; historical material only.
 
 ## Optional generated illustrations
@@ -28,6 +28,7 @@ All three illustrations are supplied and used: `illustrations/intro-product-scen
 
 - [x] `illustrations/learning-problem.png`: supplied learner illustration. Slide 2.
 - [x] `illustrations/haptic-concept.png`: supplied conceptual glove with vibration marks. Slide 9; not an exact actuator mounting schematic.
+- [ ] Optional TCN illustration: no generated image is needed for the current editable diagram. An architecture-specific prompt is in `prompts.md` if the user chooses to replace it. Check generated labels and connections before use.
 
 ## Diagrams to create during deck implementation
 

@@ -49,28 +49,32 @@ Alpha established the sensor-to-app vertical slice and static TFLite baseline. T
 
 Speaker: TBD · 40 seconds
 
-Show sign-in, learning paths, target selection, and dedicated practice routes. Firebase accounts own static progress. Words opens beginner vocabulary pages. The supplied practice screen is disconnected, not a successful recognition result. These screens do not establish dynamic recognition validation or word completion.
+Show sign-in, learning paths, target selection, and dedicated practice routes. Account-scoped progress now includes static signs and completed word attempts. Hello, Please, and Yes use the integrated TCN with Start attempt and Finish sign controls. These supplied screenshots predate that integration. The static practice screen is disconnected and the images do not establish live recognition or cloud-sync validation.
 
 
 ## 6. Recognizing motion
 
 Speaker: TBD · 35 seconds
 
-Alpha's MLP classifies a sensor snapshot. For beta words, use a time window: a 1D CNN extracts local patterns; a GRU carries information across time; dense/softmax layers predict word probabilities. The diagram summarizes a candidate, omitting normalization, dropout, and intermediate implementation details for clarity. Research recommends CNN-GRU first, comparing CNN-LSTM. Current backend builders support both and a TCN candidate; this does not establish a selected trained/deployed model. Hello and 3–4 words remain provisional demo scope. Traces/output are illustrative, with no measured accuracy claimed. REQUIRED FOLLOW-UP: update this slide after training/model selection and integration to match the actual architecture, vocabulary, preprocessing, and measured device performance. See CONTENT_REVIEW.md.
+The static MLP reads a single pose. Our TCN learns how a sign changes over time. Its convolutions look at increasingly spaced samples, so later blocks capture motion over wider intervals. Residual links preserve earlier features. We prepare a 96-sample window from five flex channels and six motion axes, then average the learned features and predict Hello, Please, or Yes. Flutter runs the model locally after Finish sign. The sensor traces are illustrative.
+
+We compared TCN, CNN-GRU, and CNN-LSTM on the same whole-trial 9 training / 3 validation / 3 test split of 15 real recordings from the reported demo wearer. All three got 3/3 validation trials correct. TCN won the predefined smaller-export tie-break at 48,324 bytes, then got 3/3 reserved test trials correct with macro F1 1.00. This sample is too small to establish general accuracy or architecture superiority. Flutter runs the TFLite model locally after Finish sign. Three Android emulator recorded-replay checks passed. Fresh glove/phone validation and intended-phone latency are Not run. No orientation normalization or rest/unknown class is implemented.
 
 
 ## 7. Live demo
 
 Speaker/demo operator: TBD · 90 seconds
 
-Use the actual glove/app live, as confirmed with instructors. Demonstrate a rehearsed static target, then Hello and the actual available feedback. Set up login and connection in advance. If recognition fails, explain what happened and demonstrate remaining live functions. Do not substitute video for live use.
+Use the actual glove/app live, as confirmed with instructors. Demonstrate a rehearsed static target, then two rehearsed words chosen from Hello, Please, and Yes. The recorded wearer signs while a teammate taps Start attempt and Finish sign. Show the actual predicted word and confidence. Matching the target at at least 80% confidence saves completion. Set up login and connection in advance. Fresh rehearsal and the two final word choices remain pending. If recognition fails, explain what happened and demonstrate remaining live functions. Do not substitute video for live use.
 
 
 ## 8. Current state and limitations
 
 Speaker: TBD · 25 seconds
 
-Separate implemented static software, sequence-model development, and planned haptics. Static progress requires the correct target label, confidence at least 80%, a stable hold of at least 750 ms, at least five matching packets, and packet gaps no greater than 250 ms. These are implementation thresholds from StablePredictionTracker, not measured accuracy or latency. They do not apply to dynamic words. Current physical-device route/BLE, Firebase end-to-end, and external-user beta procedures remain Not run in the repository notes; update only with recorded evidence. Confirm the actual dynamic demo build before presenting.
+Static and three-word recognition are implemented. The recorded static demo model has 34 labels, prioritizing A, B, 1, and 3, while the original 36-class baseline is retained. The TCN recognizes Hello, Please, and Yes from explicit Start attempt / Finish sign sequences. Android recorded replay passed, but fresh glove/phone rehearsal, intended-phone latency, and live cloud synchronization of word progress are Not run.
+
+Static completion requires the correct target label, confidence at least 80%, a stable hold of at least 750 ms, at least five matching packets, and gaps no greater than 250 ms. Word completion instead checks the predicted word and 80% confidence after Finish sign. These thresholds are acceptance rules, not measured accuracy. Rest/unknown rejection and robustness to other wearers or wrist angles remain development needs. Haptic guidance remains planned.
 
 
 ## 9. Next: haptic feedback
@@ -88,6 +92,6 @@ Connect the current wearable/app experience with corrective tactile guidance. An
 
 ## Required content follow-up
 
-Slide 6 must be updated after the actual word model is trained, selected, and integrated. Follow the checklist in `CONTENT_REVIEW.md`; update architecture, vocabulary, preprocessing, measured performance, status, and PDF consistently.
+Slide 6 now shows the selected, integrated TCN. The deck and PDF include actual input preparation, deployment, model size, and the small trial-split result. Intended-phone latency and fresh glove rehearsal remain Not run. See `CONTENT_REVIEW.md`.
 
 Review the proposed milestone dates and assign all four team members a speaking/demo role. Rehearse with the actual glove wearer.

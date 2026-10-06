@@ -5,11 +5,11 @@ Ten-slide HTML deck for October 6, 2026. Open `index.html` directly in a browser
 - Format: HTML, 16:9, with a PDF export for submission.
 - Timing: 5–6 minutes including the live demo; 1–2 minutes for questions (user correction to the repository guidelines).
 - Deck: 10 slides, approximately 5 minutes 30 seconds, including the live demo.
-- Dynamic demo target: **Hello**, from the provisional beginner vocabulary.
+- Trained word vocabulary: **Hello, Please, Yes**. Rehearse and choose two demo words.
 - Main next milestone: haptic feedback.
 - Speakers: Srinitha Srikanth, Brian Paz, Gael Garcia, Kali Schuchhardt.
 
-The outline targets dynamic recognition integration by presentation day. It is not evidence that integration or validation has happened. Update claims to match the demonstrated build; label simulated behavior and unrun tests accurately. Preserve the static baseline.
+The selected TCN is integrated in Flutter for complete word attempts and saved completion. Android recorded replay passed. Fresh glove/phone rehearsal and intended-phone latency remain **Not run**. The deck distinguishes implementation and offline results from live validation and preserves the static baseline.
 
 ## Files
 
@@ -52,8 +52,9 @@ The visible toolbar has been removed. A thin 4px line at the bottom tracks slide
 
 ## Content to review before presenting
 
-- Dynamic recognition uses the requested provisional 3–4-word experimental scope. Confirm the actual build and vocabulary; these slides are not evidence of integration or accuracy.
-- **Slide 6 must be updated after the actual model is trained, selected, and integrated.** It now illustrates the proposed CNN-GRU pipeline and CNN-LSTM comparison; follow `CONTENT_REVIEW.md` before treating the architecture as final. A Hello screenshot is optional future supporting evidence, not a current slide placeholder.
+- Slide 6 shows the integrated **TCN**: 96 samples at 40 Hz, 11 raw flex/motion channels, dilated residual blocks, temporal averaging, and three-word softmax. The native diagram is editable; its sensor traces are illustrative.
+- All three candidates scored 3/3 on validation. TCN won the predefined size tie-break at 48,324 bytes and scored 3/3 on reserved test trials from the small demo-wearer dataset. This does not establish general accuracy. See `CONTENT_REVIEW.md` and the training record.
+- Slide 7 uses explicit Start attempt / Finish sign word attempts. Choose two words after live rehearsal. Slide 8 separates completed recognition software from pending validation and robustness work.
 - Slide 2's >90% figure is sourced to NIH/NIDCD and its 2004 reference; see `sources.md`. The feedback gap refers to books and prerecorded videos alone.
 - Current screenshots show UI; the static practice screenshot is disconnected.
 - Haptic plan: five piezo elements in an X pattern plus one per finger. Error estimation, actuator response, and calibration are future work.
@@ -66,6 +67,6 @@ Reviewed all ten rendered slides in Chrome at 1660×1000. Checked keyboard/butto
 
 After toolbar removal, keyboard navigation, progress fill/boundaries, mobile fit, and print visibility passed. Slide content revisions are checked against the updated sources and implementation references.
 
-The exported PDF contains ten nonblank pages. All ten exported pages were rendered and visually inspected. Images in the export were recompressed to reduce the file to approximately 5 MB; source assets remain at their original quality.
+The TCN update was checked at 1660×1000 and 390×844, including text bounds and keyboard navigation. All local images loaded. The regenerated PDF contains ten nonblank 16:9 pages; all ten were rendered and visually inspected. Images in the export were recompressed to approximately 3.4 MB while retaining the slide text and editable diagram in the HTML source. Source image assets remain at their original quality. These are presentation checks, not live recognition validation.
 
 Fonts: DM Sans and the app's bundled Fraunces Italic. Their SIL Open Font License texts are included in `assets/fonts/`.
