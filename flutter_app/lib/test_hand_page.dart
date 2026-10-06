@@ -50,7 +50,7 @@ class _TestHandPageState extends State<TestHandPage> {
           height: MediaQuery.of(context).size.height * 0.7,
           child: Flutter3DViewer(
             controller: _controller,
-            src: '/assets/models/test.glb',
+            src: 'assets/models/test.glb',
             onLoad: (String modelName) async {
               debugPrint('Model $modelName loaded!');
               

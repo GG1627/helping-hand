@@ -67,8 +67,9 @@ when it was only implemented or proposed.
   they must not be mistaken for an instructional ASL sign or sensor result.
 - Show the alpha vertical slice, beta feature status, live demonstration, and
   dated remaining-work plan required by the assignment. Distinguish a working
-  screen from working recognition: word practice pages are accessible, but
-  dynamic word recognition and word completion are not integrated yet.
+  screen from validated recognition: the three-word TCN and saved completion
+  are now integrated and Android recorded replay passed, while fresh glove/phone
+  validation remains Not run. See `WORD_DEMO_INTEGRATION.md`.
 - When showing measurements or results, label source, units, and whether the
   test was actually run. Use `Not run` for unexecuted beta procedures. See
   [`BETA_SESSION_HANDOFF.md`](BETA_SESSION_HANDOFF.md) and

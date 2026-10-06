@@ -7,6 +7,21 @@ float readFlexNormalized(int raw) {
   return static_cast<float>(raw) / 4095.0f;
 }
 
+float flexModelInput(size_t sensorIndex, int raw) {
+  if (!kUseFlexModelCalibration || kUseHardcodedMlTest ||
+      sensorIndex >= kCalibratedFlexCount) {
+    return static_cast<float>(raw);
+  }
+
+  const float position = constrain(
+    (static_cast<float>(raw) - kFlexMeasuredBent[sensorIndex]) /
+      (kFlexMeasuredStraight[sensorIndex] - kFlexMeasuredBent[sensorIndex]),
+    0.0f, 1.0f
+  );
+  return kFlexModelBent[sensorIndex] + position *
+    (kFlexModelStraight[sensorIndex] - kFlexModelBent[sensorIndex]);
+}
+
 void setupFlexSensors() {
   analogReadResolution(12);
   for (size_t i = 0; i < FLEX_SENSOR_COUNT; i++) {
@@ -24,4 +39,3 @@ FlexReadings readFlexReadings() {
   }
   return readings;
 }
-

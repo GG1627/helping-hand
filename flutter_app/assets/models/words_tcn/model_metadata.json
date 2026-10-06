@@ -1,0 +1,260 @@
+{
+  "accuracy_reporting_allowed": true,
+  "architecture": "tcn",
+  "artifacts": {
+    "keras": "model.keras",
+    "parameter_count": 8579,
+    "quantization": "none_requires_representative_real_data",
+    "tflite": "model.tflite",
+    "tflite_size_bytes": 48324
+  },
+  "data_origin": "real",
+  "data_version": "words-demo-real-v1",
+  "feature_columns": [
+    "flex_thumb_raw",
+    "flex_index_raw",
+    "flex_middle_raw",
+    "flex_ring_raw",
+    "flex_pinky_raw",
+    "ax",
+    "ay",
+    "az",
+    "gx",
+    "gy",
+    "gz"
+  ],
+  "final_accuracy_claim_ready": false,
+  "final_accuracy_claim_status": "requires_dataset_protocol_and_split_review",
+  "latency_ms": null,
+  "latency_status": "requires_target_device_measurement",
+  "model_config": {
+    "architecture": "tcn",
+    "conv_filters": 16,
+    "dense_units": 16,
+    "dropout": 0.25,
+    "feature_count": 11,
+    "kernel_size": 5,
+    "l2_regularization": 0.0001,
+    "learning_rate": 0.001,
+    "num_classes": 3,
+    "recurrent_units": 16,
+    "schema_version": "word-model-config-v1",
+    "window_samples": 96
+  },
+  "schema_version": "word-model-bundle-v1",
+  "source_files": [
+    {
+      "name": "trials_1.csv",
+      "sha256": "00261cb6358a309e762e911c5d6405331994ee74856243c0ee8016efb595b634"
+    }
+  ],
+  "split_manifest": {
+    "assignments": [
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_05",
+        "split": "train",
+        "trial_id": "word_hello_0010",
+        "word": "hello"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_01",
+        "split": "train",
+        "trial_id": "word_hello_0006",
+        "word": "hello"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_04",
+        "split": "train",
+        "trial_id": "word_hello_0009",
+        "word": "hello"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_02",
+        "split": "validation",
+        "trial_id": "word_hello_0007",
+        "word": "hello"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_03",
+        "split": "test",
+        "trial_id": "word_hello_0008",
+        "word": "hello"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_03",
+        "split": "train",
+        "trial_id": "word_please_0013",
+        "word": "please"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_04",
+        "split": "train",
+        "trial_id": "word_please_0014",
+        "word": "please"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_02",
+        "split": "train",
+        "trial_id": "word_please_0012",
+        "word": "please"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_05",
+        "split": "validation",
+        "trial_id": "word_please_0015",
+        "word": "please"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_01",
+        "split": "test",
+        "trial_id": "word_please_0011",
+        "word": "please"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_04",
+        "split": "train",
+        "trial_id": "word_yes_0004",
+        "word": "yes"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_03",
+        "split": "train",
+        "trial_id": "word_yes_0003",
+        "word": "yes"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_01",
+        "split": "train",
+        "trial_id": "word_yes_0001",
+        "word": "yes"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_02",
+        "split": "validation",
+        "trial_id": "word_yes_0002",
+        "word": "yes"
+      },
+      {
+        "orientation_condition": "neutral",
+        "session_id": "session_20261005T212737_676Z",
+        "signer_id": "signer_05",
+        "split": "test",
+        "trial_id": "word_yes_0005",
+        "word": "yes"
+      }
+    ],
+    "data_version": "words-demo-real-v1",
+    "schema_version": "word-split-v1",
+    "seed": 7,
+    "split_counts": {
+      "test": 3,
+      "train": 9,
+      "validation": 3
+    },
+    "strategy": "user_dependent",
+    "test_fraction": 0.2,
+    "trial_count": 15,
+    "validation_fraction": 0.2,
+    "vocabulary_version": "words-draft"
+  },
+  "standardizer": {
+    "feature_columns": [
+      "flex_thumb_raw",
+      "flex_index_raw",
+      "flex_middle_raw",
+      "flex_ring_raw",
+      "flex_pinky_raw",
+      "ax",
+      "ay",
+      "az",
+      "gx",
+      "gy",
+      "gz"
+    ],
+    "fitted_split": "train",
+    "mean": [
+      449.001944259361,
+      448.5031945263898,
+      401.4712498806141,
+      477.8432407732363,
+      422.7885647173281,
+      0.3040739812220434,
+      0.30458824037749666,
+      -0.5076086106274758,
+      -5.339665411705263,
+      1.9170609545868098,
+      -0.9842057819435097
+    ],
+    "method": "per_feature_standardization",
+    "scale": [
+      101.77529677253564,
+      101.92091765199356,
+      113.70340612642848,
+      155.21745216701873,
+      109.39423025284317,
+      0.5337919421830764,
+      0.37129269806366005,
+      0.44894822672547213,
+      104.45139245725797,
+      34.28777029461214,
+      17.189645743798287
+    ]
+  },
+  "synthetic_fixture_smoke_only": false,
+  "target_rate_hz": 40,
+  "tensorflow_version": "2.21.0",
+  "test_evaluation_status": "evaluated_after_model_selection",
+  "trained": true,
+  "training": {
+    "batch_size": 3,
+    "early_stopping_patience": 20,
+    "epochs_completed": 150,
+    "epochs_requested": 150,
+    "seed": 7
+  },
+  "vocabulary": [
+    "hello",
+    "please",
+    "yes"
+  ],
+  "vocabulary_version": "words-draft",
+  "window_samples": 96,
+  "selection_status": "selected_demo_candidate_pending_live_validation",
+  "window_preprocessing": "Device-clock linear resampling at 40Hz; center-trim or symmetric edge-pad to 96 samples; training-only per-feature standardization; raw flex ADC plus six-axis IMU, independently of the static MLP calibration.",
+  "evaluation_scope": "Whole-trial demo comparison; per-trial signer IDs retained but not treated as verified independent people. User reports the demo wearer supplied the data.",
+  "deployment": {
+    "tflite_sha256": "7664ceacd04b488fc896b04210490e4c0908d852050ad22ed4dc2b80fe561a8a",
+    "runtime": "Flutter tflite_flutter 0.12.1 CPU; attempt-owned background isolate",
+    "gesture_boundaries": "user starts and finishes one complete attempt",
+    "minimum_confidence_percent": 80,
+    "hardware_validation": "Not run"
+  }
+}

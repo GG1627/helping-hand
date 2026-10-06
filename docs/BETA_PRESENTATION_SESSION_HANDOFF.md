@@ -1,6 +1,6 @@
 # Beta presentation session handoff
 
-Updated October 5, 2026. Presentation: October 6, 2026.
+Updated October 6, 2026. Presentation: October 6, 2026.
 Reviewed presentation baseline: [`2bd6ee1`](https://github.com/GG1627/helping-hand/commit/2bd6ee1aeb48c08b4023957829068a690d77e8c3), committed and pushed to `gael`.
 This handoff records presentation progress, not new application or hardware validation.
 
@@ -19,7 +19,7 @@ This handoff records presentation progress, not new application or hardware vali
 - Keep the approved ivory/teal/mint app identity, short copy, and visual explanations. The user approved the deck's appearance and later content revisions.
 - Bottom navigation was removed at the user's request. Keep only the thin slide-progress line; keyboard shortcuts are documented in the deck README.
 - **Live demonstration**, confirmed with instructors; slide 7 says “LIVE DEMO!!!”. Reserve about 90 seconds. The prerecorded-video idea was superseded.
-- Demo target: **Hello**, selected from the provisional beginner words. Desired dynamic scope is a small, unrefined 3–4-word recognizer; the vocabulary and integration remain to be confirmed against the actual build.
+- Trained word vocabulary: **Hello, Please, Yes**. The user plans to present two words, chosen after fresh rehearsal with the recorded wearer. Recognition uses explicit Start attempt / Finish sign boundaries. The final two choices remain pending.
 - Team: Srinitha Srikanth, Brian Paz, Gael Garcia, Kali Schuchhardt. Speaker/demo assignments remain **TBD**.
 - Main next milestone: haptics. Proposed layout is five piezo elements in an X pattern plus one per finger, ten total. Corrective feedback should reflect positioning deviation; error estimation, pulse/intensity mapping, drivers, and tactile calibration remain planned.
 - Slide 9's October 7–November 3 dates are proposed for team review, not a confirmed final deadline.
@@ -28,15 +28,35 @@ This handoff records presentation progress, not new application or hardware vali
 
 - [x] Built all ten slides: intro, learning problem, system pipeline, alpha vertical slice, beta app, sequence-model explanation, live demo, current state, haptic roadmap, and questions.
 - [x] Added supplied current app screenshots, historical alpha evidence, generated intro/problem/haptic illustrations, and local licensed fonts.
-- [x] Added editable HTML/SVG architecture and timeline visuals; slide 6 explains proposed CNN-GRU processing and names CNN-LSTM as a comparison candidate.
+- [x] Added editable HTML/SVG architecture and timeline visuals; slide 6 now explains the selected, integrated TCN with CNN-GRU/CNN-LSTM as evaluated alternatives.
 - [x] Updated the problem slide with the sourced NIDCD **>90%** statistic and scoped the feedback gap to books/prerecorded reference videos alone.
 - [x] Added specific app capabilities and static acceptance rules without presenting thresholds as measured accuracy.
 - [x] Added speaker notes, source attribution, content/asset checklists, and live-demo preparation.
-- [x] Exported [ten-page PDF](../beta_presentation/exports/helping-hand-beta.pdf), approximately 5 MB.
+- [x] Exported [ten-page PDF](../beta_presentation/exports/helping-hand-beta.pdf), approximately 3.4 MB after the TCN update.
 - [x] Reviewed all ten browser slides and PDF pages; checked keyboard navigation, progress boundaries, overview, notes, fullscreen, mobile fit, local assets, and print behavior. No text overflow or browser errors were observed in the recorded checks.
 - [x] User reviewed the presentation; baseline commit pushed to `gael`.
 
 ### Follow-up changes after the baseline
+
+- October 5: trained TCN, CNN-GRU, and CNN-LSTM on the 15 recorded word trials.
+  Selected **TCN** by validation results and exported size; all three were 3/3
+  on validation, and selected TCN was 3/3 on reserved test trials. See
+  [the training record](WORD_MODEL_DEMO_TRAINING.md). The trained vocabulary is
+  **hello, please, yes**. Flutter now integrates complete-attempt recognition
+  and saved completion; three real-TCN Android emulator replay checks passed.
+  Fresh glove/phone rehearsal and phone latency are **Not run**. See
+  [the integration guide](WORD_DEMO_INTEGRATION.md). The required slide 6
+  follow-up is now applied to the deck/PDF. Software replay does not establish
+  a working physical live demo.
+
+- October 6 model-slide follow-up: replaced the proposed CNN-GRU diagram with
+  the selected TCN, actual 96 × 11 input at 40 Hz, dilation 1/2/4 residual blocks,
+  temporal average, three-word vocabulary, and on-phone inference. Added model
+  size and tiny whole-trial evaluation scope. Aligned slides 5/7/8, speaker notes,
+  sources, and demo checklist. The diagram remains editable; an optional GPT
+  illustration prompt is in `beta_presentation/assets/prompts.md`. The PDF is
+  regenerated and all ten PDF pages checked. The user accepted the update and
+  requested committing and pushing all work on October 6.
 
 - October 5: lowered the left section of slide 10's mint curve so it clears
   “Next: guidance you can feel.” Checked the closing slide at desktop/mobile
@@ -48,8 +68,8 @@ This handoff records presentation progress, not new application or hardware vali
 
 | Item | Status / next action |
 | --- | --- |
-| Slide 6 final model | **Pending, required.** Follow `CONTENT_REVIEW.md` after training, selection, and integration. Confirm architecture, vocabulary, input/window/preprocessing, TFLite deployment, model size, and measured latency. Add accuracy/F1 only with dataset/split and evaluation evidence. |
-| Dynamic live demo | **Planned; rehearsal Not run in this record.** Candidate builders and accessible word pages do not prove trained recognition or word completion. Confirm the real build; disclose any scripted/simulated behavior. Update slides 6/8, notes, and checklist consistently. |
+| Slide 6 final model | **Completed in the deck/PDF.** Selected TCN, vocabulary, input/window/preprocessing, deployment, size, and tiny trial-split result match the implementation. Intended-phone latency remains Not run. |
+| Dynamic live demo | **TCN integrated for complete attempts; Android recorded replay passed; fresh rehearsal Not run.** Use Start attempt / Finish sign with the recorded wearer and phone. Choose the two demo words after fresh trials and update evidence only when measured. |
 | Current hardware photos | **Pending.** Slide 3 has two placeholders. Add `assets/hardware/glove-current.jpg` and `circuit-current.jpg`, enable their entries in `assets/asset-manifest.js`, reload, and re-export the PDF. |
 | Speaker/demo assignments | **TBD.** Include all team members and rehearse within the agreed time. |
 | Haptic roadmap | **Planned.** Confirm milestone dates and mounting/calibration details with the team. The illustration is conceptual. |
@@ -62,7 +82,7 @@ The generated intro is a staged product visualization, not physical test evidenc
 
 1. Review current branch/build changes and any newly supplied hardware photos or model evidence.
 2. Replace the two hardware placeholders when the photos arrive; keep the approved design and slide count.
-3. When the dynamic model is ready, complete the required slide 6 follow-up and align slide 8, speaker notes, and demo claims with the actual implementation.
+3. Review the completed TCN slide update. Record new live-model evidence only after testing, then adjust claims and re-export if needed.
 4. Confirm speakers, rehearse the live scenario, and record the build/device/firmware and actual limitations in the demo checklist.
 5. Regenerate the PDF after changing slide content or images; check the affected slides and export pages.
 6. Update these status/checklist documents as items are completed. Follow the AI policy for review and any later commit/push; the earlier approval covers the reviewed baseline, not new unreviewed changes.

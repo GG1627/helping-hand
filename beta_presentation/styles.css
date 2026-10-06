@@ -96,13 +96,16 @@ h3 { font-size: 34px; font-weight: 600; line-height: 1.2; letter-spacing: -.02em
 .architecture-step h3 { font-size: 31px; }
 .architecture-visual { width: 100%; height: 132px; color: var(--teal); margin-top: 22px; }
 .feature-maps { stroke: #93b9a3; stroke-width: 1.5; }
-.recurrent-cells text { fill: var(--ink); stroke: none; text-anchor: middle; font-family: "DM Sans", sans-serif; font-size: 26px; }
+.tcn-blocks rect, .temporal-pool rect { fill: var(--mint); stroke: var(--teal); }
+.tcn-blocks text, .temporal-pool text { fill: var(--ink); stroke: none; text-anchor: middle; font-family: "DM Sans", sans-serif; font-size: 22px; }
+.tcn-blocks .skip-link { stroke: #79aa91; stroke-width: 1.8; }
 .architecture-step p { font-size: 25px; margin-top: 16px; }
 .architecture-step small { display: block; font-size: 20px; color: var(--muted); margin-top: 10px; }
 .architecture-arrow { width: 34px; height: 34px; color: var(--teal); margin-top: 111px; }
 .architecture-output { display: flex; flex-direction: column; justify-content: center; height: 132px; margin: 22px 17px 0; background: var(--mint); border-radius: 14px; }
 .architecture-output span { font-size: 21px; }
 .architecture-output strong { font-size: 44px; color: var(--teal); font-weight: 600; margin-top: 6px; }
+.vocabulary-output strong { font-size: 32px; line-height: 1.18; }
 .architecture-options { display: flex; justify-content: space-between; border-top: 1px solid var(--rule); margin-top: 44px; padding-top: 25px; font-size: 25px; color: var(--muted); }
 .architecture-options strong { color: var(--ink); font-weight: 550; }
 .live { background: var(--teal); color: var(--canvas); }

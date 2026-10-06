@@ -113,6 +113,16 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   String _friendlyMessage(FirebaseAuthException error) {
+    // Android can report certificate validation failures as internal-error.
+    final details = (error.message ?? '').toLowerCase();
+    if (details.contains('certpathvalidatorexception') ||
+        details.contains('trust anchor for certification path not found') ||
+        details.contains('sslhandshakeexception')) {
+      return 'A secure connection to sign-in could not be verified. '
+          'Try mobile data or another Wi-Fi network, and check your phone’s '
+          'date and time. If you use a VPN or network filter, try turning it off.';
+    }
+
     return switch (error.code) {
       'email-already-in-use' || 'credential-already-in-use' =>
         'An account already uses that email. Sign in instead.',
@@ -123,7 +133,7 @@ class _AccountScreenState extends State<AccountScreen> {
       'invalid-credential' => 'Email or password is incorrect.',
       'too-many-requests' => 'Too many attempts. Wait a bit and try again.',
       'network-request-failed' =>
-        'You appear to be offline. Check your connection.',
+        'Could not connect to sign-in. Check your connection or try another network.',
       'operation-not-allowed' =>
         'Email and password sign-in is not enabled for this Firebase project yet.',
       _ => 'Authentication failed. Please try again.',

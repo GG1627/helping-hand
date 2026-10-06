@@ -12,6 +12,8 @@ import '../services/recording_service.dart';
 import '../services/stable_prediction_tracker.dart';
 import '../theme/helping_hand_theme.dart';
 import '../widgets/stable_prediction_practice_card.dart';
+import '../widgets/word_practice_card.dart';
+import '../services/word_sequence.dart';
 import 'learning_screen.dart';
 import 'tabs/alphabet_tab.dart';
 import 'tabs/ble_testing_tab.dart';
@@ -52,7 +54,6 @@ class _MainShellState extends State<MainShell> {
   StreamSubscription<BlePacket>? _recordingPacketSubscription;
   StreamSubscription<ProgressRepositoryState>? _progressSubscription;
   final ValueNotifier<int> _practiceRevision = ValueNotifier(0);
-  String? _selectedPracticeWord;
   String? _selectedPracticeTarget;
   StablePredictionResult _predictionResult =
       const StablePredictionResult.idle();
@@ -96,7 +97,6 @@ class _MainShellState extends State<MainShell> {
 
   void _selectPracticeTarget(String target) {
     setState(() {
-      _selectedPracticeWord = null;
       _selectedPracticeTarget = target.toUpperCase();
       _predictionResult = _predictionTracker.selectTarget(target);
     });
@@ -104,10 +104,6 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _retryPracticeTarget() {
-    if (_selectedPracticeWord != null) {
-      _practiceRevision.value++;
-      return;
-    }
     if (_selectedPracticeTarget == null) return;
     setState(() => _predictionResult = _predictionTracker.reset());
     _practiceRevision.value++;
@@ -154,11 +150,8 @@ class _MainShellState extends State<MainShell> {
     required String title,
   }) {
     if (category == 'words') {
-      // The current recognition baseline only supports A-Z and 0-9.
-      // Word lessons share the live UI without feeding words to that tracker.
       setState(() {
         _selectedPracticeTarget = null;
-        _selectedPracticeWord = title;
         _predictionResult = const StablePredictionResult.idle();
       });
       _practiceRevision.value++;
@@ -170,7 +163,21 @@ class _MainShellState extends State<MainShell> {
       category: category,
       target: target,
       title: title,
-      practice: _practiceCard(),
+      practice: category == 'words'
+          ? WordPracticeCard(
+              target: target,
+              bleService: _bleService,
+              onCompleted: (word) async {
+                await _progressRepository.completeWord(word);
+                if (_progressRepository.state.status ==
+                    ProgressSyncStatus.localSaveFailure) {
+                  throw StateError(
+                    'Word completion could not be saved locally.',
+                  );
+                }
+              },
+            )
+          : _practiceCard(),
     );
   }
 
@@ -178,15 +185,11 @@ class _MainShellState extends State<MainShell> {
     return AnimatedBuilder(
       animation: Listenable.merge([_bleService, _practiceRevision]),
       builder: (context, _) => StablePredictionPracticeCard(
-        target: _selectedPracticeWord ?? _selectedPracticeTarget,
+        target: _selectedPracticeTarget,
         predictedLabel: _predictionResult.predictedLabel,
         predictedConfidence: _predictionResult.predictedConfidence,
         progress: _predictionResult.progress,
-        message: _selectedPracticeWord == null
-            ? _practiceMessage
-            : _bleService.isConnected
-            ? 'Make the sign and hold it steady.'
-            : 'Connect the glove from BLE Testing to practice.',
+        message: _practiceMessage,
         connected: _bleService.isConnected,
         onRetry: _retryPracticeTarget,
       ),
@@ -203,6 +206,8 @@ class _MainShellState extends State<MainShell> {
         totalLetters: letters.length,
         learnedNumbers: progress.learnedNumbers,
         totalNumbers: 10,
+        learnedWords: progress.learnedWords,
+        totalWords: trainedWords.length,
         syncStatus: _progressState.status,
         syncMessage: _progressState.message,
         accountEmail: widget.email,
@@ -238,6 +243,7 @@ class _MainShellState extends State<MainShell> {
         ),
       ),
       WordsTab(
+        learnedWords: progress.learnedWords,
         onWordSelected: (word) => _openPractice(
           category: 'words',
           target: word,

@@ -19,3 +19,6 @@ flutter_app.zip
 oracleJdk-27
 
 .vscode/
+
+# browser automation snapshots
+.playwright-cli/

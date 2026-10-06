@@ -1,5 +1,6 @@
 #include "telemetry.h"
 #include <stdio.h>
+#include <string.h>
 
 // KALI ADDED A CHANGE SO SHE CAN COMMIT THIS IM GOING CRAZZZZYYY
 
@@ -9,8 +10,11 @@ void formatTelemetry(char* payload, size_t capacity, uint64_t packetSequence,
                      uint64_t deviceTimestampMs, uint8_t imuWhoAmI,
                      const ImuSample& sample, bool imuSampleOk,
                      const FlexReadings& flex, const char* expectedLabel,
-                     const char* predictedLabel, float predictedConfidence,
+                     const FlexPrediction& prediction,
                      bool predictionOk) {
+  if (capacity == 0) return;
+  const char* predictedLabel = prediction.overall.label;
+  const float predictedConfidence = prediction.overall.confidence;
   if (imuSampleOk) {
     snprintf(
       payload,
@@ -61,5 +65,11 @@ void formatTelemetry(char* payload, size_t capacity, uint64_t packetSequence,
       flex.norm[4]
     );
   }
-
+  const size_t used = strlen(payload);
+  snprintf(payload + used, capacity - used,
+           ",pred_letter=%s,pred_letter_conf=%.1f,pred_number=%s,pred_number_conf=%.1f",
+           predictionOk ? prediction.letter.label : "NA",
+           predictionOk ? prediction.letter.confidence : 0.0f,
+           predictionOk ? prediction.number.label : "NA",
+           predictionOk ? prediction.number.confidence : 0.0f);
 }

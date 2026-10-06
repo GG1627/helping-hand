@@ -115,6 +115,37 @@ class BlePacket {
   final double? predictedConfidence;
   final String? expectedLabel;
 
+  /// Select the best class in the lesson category, retaining its original
+  /// full-model confidence. Older firmware can supply a same-category global
+  /// prediction; an opposite-category prediction is never shown in practice.
+  (String?, double?) predictionForStaticTarget(String target) {
+    final normalized = target.trim().toUpperCase();
+    final isLetter = RegExp(r'^[A-Z]$').hasMatch(normalized);
+    if (!isLetter && !RegExp(r'^[0-9]$').hasMatch(normalized)) {
+      return (null, null);
+    }
+    final category = isLetter ? 'letter' : 'number';
+    final hasCategory =
+        fields.containsKey('pred_$category') ||
+        fields.containsKey('pred_${category}_conf');
+    final label = (hasCategory ? fields['pred_$category'] : predictedLabel)
+        ?.trim()
+        .toUpperCase();
+    final confidence = hasCategory
+        ? double.tryParse(fields['pred_${category}_conf'] ?? '')
+        : predictedConfidence;
+    final pattern = isLetter ? r'^[A-Z]$' : r'^[0-9]$';
+    if (label == null ||
+        !RegExp(pattern).hasMatch(label) ||
+        confidence == null ||
+        !confidence.isFinite ||
+        confidence < 0 ||
+        confidence > 100) {
+      return (null, null);
+    }
+    return (label, confidence);
+  }
+
   bool get isValid => issues.isEmpty;
 
   /// Static letter/number collection needs a timestamped flex frame, but not

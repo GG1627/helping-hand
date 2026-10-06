@@ -9,6 +9,8 @@ class DashboardTab extends StatelessWidget {
   final int totalLetters;
   final Set<int> learnedNumbers;
   final int totalNumbers;
+  final Set<String> learnedWords;
+  final int totalWords;
   final ProgressSyncStatus syncStatus;
   final String syncMessage;
   final String accountEmail;
@@ -25,6 +27,8 @@ class DashboardTab extends StatelessWidget {
     required this.totalLetters,
     required this.learnedNumbers,
     required this.totalNumbers,
+    this.learnedWords = const {},
+    this.totalWords = 0,
     required this.syncStatus,
     required this.syncMessage,
     required this.accountEmail,
@@ -38,8 +42,9 @@ class DashboardTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final learnedCount = learnedLetters.length + learnedNumbers.length;
-    final totalCount = totalLetters + totalNumbers;
+    final learnedCount =
+        learnedLetters.length + learnedNumbers.length + learnedWords.length;
+    final totalCount = totalLetters + totalNumbers + totalWords;
     final progress = totalCount == 0 ? 0.0 : learnedCount / totalCount;
     final needsAttention =
         syncStatus == ProgressSyncStatus.syncFailure ||
@@ -173,7 +178,8 @@ class DashboardTab extends StatelessWidget {
                             _LearningPathRow(
                               icon: Icons.waving_hand_outlined,
                               title: 'Words',
-                              detail: 'Everyday vocabulary',
+                              detail:
+                                  '$totalWords words with recognition · ${learnedWords.length} completed',
                               onTap: () => onOpenTab(3),
                             ),
                             if (!needsAttention) ...[
