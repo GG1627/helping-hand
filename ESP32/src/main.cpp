@@ -7,7 +7,6 @@
 #include "flex_sensors.h"
 #include "imu_sensor.h"
 #include "telemetry.h"
-#include "piezo.h"
 using namespace std;
 
 namespace {
@@ -67,9 +66,8 @@ void loop() {
 
   FlexReadings flex = readFlexReadings();
   const char* expectedLabel = applyClassifierTestInput(flex);
-  const char* predictedLabel = "NA";
-  float predictedConfidence = 0.0f;
-  const bool predictionOk = classifyFlex(flex, predictedLabel, predictedConfidence);
+  FlexPrediction prediction;
+  const bool predictionOk = classifyFlex(flex, prediction);
 
   ImuSample sample{};
   const bool imuSampleOk = readImuSample(sample);
@@ -77,7 +75,11 @@ void loop() {
   char payload[kTelemetryCapacity];
   formatTelemetry(payload, sizeof(payload), packetSequence, deviceTimestampMs,
                   getImuWhoAmI(), sample, imuSampleOk, flex, expectedLabel,
-                  predictedLabel, predictedConfidence, predictionOk);
-  Serial.println(payload);
+                  prediction, predictionOk);
+  Serial.print(payload);
+  Serial.printf(
+    ",flex0_ml=%.1f,flex1_ml=%.1f\n",
+    flexModelInput(0, flex.raw[0]), flexModelInput(1, flex.raw[1])
+  );
   sendBlePayload(payload);
 }

@@ -109,10 +109,9 @@ class RecordedPacketRow {
     isAcceptedPacket,
   ];
 
-  bool get isAcceptedPacket =>
-      metadata.vocabularyVersion == 'static-asl-v1'
-          ? packet.isStaticFlexValid
-          : packet.isValid;
+  bool get isAcceptedPacket => metadata.vocabularyVersion == 'static-asl-v1'
+      ? packet.isStaticFlexValid
+      : packet.isValid;
 }
 
 class SavedSessionFiles {
@@ -151,6 +150,7 @@ class RecordingService extends ChangeNotifier {
   TrialRecordingState get state => _state;
   TrialMetadata? get currentMetadata => _currentMetadata;
   String? get sessionId => _sessionId;
+  String? get sessionVocabularyVersion => _sessionVocabularyVersion;
   String get message => _message;
   int get currentPacketCount => _currentRows.length;
   int get currentValidPacketCount =>
@@ -159,6 +159,29 @@ class RecordingService extends ChangeNotifier {
   int get discardedTrialCount => _discardedTrials.length;
   bool get hasSavedTrials => _savedTrials.isNotEmpty;
   SavedSessionFiles? get lastSavedFiles => _lastSavedFiles;
+
+  /// Archive the current session before allowing a different vocabulary.
+  /// If persistence fails, retain all data and the current session.
+  Future<String?> beginNewSession() async {
+    if (_state != TrialRecordingState.idle) {
+      return 'Finish or discard the current trial first.';
+    }
+    try {
+      if (_sessionId != null) await _persistSession();
+    } catch (error) {
+      return 'Could not archive the session: $error';
+    }
+    _acceptedRows.clear();
+    _savedTrials.clear();
+    _discardedTrials.clear();
+    _sessionId = null;
+    _sessionCreatedAt = null;
+    _sessionVocabularyVersion = null;
+    _lastSavedFiles = null;
+    _message = 'Ready for a new session. Previous files remain saved locally.';
+    notifyListeners();
+    return null;
+  }
 
   Duration get elapsed {
     final start = _recordingStartedAt;
@@ -372,7 +395,9 @@ class RecordingService extends ChangeNotifier {
   }
 
   String? _validateMetadata(TrialMetadata metadata) {
-    if (!RegExp(r'^[a-z0-9][a-z0-9]*(?:_[a-z0-9]+)*$').hasMatch(metadata.word)) {
+    if (!RegExp(
+      r'^[a-z0-9][a-z0-9]*(?:_[a-z0-9]+)*$',
+    ).hasMatch(metadata.word)) {
       return 'Label must use lowercase letters, numbers, and underscores.';
     }
     if (!RegExp(

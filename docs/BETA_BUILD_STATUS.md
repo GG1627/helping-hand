@@ -1,5 +1,12 @@
 # Helping Hand Beta Build Status
 
+October 5 follow-up: Hello, Please, and Yes now use the selected real-recording
+TCN in Flutter with complete-attempt boundaries and saved word completion.
+Three native Android recorded replay checks passed; fresh physical glove/phone
+recognition and intended-phone latency remain Not run. See
+[the integration record](WORD_DEMO_INTEGRATION.md). The October 2 snapshot below
+preserves its original evidence and UI-only word scope.
+
 Updated: October 2, 2026. App snapshot: commit [`d581d19`](https://github.com/GG1627/helping-hand/commit/d581d19); README snapshot: commit [`d807ef8`](https://github.com/GG1627/helping-hand/commit/d807ef8).
 This records implementation scope; it is not a claim of completed M4 acceptance
 or a substitute for the beta report and formal T2 test-plan PDF.

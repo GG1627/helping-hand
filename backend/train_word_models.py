@@ -181,6 +181,7 @@ def _train_candidate(
     l2_regularization: float,
     learning_rate: float,
     verbose: int,
+    defer_test: bool = False,
 ) -> dict[str, object]:
     output_directory.mkdir(parents=True, exist_ok=False)
     arrays = {
@@ -213,8 +214,8 @@ def _train_candidate(
     )
     best_model = keras.models.load_model(output_directory / "model.keras")
     reports: dict[str, dict[str, object]] = {}
-    for split in ("validation", "test"):
-        probabilities = best_model.predict(arrays[split][0], verbose=0)
+    for split in (("validation",) if defer_test else ("validation", "test")):
+        probabilities = best_model(arrays[split][0], training=False).numpy()
         reports[split] = evaluate_probabilities(
             arrays[split][1],
             probabilities,
@@ -274,6 +275,7 @@ def _train_candidate(
         },
         "latency_ms": None,
         "latency_status": "requires_target_device_measurement",
+        "test_evaluation_status": "deferred_until_model_selection" if defer_test else "evaluated",
         "tensorflow_version": tf.__version__,
     }
     (output_directory / "model_metadata.json").write_text(
@@ -285,7 +287,7 @@ def _train_candidate(
         "directory": str(output_directory),
         "parameter_count": metadata["artifacts"]["parameter_count"],
         "tflite_size_bytes": len(tflite_bytes),
-        "test_result_scope": reports["test"]["result_scope"],
+        "test_result_scope": reports["test"]["result_scope"] if "test" in reports else "deferred_until_model_selection",
     }
 
 
@@ -329,6 +331,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Permit fixture training; metrics remain explicitly non-reportable",
     )
     parser.add_argument("--verbose", type=int, choices=(0, 1, 2), default=1)
+    parser.add_argument("--defer-test", action="store_true",
+                        help="Evaluate validation only; reserve test data for the selected candidate")
     return parser
 
 
@@ -449,6 +453,7 @@ def main(argv: list[str] | None = None) -> int:
                     l2_regularization=args.l2_regularization,
                     learning_rate=args.learning_rate,
                     verbose=args.verbose,
+                    defer_test=args.defer_test,
                 )
             )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:

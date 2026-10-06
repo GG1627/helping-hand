@@ -38,6 +38,17 @@ This handoff records presentation progress, not new application or hardware vali
 
 ### Follow-up changes after the baseline
 
+- October 5: trained TCN, CNN-GRU, and CNN-LSTM on the 15 recorded word trials.
+  Selected **TCN** by validation results and exported size; all three were 3/3
+  on validation, and selected TCN was 3/3 on reserved test trials. See
+  [the training record](WORD_MODEL_DEMO_TRAINING.md). The trained vocabulary is
+  **hello, please, yes**. Flutter now integrates complete-attempt recognition
+  and saved completion; three real-TCN Android emulator replay checks passed.
+  Fresh glove/phone rehearsal and phone latency are **Not run**. See
+  [the integration guide](WORD_DEMO_INTEGRATION.md). The deck/PDF still need
+  the required slide 6 follow-up; software replay does not establish a working
+  physical live demo.
+
 - October 5: lowered the left section of slide 10's mint curve so it clears
   “Next: guidance you can feel.” Checked the closing slide at desktop/mobile
   sizes and keyboard navigation, then regenerated and inspected the PDF closing
@@ -49,7 +60,7 @@ This handoff records presentation progress, not new application or hardware vali
 | Item | Status / next action |
 | --- | --- |
 | Slide 6 final model | **Pending, required.** Follow `CONTENT_REVIEW.md` after training, selection, and integration. Confirm architecture, vocabulary, input/window/preprocessing, TFLite deployment, model size, and measured latency. Add accuracy/F1 only with dataset/split and evaluation evidence. |
-| Dynamic live demo | **Planned; rehearsal Not run in this record.** Candidate builders and accessible word pages do not prove trained recognition or word completion. Confirm the real build; disclose any scripted/simulated behavior. Update slides 6/8, notes, and checklist consistently. |
+| Dynamic live demo | **TCN integrated for complete attempts; Android recorded replay passed; fresh rehearsal Not run.** Use Start attempt / Finish sign with the actual wearer and phone. Update slides 6/8, notes, and checklist consistently with this flow and the remaining validation limits. |
 | Current hardware photos | **Pending.** Slide 3 has two placeholders. Add `assets/hardware/glove-current.jpg` and `circuit-current.jpg`, enable their entries in `assets/asset-manifest.js`, reload, and re-export the PDF. |
 | Speaker/demo assignments | **TBD.** Include all team members and rehearse within the agreed time. |
 | Haptic roadmap | **Planned.** Confirm milestone dates and mounting/calibration details with the team. The illustration is conceptual. |

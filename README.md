@@ -36,10 +36,12 @@ The completed alpha path is:
 > Glove sensors → ESP32 static classifier → BLE packets → Flutter learner
 > feedback → local progress → authenticated Firestore synchronization
 
-The app also contains a Record Signs workflow and backend foundations for the
-next development phase: collecting real, labeled word-level sensor sequences
-and training a dynamic recognition model. No real dynamic word model has been
-trained, selected, or deployed yet.
+The app also contains a Record Signs workflow and a trained TCN for Hello,
+Please, and Yes. Flutter performs word inference locally on complete,
+user-delimited attempts and saves successful word completion. Android emulator
+replay passed; fresh physical-glove validation remains Not run. See the
+[training record](docs/WORD_MODEL_DEMO_TRAINING.md) and
+[integration instructions](docs/WORD_DEMO_INTEGRATION.md).
 
 ### Beta implementation
 
@@ -68,15 +70,18 @@ notice. Tapping any letter, number, or word opens a separate live-practice page,
 and Back returns to its picker. The grid/list no longer contains practice.
 
 Letters and numbers retain the existing stable-prediction acceptance and
-account-scoped progress behavior. Word pages currently provide the practice UI
-and glove connection feedback; dynamic word recognition and word completion
-are not implemented. The current static model is not used to validate words.
+account-scoped progress behavior. Hello, Please, and Yes use a separate TCN:
+Start attempt, perform the whole sign, then Finish sign. Completion requires
+the actual predicted word to match the target at 80% confidence or above.
+Other word pages remain available with recognition marked unavailable.
 
 See [Beta build status](docs/BETA_BUILD_STATUS.md),
 [Beta app experience](docs/BETA_APP_EXPERIENCE_PLAN.md), and
 [Beta test plan](output/pdf/T2_Beta_Test_Plan.pdf). The separate-route change
-passed targeted Flutter analysis; device navigation, BLE, Firebase, and
-Android beta validation remain Not run. Prior visual/build checks are listed
+passed targeted Flutter analysis. The October 5 word integration also passed
+42 focused Flutter checks, three native Android recorded replay checks, and a
+normal debug APK build. Physical-device navigation, BLE, Firebase, and live
+word rehearsal remain Not run. Prior visual/build checks are listed
 separately from this route change. Static selection remains active after Back;
 see the known-issues section below.
 
@@ -89,7 +94,7 @@ see the known-issues section below.
 | Responsiveness | BLE notifications and Firebase work are asynchronous; the learner route observes state owned by the app shell. | Analysis/automated checks do not replace latency measurements on target phone/hardware. |
 | Integrated features and persistent state | Existing letter/number static classifier and local-first UID-scoped progress remain; Firebase email/password account flows are present. | Live Firestore isolation, offline recovery, and restart synchronization remain unverified end to end. |
 | Build quality and robustness | Existing static-sign path is retained while practice navigation and visual identity are refined. | Full beta regression, edge-case, stress, and current-hardware checks remain Not run. |
-| Dynamic word recognition | Word vocabulary pages are navigable; word model inference and word completion are not integrated. | This is an incomplete feature, not a validated recognition capability. |
+| Dynamic word recognition | TCN recognition and saved completion are integrated for Hello, Please, and Yes using explicit complete attempts. | Three native Android recorded replay checks passed; fresh live glove recognition, unknown gesture rejection, and intended-phone latency remain unvalidated. |
 
 ### Historical alpha feature status
 
@@ -134,7 +139,10 @@ flowchart LR
     BLE --> RECORD[Record Signs workflow]
     RECORD --> FILES[App-private CSV + JSON export]
     FILES --> BACKEND[Validation and sequence preprocessing]
-    BACKEND -. real labeled data required .-> WORDMODEL[Future dynamic word model]
+    BACKEND --> WORDMODEL[Selected real-recording TCN]
+    WORDMODEL --> WORDPRACTICE[Flutter complete word attempts]
+    BLE --> WORDPRACTICE
+    WORDPRACTICE --> PROGRESS
 ```
 
 ### Embedded runtime
@@ -197,7 +205,13 @@ safe empty representation rather than crashing the app.
 ### Word-recording and ML foundation
 
 Record Signs creates labeled trials using the `word-sequence-v1` contract. Each
-saved row retains the exact BLE packet plus parsed timestamps, sequence number,
+session can record letters/numbers or words. Select **Words**, enter the word
+label and vocabulary version, and choose the wrist orientation. Word captures
+use **Stop → review → Save trial / Discard trial** so an entire moving sign can
+be checked before saving. Export before **New session** when switching modes;
+archived files remain local. See the [collection protocol](docs/word_data_collection_protocol.md).
+
+Each saved row retains the exact BLE packet plus parsed timestamps, sequence number,
 five flex readings, six IMU readings, word label, pseudonymous signer ID,
 orientation condition, and trial metadata. Sessions remain app-private until a
 user explicitly opens the Android share sheet to export CSV and JSON files.
@@ -298,6 +312,12 @@ they were not present in exactly this form in the historical video.
    repository.
 
 ### 4. Record a word trial
+
+To practice an already trained word, open Words > Hello, Please, or Yes, tap
+Start attempt, perform the complete sign, then Finish sign. A matching result
+at 80% confidence or above saves completion. See
+[the word demo guide](docs/WORD_DEMO_INTEGRATION.md) for timing and rehearsal.
+The steps below collect additional training recordings.
 
 1. Open **Record Signs** and connect the glove.
 2. Enter a lowercase word label, vocabulary version, pseudonymous signer ID,
@@ -481,7 +501,7 @@ software build at screenshot time.
 | --- | --- |
 | [`ESP32/`](ESP32/) | Feather ESP32-S3 firmware, static model header, and IMU diagnostics |
 | [`flutter_app/`](flutter_app/) | Android Flutter application, BLE client, learner loop, recording, local persistence, Firebase sync, and tests |
-| [`backend/`](backend/) | Static artifacts, word-sequence validation/preprocessing, untrained sequence-model code, and tests |
+| [`backend/`](backend/) | Static artifacts, word-sequence validation/preprocessing, candidate training/selection/export, and tests |
 | [`docs/`](docs/) | Word-data collection and project documentation |
 | [`research/`](research/) | Word-level IMU recognition and haptic-feedback research |
 | [`app_glove_pictures_and_vids/`](app_glove_pictures_and_vids/) | Current emulator screenshots and historical physical integration evidence |
@@ -510,7 +530,7 @@ for the unrun checks.
 | --- | --- | --- | --- |
 | HH-BUG-01 | Firmware startup | `ESP32/src/main.cpp` waits for the USB `Serial` interface without a timeout. If no serial host opens the port, firmware setup can remain blocked before normal BLE/sensor initialization. | Power the board without opening a serial monitor and observe whether BLE advertising begins. Fix: not implemented; standalone boot needs revalidation. |
 | HH-BUG-02 | Practice lifecycle | A selected letter or number remains active after leaving its practice page. The app shell can continue accepting matching packets and may record completion while the learner is back on the picker. | Select a letter/number, return with Back, and continue sending its matching sign. Behavior is confirmed; whether to clear selection on Back is an unresolved product decision. |
-| HH-FEAT-01 | Incomplete beta feature | Word pages are navigable but do not perform dynamic word recognition or save word completion. The static character/digit model is not a word recognizer. | Open a word practice page. Word recognition is not integrated; do not claim a recognized word or word progress. |
+| HH-FEAT-01 | Partial beta feature / validation gap | Hello, Please, and Yes use trained TCN inference and saved completion; other words lack recognition. The model has no rest/unknown class and only neutral recordings from the reported demo wearer. | Start and finish one complete attempt. Software replay passed; fresh glove/phone recognition and unknown-motion rejection remain unvalidated. |
 | HH-FEAT-02 | Incomplete beta feature | Target-specific ASL instructional media is not integrated; practice pages provide a target and generic hold guidance. | Open a target practice page. Review and integration of instruction remain outstanding. |
 
 The following are open validation gates rather than confirmed bugs: current
@@ -528,11 +548,11 @@ research-only; no haptic circuit or firmware control path is integrated. The
 Android package currently builds with debug signing, not a store-ready release
 signature. Packet CRC/checksum protection is not implemented.
 
-The next phase is to resolve the practice completion lifecycle, test the
-assembled glove and account flows, approve a word vocabulary, collect
-consented multi-signer recordings across wrist orientations, compare dynamic
-model candidates, measure target-runtime latency, and only then integrate a
-validated word model. The static classifier remains the regression baseline.
+The next phase is to resolve the static practice completion lifecycle, test
+the assembled glove and account flows, rehearse the three-word recognizer,
+collect more recordings across wearers and wrist orientations, compare dynamic
+model candidates on that expanded data, add rest/unknown rejection, and measure
+intended-phone latency. The static classifier remains the regression baseline.
 
 ## AI-assisted development disclosure
 

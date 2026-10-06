@@ -1,7 +1,11 @@
 #include "classifier.h"
 #include "flex_sensors.h"
 #include <math.h>
+#if HH_USE_RECORDED_STATIC_MODEL
+#include "recorded_static_model_data.h"
+#else
 #include "asl_model_data.h"
+#endif
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/micro/all_ops_resolver.h"
 #include "tensorflow/lite/micro/micro_error_reporter.h"
@@ -12,7 +16,11 @@ using namespace std;
 
 namespace {
 constexpr int kModelInputSize = 5;
+#if HH_USE_RECORDED_STATIC_MODEL
+constexpr int kModelClassCount = kRecordedClassCount;
+#else
 constexpr int kModelClassCount = 36;
+#endif
 constexpr size_t kTensorArenaSize = 70 * 1024;
 alignas(16) uint8_t tensorArena[kTensorArenaSize];
 
@@ -25,6 +33,11 @@ TfLiteTensor* mlInputTensor = nullptr;
 TfLiteTensor* mlOutputTensor = nullptr;
 bool mlReady = false;
 
+#if HH_USE_RECORDED_STATIC_MODEL
+const float* const kFeatureMean = kRecordedFeatureMean;
+const float* const kFeatureScale = kRecordedFeatureScale;
+const char* const* const kClassLabels = kRecordedClassLabels;
+#else
 const float kFeatureMean[kModelInputSize] = {
   294.58229166666666f,
   416.1657986111111f,
@@ -47,6 +60,7 @@ const char* kClassLabels[kModelClassCount] = {
   "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
   "U", "V", "W", "X", "Y", "Z"
 };
+#endif
 
 struct MlTestCase {
   const char* expected;
@@ -134,15 +148,20 @@ bool setupClassifier() {
   }
 
   mlReady = true;
+  Serial.printf("Static model: %s (%d classes)\n",
+                HH_USE_RECORDED_STATIC_MODEL ? "real recorded MLP" : "synthetic baseline",
+                kModelClassCount);
   Serial.printf("TFLite ready. Input type=%d Output type=%d\n", mlInputTensor->type, mlOutputTensor->type);
   return true;
 }
 
-bool classifyFlex(const FlexReadings& flex, const char*& outLabel, float& outConfidence) {
+bool classifyFlex(const FlexReadings& flex, FlexPrediction& prediction) {
+  prediction = FlexPrediction{};
   if (!mlReady || mlInterpreter == nullptr) return false;
 
   for (int i = 0; i < kModelInputSize; i++) {
-    const float normalized = (static_cast<float>(flex.raw[i]) - kFeatureMean[i]) / kFeatureScale[i];
+    const float modelValue = flexModelInput(i, flex.raw[i]);
+    const float normalized = (modelValue - kFeatureMean[i]) / kFeatureScale[i];
     writeInputFeature(i, normalized);
   }
 
@@ -152,16 +171,30 @@ bool classifyFlex(const FlexReadings& flex, const char*& outLabel, float& outCon
 
   int bestIndex = 0;
   float bestProb = readOutputProbability(0);
-  for (int i = 1; i < kModelClassCount; i++) {
+  int bestLetter = -1;
+  int bestNumber = -1;
+  float bestLetterProb = -1.0f;
+  float bestNumberProb = -1.0f;
+  for (int i = 0; i < kModelClassCount; i++) {
     const float p = readOutputProbability(i);
+    if (!isfinite(p) || p < 0.0f || p > 1.00001f) return false;
     if (p > bestProb) {
       bestProb = p;
       bestIndex = i;
     }
+    const char label = kClassLabels[i][0];
+    if (label >= 'A' && label <= 'Z' && p > bestLetterProb) {
+      bestLetter = i;
+      bestLetterProb = p;
+    } else if (label >= '0' && label <= '9' && p > bestNumberProb) {
+      bestNumber = i;
+      bestNumberProb = p;
+    }
   }
 
-  outLabel = kClassLabels[bestIndex];
-  outConfidence = bestProb * 100.0f;
+  prediction.overall = {kClassLabels[bestIndex], bestProb * 100.0f};
+  if (bestLetter >= 0) prediction.letter = {kClassLabels[bestLetter], bestLetterProb * 100.0f};
+  if (bestNumber >= 0) prediction.number = {kClassLabels[bestNumber], bestNumberProb * 100.0f};
   return true;
 }
 

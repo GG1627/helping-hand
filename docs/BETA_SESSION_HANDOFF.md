@@ -1,5 +1,13 @@
 # Beta Build / Beta Test Plan Session Handoff
 
+October 5 word integration follow-up: TCN is trained and packaged for Hello,
+Please, and Yes with Start attempt / Finish sign boundaries and saved word
+completion. Three native Android recorded replay checks passed. Fresh live
+glove/phone recognition, intended-phone latency, and live Firebase word sync
+are Not run. See [the integration guide](WORD_DEMO_INTEGRATION.md).
+The October 2 snapshot below is historical; its UI-only word limitation has
+been superseded by this software integration.
+
 For presentation work, start with
 [BETA_PRESENTATION_SESSION_HANDOFF.md](BETA_PRESENTATION_SESSION_HANDOFF.md),
 updated October 5, 2026 with the reviewed/pushed deck and remaining tasks.

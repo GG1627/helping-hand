@@ -1,5 +1,13 @@
 # Beta Test Plan - Working Notes
 
+October 5 word update: TCN inference and completion are integrated for complete
+Hello, Please, and Yes attempts. Three native Android recorded replay checks
+passed. Extend WORD procedures to cover Start attempt / Finish sign, wrong or
+uncertain predictions, sensor interruption, cancellation/Back, and word progress
+restart/sync. Fresh physical glove/phone and Firebase word-sync procedures are
+Not run. See [the integration record](WORD_DEMO_INTEGRATION.md); the earlier
+UI-only word assumptions below are retained as historical planning context.
+
 This is the shared fact tracker for drafting the Helping Hand beta test plan.
 Update items as the team confirms scope or runs tests. Mark unrun work as
 `Not run` rather than assuming it passed.
