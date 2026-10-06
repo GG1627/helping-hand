@@ -53,13 +53,15 @@ h3 { font-size: 34px; font-weight: 600; line-height: 1.2; letter-spacing: -.02em
 .problem-stat p { font-size: 29px; line-height: 1.25; margin-top: 12px; }
 .problem-points { margin-top: 29px; font-size: 27px; line-height: 1.35; }
 .problem-points p { padding: 12px 0; border-bottom: 1px solid var(--rule); width: 615px; }
-.system-flow { margin-top: 72px; display: grid; grid-template-columns: 1fr 38px 1fr 38px 1fr 38px 1fr 38px 1fr; align-items: center; }
+.system-flow { margin-top: 48px; display: grid; grid-template-columns: 1fr 38px 1fr 38px 1fr 38px 1fr 38px 1fr; align-items: center; }
 .flow-step { text-align: center; }
 .diagram-icon { width: 85px; height: 85px; color: var(--teal); stroke-width: 2.4; margin-bottom: 26px; }
 .flow-step h3 { font-size: 30px; }
 .flow-step p { font-size: 24px; color: var(--muted); margin-top: 12px; }
 .flow-arrow { width: 38px; height: 38px; color: var(--teal); margin-top: -62px; }
-.hardware-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 64px; }
+.hardware-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 36px; }
+.hardware-slots .asset-slot { height: 340px; }
+.hardware-slots .asset-fallback, .hardware-slots .asset-slot.has-asset img { height: 294px; }
 .asset-slot { background: #f1f5ee; border: 1px dashed #a5bab0; border-radius: 14px; height: 219px; position: relative; }
 .asset-fallback { height: 173px; display: flex; align-items: center; gap: 26px; justify-content: center; }
 .asset-fallback svg { width: 60px; height: 60px; color: #77988c; }
@@ -67,6 +69,7 @@ h3 { font-size: 34px; font-weight: 600; line-height: 1.2; letter-spacing: -.02em
 .asset-fallback span { display: block; margin-top: 8px; color: var(--muted); font-size: 23px; }
 .asset-slot figcaption { height: 46px; text-align: center; font-size: 20px; color: var(--muted); }
 .asset-slot.has-asset { border: 1px solid var(--rule); background: white; }
+.hardware-slots .asset-slot.has-asset { border: 0; border-radius: 0; background: transparent; }
 .asset-slot.has-asset img { width: 100%; height: 173px; object-fit: contain; }
 .alpha-layout { display: grid; grid-template-columns: 680px 1fr; gap: 76px; margin-top: 44px; }
 .alpha-photo-group { display: flex; gap: 26px; align-items: flex-start; }

@@ -272,7 +272,7 @@ def main() -> None:
         "keras_tflite_max_probability_error": error,
         "evaluations": evaluations, "hardware_inference_latency_ms": None, "hardware_validation": "Not run",
         "final_accuracy_claim_ready": False,
-        "limitations": ["Small team dataset", "Correlated frames within trials", "No rest/unknown class; model always selects a supported class", "Current calibration clips thumb/index readings below 400 and above 515", "Recorded signer IDs are metadata, not verified independent people"],
+        "limitations": ["Small team dataset", "Correlated frames within trials", "No rest/unknown class; model always selects a supported class", "Calibrated channels clamp at the measured bent/straight endpoints recorded in calibration metadata", "Recorded signer IDs are metadata, not verified independent people"],
     }
     save_json(args.output_directory / "metadata.json", metadata)
     save_json(args.output_directory / "split_manifest.json", {"assignments": assignments, "sources": sources})

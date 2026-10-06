@@ -35,7 +35,7 @@ NIDCD reports that more than 90% of deaf children are born to hearing parents, c
 
 Speaker: TBD · 30 seconds
 
-Flex sensors capture finger bending; IMU readings capture motion/orientation. ESP32 samples and sends BLE packets to Flutter. The app processes readings and displays practice feedback. Tactile feedback is a future addition. Current hardware photo slots are placeholders.
+Flex sensors capture finger bending; IMU readings capture motion/orientation. ESP32 samples and sends BLE packets to Flutter. The app processes readings and displays practice feedback. Tactile feedback is a future addition. The left photo shows the current glove with its mounted electronics; the right shows the ESP32-S3 and connections on the perfboard.
 
 
 ## 4. What alpha established

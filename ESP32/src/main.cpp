@@ -78,8 +78,10 @@ void loop() {
                   prediction, predictionOk);
   Serial.print(payload);
   Serial.printf(
-    ",flex0_ml=%.1f,flex1_ml=%.1f\n",
-    flexModelInput(0, flex.raw[0]), flexModelInput(1, flex.raw[1])
+    ",flex0_ml=%.1f,flex1_ml=%.1f,flex2_ml=%.1f,flex3_ml=%.1f,flex4_ml=%.1f\n",
+    flexModelInput(0, flex.raw[0]), flexModelInput(1, flex.raw[1]),
+    flexModelInput(2, flex.raw[2]), flexModelInput(3, flex.raw[3]),
+    flexModelInput(4, flex.raw[4])
   );
   sendBlePayload(payload);
 }

@@ -56,5 +56,5 @@ The feedback gap is scoped to books and ordinary prerecorded videos. Do not rest
 
 - Slide 5 names Firebase sign-in, dedicated practice pages, and account-specific static progress.
 - Slide 8 shows implemented static matching thresholds (correct target label, ≥80% confidence, ≥750 ms hold, ≥5 matching packets, ≤250 ms packet gaps). These are acceptance rules, not measured recognition accuracy, and do not apply to dynamic word recognition.
-- Slide 3 still needs current glove/circuit photos. The architecture is already specific; replace the placeholders when photos arrive.
+- Slide 3 includes the supplied current glove and perfboard close-up photos, enabled in the HTML on October 6. Hardware photos show construction, not proof of live validation. The final ten-page PDF was refreshed on October 6 at the user's subsequent request and includes these photos.
 - Slide 9 already specifies the proposed piezo layout and calibration plan. Its dates remain proposed until the team confirms them.

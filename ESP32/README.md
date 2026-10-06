@@ -49,25 +49,28 @@ check live predictions and telemetry in Flutter, BLE disconnect/reconnect, and
 IMU offline/recovery behavior on the glove. Actual throughput and negotiated MTU
 still require hardware validation.
 
-## Flex 0 / flex 1 model calibration
+## Five-finger model calibration
 
-Live model inputs use a separate linear calibration for flex 0 and flex 1,
+Live model inputs use a separate linear calibration for all five flex sensors,
 configured in `include/firmware_config.h`:
 
 | Sensor | Measured fully bent bound | Measured straight | Model fully bent | Model straight |
 | --- | --- | --- | --- | --- |
-| Flex 0 (thumb) | 400 | 515 | 120 | 550 |
-| Flex 1 (index) | 400 | 515 | 120 | 550 |
+| Flex 0 (thumb) | 425 | 625 | 120 | 550 |
+| Flex 1 (index) | 425 | 625 | 120 | 550 |
+| Flex 2 (middle) | 425 | 625 | 120 | 550 |
+| Flex 3 (ring) | 425 | 625 | 120 | 550 |
+| Flex 4 (pinky) | 425 | 625 | 80 | 560 |
 
-The straight endpoint approximates the supplied glove samples; the bent bound
-is the requested 400 for both sensors. Target endpoints match `FLEX_BENT_ADC`
+The measured bounds are the requested 425 fully bent and 625 fully unbent
+for every finger. Target endpoints match `FLEX_BENT_ADC`
 / `FLEX_STRAIGHT_ADC` in `backend/generate_asl_data.py`. Intermediate readings
-map linearly; readings at or below 400 clamp to 120 and readings at or above
-515 clamp to 550. These are ADC-equivalent model inputs, not physical readings.
+map linearly; readings at or below 425 clamp to the model's bent endpoint and
+readings at or above 625 clamp to its straight endpoint. These are ADC-equivalent
+model inputs, not physical readings.
 Calibration runs before the existing training mean/scale standardization.
-Flex 2–4 pass through unchanged.
 
-Serial lines append `flex0_ml` and `flex1_ml` showing the ADC-equivalent inputs
+Serial lines append `flex0_ml` through `flex4_ml` showing the ADC-equivalent inputs
 before standardization. Existing `flexN_raw` and `flexN_norm` fields still show
 physical ADC readings and raw/4095 respectively; BLE packets retain their
 existing fields so recordings retain the original measurements. BLE packets
@@ -80,9 +83,12 @@ glove fit, sensor placement, or wiring changes. The mapping increases sensitivit
 to noise and does not establish improved recognition accuracy.
 
 Hardware validation: **Not run**. After upload, check approximately
-`flex0_ml=550` / `flex1_ml=550` at raw 515 and approximately `120` at raw 400,
-then check intermediate poses and known signs. Readings below 400 all map to
-120, so their bend differences are not represented in these model inputs.
+`flex0_ml` through `flex3_ml` at 550 for raw 625 and 120 for raw 425; the pinky
+should show 560 and 80 respectively. At raw 525, expect 335 for the first four
+fingers and 320 for the pinky. Then check intermediate poses and known signs.
+Readings outside 425–625 clamp, so their differences are not represented in
+these model inputs. Word inference still consumes raw flex measurements and
+has separate preprocessing; this mapping applies to the static MLP.
 
 ## Recorded static demo model
 

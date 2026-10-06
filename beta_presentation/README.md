@@ -43,12 +43,13 @@ Speaker notes are shown on the same screen when opened. Close them before projec
 
 The visible toolbar has been removed. A thin 4px line at the bottom tracks slide progress; keyboard shortcuts provide presentation controls. The line is omitted from printed output, so this change does not affect the existing PDF.
 
-## Replace the two hardware placeholders
+## Hardware photos
 
-1. Add `assets/hardware/glove-current.jpg` and/or `assets/hardware/circuit-current.jpg`.
-2. Uncomment the matching entries in `assets/asset-manifest.js` (or update filenames there and the corresponding `data-asset` attribute in `index.html`).
-3. Reload. The slots replace their placeholders after each image loads; a missing file retains its placeholder.
-4. Export a fresh PDF. The existing PDF is a snapshot and does not update automatically.
+Slide 3 now includes the supplied full-glove photo on the left and perfboard close-up on the right. Both paths are enabled in `assets/asset-manifest.js`. The taller image areas preserve the portrait photos without cropping.
+
+To replace a photo, keep its filename (`assets/hardware/glove-current.jpg` or `assets/hardware/circuit-current.jpg`) and reload. A missing file retains a labeled fallback. If using a different filename, update the manifest and corresponding `data-asset` attribute in `index.html`.
+
+The hardware-photo update initially applied to HTML only. On October 6, the user requested a final PDF export; `exports/helping-hand-beta.pdf` now includes these photos and the complete current ten-slide deck. Future HTML changes still require a new export.
 
 ## Content to review before presenting
 
@@ -70,3 +71,5 @@ After toolbar removal, keyboard navigation, progress fill/boundaries, mobile fit
 The TCN update was checked at 1660×1000 and 390×844, including text bounds and keyboard navigation. All local images loaded. The regenerated PDF contains ten nonblank 16:9 pages; all ten were rendered and visually inspected. Images in the export were recompressed to approximately 3.4 MB while retaining the slide text and editable diagram in the HTML source. Source image assets remain at their original quality. These are presentation checks, not live recognition validation.
 
 Fonts: DM Sans and the app's bundled Fraunces Italic. Their SIL Open Font License texts are included in `assets/fonts/`.
+
+Final October 6 export: ten nonblank 16:9 PDF pages, approximately 1.9 MB. All ten pages were rendered and visually inspected, including the supplied hardware photos, current TCN diagram, and closing slide. Image recompression preserves searchable slide text and vector diagrams; source assets are unchanged. These are presentation checks only.
