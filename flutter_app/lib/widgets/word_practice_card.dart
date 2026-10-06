@@ -194,10 +194,6 @@ class _WordPracticeCardState extends State<WordPracticeCard>
                   displayWord(prediction.label),
                   style: theme.textTheme.titleLarge,
                 ),
-                Text(
-                  '${prediction.confidence.toStringAsFixed(0)}%',
-                  style: theme.textTheme.titleMedium,
-                ),
                 if (matched)
                   const Icon(
                     Icons.check_circle_outline,

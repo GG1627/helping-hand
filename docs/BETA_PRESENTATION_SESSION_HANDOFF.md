@@ -38,6 +38,26 @@ This handoff records presentation progress, not new application or hardware vali
 
 ### Follow-up changes after the baseline
 
+- October 6 final PDF export: the user confirmed the deck was finished and
+  requested the entire current deck as a PDF. Refreshed
+  `beta_presentation/exports/helping-hand-beta.pdf`, including the supplied
+  hardware photos and all current HTML content. Confirmed ten nonblank 16:9
+  pages and visually inspected every rendered page. The image-compressed
+  export is approximately 1.9 MB and retains searchable text and vector
+  diagrams. This supersedes the earlier HTML-only export restriction for
+  this requested export. Presentation checks are not hardware/model validation.
+
+- October 6 hardware-photo update: enabled supplied `glove-current.jpg` and
+  `circuit-current.jpg` on slide 3, showing the complete glove and perfboard
+  close-up. Increased the portrait photo areas without cropping and aligned
+  captions, speaker notes, and asset status. User requested **HTML only**;
+  the existing PDF predates these photos and was not refreshed.
+  Chrome checks passed at 1660 × 1000 and 390 × 844, including photo loading,
+  footer clearance, navigation, and direct local HTML opening. No browser
+  errors/warnings were observed.
+  Follow-up: removed the white photo-card backgrounds and borders at the user's
+  request, leaving the photos and captions directly on the slide canvas.
+
 - October 5: trained TCN, CNN-GRU, and CNN-LSTM on the 15 recorded word trials.
   Selected **TCN** by validation results and exported size; all three were 3/3
   on validation, and selected TCN was 3/3 on reserved test trials. See
@@ -70,7 +90,7 @@ This handoff records presentation progress, not new application or hardware vali
 | --- | --- |
 | Slide 6 final model | **Completed in the deck/PDF.** Selected TCN, vocabulary, input/window/preprocessing, deployment, size, and tiny trial-split result match the implementation. Intended-phone latency remains Not run. |
 | Dynamic live demo | **TCN integrated for complete attempts; Android recorded replay passed; fresh rehearsal Not run.** Use Start attempt / Finish sign with the recorded wearer and phone. Choose the two demo words after fresh trials and update evidence only when measured. |
-| Current hardware photos | **Pending.** Slide 3 has two placeholders. Add `assets/hardware/glove-current.jpg` and `circuit-current.jpg`, enable their entries in `assets/asset-manifest.js`, reload, and re-export the PDF. |
+| Current hardware photos | **Completed in HTML and final PDF.** Slide 3 shows the supplied full glove and perfboard close-up. The PDF was refreshed at the user's subsequent request; hardware photos are not live validation evidence. |
 | Speaker/demo assignments | **TBD.** Include all team members and rehearse within the agreed time. |
 | Haptic roadmap | **Planned.** Confirm milestone dates and mounting/calibration details with the team. The illustration is conceptual. |
 | Physical beta procedures | **Not run in the current documentation.** Deck/browser/PDF checks are presentation checks, not glove/BLE/Firebase/model validation. Record new results only with evidence. |
@@ -81,12 +101,12 @@ The generated intro is a staged product visualization, not physical test evidenc
 ## Next session work order
 
 1. Review current branch/build changes and any newly supplied hardware photos or model evidence.
-2. Replace the two hardware placeholders when the photos arrive; keep the approved design and slide count.
+2. Preserve the supplied slide 3 hardware photos and approved slide count. The final PDF now includes the photos and all ten current slides; regenerate after any subsequently requested deck changes.
 3. Review the completed TCN slide update. Record new live-model evidence only after testing, then adjust claims and re-export if needed.
 4. Confirm speakers, rehearse the live scenario, and record the build/device/firmware and actual limitations in the demo checklist.
-5. Regenerate the PDF after changing slide content or images; check the affected slides and export pages.
+5. Check affected HTML slides after changes. The user subsequently requested the final PDF export; any future export should be regenerated from the current deck and visually checked.
 6. Update these status/checklist documents as items are completed. Follow the AI policy for review and any later commit/push; the earlier approval covers the reviewed baseline, not new unreviewed changes.
 
 Suggested next-session prompt:
 
-> Continue the Helping Hand beta presentation. Read docs/BETA_PRESENTATION_SESSION_HANDOFF.md first. Preserve the approved ten-slide design and thin progress line. Check the remaining hardware photos, required slide 6 model update, and live-demo preparation against the actual build. Keep unrun validation labeled Not run and regenerate the PDF after deck changes.
+> Continue the Helping Hand beta presentation. Read docs/BETA_PRESENTATION_SESSION_HANDOFF.md first. Preserve the approved ten-slide design, thin progress line, and supplied slide 3 hardware photos. The final PDF includes all ten current slides and the hardware photos. Review remaining live-demo preparation against the actual build. Keep unrun validation labeled Not run.

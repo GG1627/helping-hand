@@ -52,11 +52,16 @@ human reviews the real dataset protocol, exclusions, and split integrity.
 ## Recorded static MLP candidate
 
 The real-recording static demo candidate is retained separately in ignored
-`static_runs/recorded-priority-v2/`. It contains `model.keras`, `model.tflite`,
+`static_runs/recorded-priority-v5-all425-625/`, using the October 6 calibration
+of 425 fully bent and 625 fully unbent for all five fingers.
+It contains `model.keras`, `model.tflite`,
 `metadata.json`, `split_manifest.json`, `history.json`, and `demo_readiness.json`.
 The generated deployment header at `ESP32/include/recorded_static_model_data.h`
 contains the selected model bytes, scaler, class order, and calibration guards.
 The original synthetic baseline artifacts above are preserved.
+The previous 400-bound candidate remains in `static_runs/recorded-priority-v2/`.
+The previous thumb/index 200–515 candidate remains in
+`static_runs/recorded-priority-v3-bent200/`.
 
 See [the static model record](../../docs/STATIC_MLP_DEMO_MODEL.md) for the source
 recordings, priority weighting, whole-trial evaluation, and reproduction steps.
