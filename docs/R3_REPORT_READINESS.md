@@ -24,9 +24,9 @@ couple of weeks are intended for sensor repair, IMU integration and haptic
 feedback. The user confirms ten piezo buzzers: one for each of the five fingers
 and five in an X formation on the back of the hand. Feedback is intended to
 identify a finger needing correction and provide directional guidance. Exact
-cue patterns, error estimation, driver design, part numbers and integration
-dates remain to be confirmed. Receipt of buzzers does
-not establish an implemented haptic subsystem. No additional completed testing
+cue patterns, error estimation, haptic driver design, piezo part number and
+integration dates remain to be confirmed. Receipt of buzzers does not establish
+an implemented haptic subsystem. No additional completed testing
 was supplied in response to the question about work after the October 6 demo.
 This is a team-reported blocker and roadmap, not a measured failure rate or a
 finding that every historical recording is invalid.
@@ -49,14 +49,19 @@ all engineering progress.
 
 Follow-up: the user expects the replacements to arrive this week (week of
 October 26, 2026), as an estimate rather than confirmed delivery. Confirm whether
-that estimate also covers the new IMU. Product links will be supplied later;
-they are not a prerequisite for beginning the report draft.
+that estimate also covers the new IMU. The user has now identified the flex
+replacement as [Adafruit Short Flex Sensor, product 1070](https://www.adafruit.com/product/1070)
+and the ordered IMU as [Adafruit ICM-20948 9-DoF breakout, product 4554](https://www.adafruit.com/product/4554).
+The piezo product link remains pending. Specifications and integration references
+are recorded in the [source notes](../research/R3_REPORT_SOURCE_NOTES.md).
 
 **Reminder for the next report/hardware session:**
 
-- [ ] Ask Gael for the piezo-buzzer, replacement flex-sensor and 9-axis IMU
-  product names or purchase links, then add the exact datasheets, costs and
-  driver requirements. The user explicitly requested this reminder on October 27.
+- [x] Receive the replacement flex-sensor and 9-axis IMU product links; supplied
+  October 27 and checked against Adafruit documentation.
+- [ ] Ask Gael for the piezo-buzzer product name or purchase link, then verify
+  its datasheet and driver requirements. Keep actual purchase costs separate
+  from the dated retail prices in the source notes.
 - [ ] Confirm actual delivery, which finger sensors were replaced and the
   repaired glove's calibration before collecting new model evidence.
 
@@ -75,8 +80,8 @@ on new sensors arriving or on running the planned November experiments.
 
 | Work item | Team-confirmed status | Information still needed |
 | --- | --- | --- |
-| Flex-sensor replacement | Approximately two sensors broke; replacements ordered and awaited | Affected fingers, symptoms/onset, replacement part/link, arrival estimate, affected recording sessions and repair owner. |
-| IMU upgrade | 9-axis replacement ordered; currently used unit described as 6-axis | New product/link, old module identity if known, arrival estimate, fusion/software support and integration owner. Improved recognition is a hypothesis, not a measured result. |
+| Flex-sensor replacement | Approximately two sensors broke; Adafruit Short Flex Sensor #1070 replacements ordered, expected this week | Affected fingers, symptoms/onset, affected recording sessions, actual delivery, paid costs and repair owner. |
+| IMU upgrade | Adafruit ICM-20948 9-DoF breakout #4554 ordered; currently used unit described as 6-axis | Old module identity, actual delivery, paid cost, compatible driver/fusion work and integration owner. Improved recognition is a hypothesis, not a measured result. |
 | PCB design | User confirms KiCad layout/design work since the demo; October 22 files substantiate schematic work. Current/backup board files have no placed or routed layout. | Owner, remaining circuit/footprint/layout work and review/fabrication dates. |
 | TCN improvement | User confirms ongoing investigation; the October 27 source review records specific opportunities in dataset coverage, windowing, rejection and sensor robustness | Team confirmation of any earlier specific work, implemented changes, experiment records and next evaluation plan. Current review findings are not measured improvements. |
 | Haptics | Ten piezo buzzers received; planned layout is five finger buzzers plus five in a dorsal-hand X; intended for finger identification and directional guidance | Exact part, driver/power circuit, cue-to-direction mapping, error estimation and how the app will decide to issue feedback. Integration and perception testing remain planned. |
@@ -86,8 +91,8 @@ on new sensors arriving or on running the planned November experiments.
 For tomorrow's report, the most useful remaining answers are the specific PCB
 and TCN work completed/explored since the demo, haptic cue/error-mapping details,
 and what actually happened in the October demo or earlier physical tests
-(observed signs, failures, phone, date and any video/log). Product links are
-deferred at the user's request and have a reminder above. If a detail is
+(observed signs, failures, phone, date and any video/log). The remaining piezo
+product link has a reminder above; flex/IMU links are recorded. If a detail is
 unknown, retain a stated limitation; do not delay the whole draft waiting for it.
 
 Suggested status paragraph: "Since the October 6 demonstration, the team has
@@ -224,7 +229,7 @@ This artifact inspection is not a rerun of training, inference or physical tests
   owners/target dates. Preliminary due date and presentation/showcase dates are
   recorded above; retain the showcase's tentative status.
 - Current sensor fault history: affected fingers, raw symptom/evidence, onset,
-  which recordings are suspect, replacement model/order status, arrival date
+  which recordings are suspect, actual replacement delivery date
   if known, and repair owner. The user's October 27 update supplies the blocker
   but not these details.
 - Any actual alpha/beta outcomes not yet linked from the repo: dated logs,
@@ -235,6 +240,13 @@ This artifact inspection is not a rerun of training, inference or physical tests
   where available. Explain unavailable measurements rather than guessing.
 - Confirmed outreach facts and consent/data-sharing arrangements. Public
   pseudonymous recordings still warrant checking permission and access scope.
+
+The ordered replacement parts are identified, but the currently installed old
+IMU still needs identification. The existing MPU-style register code is not
+an ICM-20948 driver; driver migration, units/axis checks, magnetometer acquisition
+and fusion remain planned. Current word inputs contain no magnetic channels.
+Keep acquisition, orientation estimation and model-input changes distinct in
+the design/status sections.
 
 ### Measurements after replacement sensors arrive
 

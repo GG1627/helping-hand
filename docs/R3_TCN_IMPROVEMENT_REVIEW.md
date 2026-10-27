@@ -46,6 +46,13 @@ No candidate above was implemented, trained, benchmarked or shown to improve
 accuracy in this review. Existing reserved test recordings should not be reused
 as an untouched final test set after repeated design tuning.
 
+Hardware identification follow-up: the user supplied Adafruit Short Flex Sensor
+#1070 and ICM-20948 breakout #4554 links. Their identification resolves the
+replacement-part question, not calibration or model performance. See the
+[hardware source notes](../research/R3_REPORT_SOURCE_NOTES.md) for citations.
+The current model remains an 11-feature accelerometer/gyro/flex model; using
+magnetic or derived orientation features requires an explicit pipeline update.
+
 ## Connection to planned haptics
 
 The planned ten-buzzer system should identify a finger requiring correction and

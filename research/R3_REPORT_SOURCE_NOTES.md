@@ -199,17 +199,17 @@ as sensor-glove ASL performance or a measured educational benefit.
 | T10 | IEEE, [Code of Ethics](https://ieee-cas.org/about/ieee-code-ethics) | Professional obligations concerning public welfare, privacy, sustainable practices, fair treatment and evidence-based technical claims. An ethical framework, not a product certification. |
 | T11 | ITU/UNITAR, [Global E-waste Monitor 2024](https://www.itu.int/en/publications/ITU-D/pages/publications.aspx?media=electronic&parent=D-GEN-E_WASTE.01-2024) | Background for electronics disposal and repairability. Does not quantify this glove's environmental footprint or establish a net sustainability benefit. |
 
-Identify replacement flex-sensor and IMU part numbers before adding their exact
-datasheets. Do not substitute a convenient generic sensor datasheet for an
-unidentified installed part. Review the existing TI datasheets and peer-reviewed
+The replacement flex sensor and IMU are now identified below. The installed old
+IMU and selected piezo part still need identification. Do not substitute a
+generic datasheet for an unidentified part. Review the existing TI datasheets and peer-reviewed
 haptic studies in [LINKS.md](LINKS.md) if the final report includes detailed
 haptic-driver decisions; this assessment did not re-audit every haptic source.
 
 ## 9-axis versus 6-axis IMU: rationale for the planned upgrade
 
-Team update, October 27: a 9-axis replacement is ordered; its product identity
-is pending. The following supports the design rationale, not a finding that the
-ordered part has already improved Helping Hand.
+Team update, October 27: the ordered replacement is the Adafruit ICM-20948
+9-DoF breakout, product 4554 (S16 below). The following supports the design
+rationale, not a finding that the ordered part has improved Helping Hand.
 
 In the usual terminology, a 6-axis device provides three acceleration and three
 angular-rate channels. A 9-axis device adds three magnetic-field channels.
@@ -266,6 +266,57 @@ Suggested report wording: "A nine-axis inertial/magnetic sensor has been
 ordered to evaluate whether magnetometer-assisted fusion improves heading
 stability and wrist-orientation representation. Integration, calibration and
 comparison with the current six-axis approach remain planned."
+
+## Confirmed replacement hardware
+
+Product links supplied by the user and checked October 27, 2026. Parts are
+ordered/awaited, not installed or validated. Retail prices below are reference
+prices observed that date, not verified team expenditure; shipping/tax excluded.
+
+### S15. Replacement flex sensors
+
+Adafruit Industries, [Short Flex Sensor, product 1070](https://www.adafruit.com/product/1070).
+Listed unit price: **$7.95**. This is a resistive bend sensor; the product page
+specifically calls for strain relief at the delicate crimped contact area.
+That supports a mounting/repair mitigation, not a diagnosis of the team's
+particular failures.
+
+Spectra Symbol, [Flex Sensor datasheet, Rev. A2, linked by Adafruit](https://cdn-shop.adafruit.com/datasheets/SpectraFlex2inch.pdf).
+Nominal flat resistance is 25 kOhm with +/-30% tolerance; stated bend resistance
+is 45-125 kOhm depending on radius. These specifications support measuring
+each replacement's range and revisiting calibration rather than treating old
+ADC endpoints as universal. Sensor-life figures from the sheet are manufacturer
+specifications, not measured glove durability. No conclusion about the direction
+of ADC change follows without checking the actual divider wiring.
+
+### S16. Ordered IMU breakout
+
+Adafruit Industries, [TDK InvenSense ICM-20948 9-DoF IMU, product 4554](https://www.adafruit.com/product/4554),
+STEMMA QT / Qwiic. Listed unit price: **$19.95**. The device combines a
+three-axis accelerometer, three-axis gyroscope and AK09916 three-axis
+magnetometer. The breakout includes regulation and level shifting for use
+with a 3.3 V host. Adafruit explicitly notes that this MPU-9250 successor is
+not exactly code compatible. Inference from inspecting our MPU-style register
+access: existing firmware requires driver migration, not just a physical swap.
+
+Adafruit, [ICM-20948 Arduino integration guide](https://learn.adafruit.com/adafruit-tdk-invensense-icm-20948-9-dof-imu/arduino).
+Documents the Adafruit ICM20X driver and dependencies, default I2C address
+`0x69` and alternate `0x68`, and acquisition of acceleration, gyro and magnetic
+data. Verify unit conversions against our existing g and degrees/s packet
+contract. A raw-data example does not establish an integrated orientation-fusion
+pipeline or automatic heading correction in Helping Hand.
+
+Adafruit, [ICM-20948 downloads](https://learn.adafruit.com/adafruit-tdk-invensense-icm-20948-9-dof-imu/downloads),
+links the board design files and TDK's DS-000189 chip datasheet. The TDK link
+currently redirects to a download-resource page; the full chip datasheet was
+not retrieved in this check. Use the exact revision when implementing register
+or fusion support. Do not transfer the BNO055's fusion modes from the earlier
+illustrative reference to the ICM-20948.
+
+For the preliminary report, these sources resolve component identity and
+support the repair/upgrade rationale. Old-sensor identity, paid costs,
+delivery/installation, piezo specifications and measured post-repair outcomes
+remain outstanding.
 
 ## Suggested compact citation strategy
 
