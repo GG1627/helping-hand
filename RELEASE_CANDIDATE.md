@@ -41,10 +41,39 @@ replay passed; fresh physical-glove validation remains Not run. See the
 [integration instructions](docs/WORD_DEMO_INTEGRATION.md).
 
 ### Release Candidate Implementation
+The RC keeps the full beta feature set and adds a custom PCB design:
+
+1. Accounts: Firebase email/password account creation, sign-in, password reset, and sign-out.
+- The app opens directly to sign-in/sign-up.
+- An existing anonymous session is linked to the new account so its cloud progress is kept.
+
+2. User-scoped progress:
+- Local progress files and the Firestore document users/{uid}/progress/current are scoped to the signed-in Firebase user.
+- Firebase Authentication stores credentials. Raw glove recordings stay in the CSV/JSON export workflow and are never uploaded to Firebase.
+
+3. Static recognition: the 36-class (A–Z, 0–9) on-device classifier and the stable-prediction completion rule are kept as the regression baseline.
+
+4. Dynamic word recognition: TCN inference with saved completion for Hello, Please, and Yes.
+
+5. Custom PCB (new in M5): a KiCad schematic and PCB layout. The board carries: the ESP32-S3 and 15 resistors for the flex-sensor and piezo-buzzer circuits.
+   
+6. Process documentation:
+- BETA_BUILD_PLAN.md
 
 ### Current Release Candidate Learning Flow
-
+1. The app opens to login/signup. Login, signup, and Home use text-based Helping Hand branding, and the learning screens are styled to match.
+2. Alphabet and Numbers are target pickers.
+3.Words is an active vocabulary picker.
+4. Tapping a letter, number, or word opens a separate live-practice page. Back returns to the picker. The pickers themselves contain no practice.
+Letters and numbers: a target is completed when a matching prediction at ≥80% confidence stays stable for at least 750 ms and five packets. Progress is saved per account.
+5. Hello, Please, Yes:
+- Tap Start attempt, perform the whole sign, then tap Finish sign.
+- Completion requires the predicted word to match the target at ≥80% confidence.
+6. Other words: the pages remain available with recognition marked unavailable.
+  
 ### M5 Work and Rubric Status
+
+
 
 ### Historical Beta Feature Status
 
@@ -100,12 +129,75 @@ flowchart LR
 ```
 
 ### Embedded Runtime
+The firmware targets an Adafruit Feather ESP32-S3 and lives in ESP32/src/main.cpp. It:
+
+- reads flex sensors on board aliases A0 through A4;
+- initializes the I2C IMU bus using the Feather board definitions (SDA=3, SCL=4 in the validated environment);
+- probes IMU addresses 0x68 and 0x69 and retries if the device is missing;
+- samples five raw flex channels and six IMU channels;
+- runs the five-input, 36-output static TFLite classifier;
+- sends the predicted label and confidence with each telemetry packet;
+- advertises a Nordic UART-style BLE service as HelpingHand-Glove; and resumes advertising after a disconnect.
+
+The sample rate is configured for 40 Hz by default and can be set at compile time to 25–50 Hz with HH_SENSOR_RATE_HZ. This is a configured target, not a measured phone-side rate. Sequence numbers and device timestamps let delivery rate, gaps, and ordering be checked.
+
+Hardware: the M5 PCB (pcb/pcb.kicad_sch) is designed to carry:
+
+- the ESP32-S3
+- the resistors for the flex-sensor circuits
+- the resistors for the piezo-buzzer circuits
 
 ### Flutter Application
+The Android Flutter app is in flutter_app/.
+
+- Shared BLE service: owns scanning, connection, notification subscription, packet parsing, and reconnect behavior. Learner practice, Record Signs, and BLE Testing all consume the same packet stream.
+- Authentication: Firebase email/password accounts gate entry to the app.
+- Letter/number practice: tapping a target opens its practice page. Selecting a target does not mark it learned. The app requires a stable classifier match before saving completion, and shows the target, current prediction, confidence, connection state, hold progress, and success/retry messages.
+- Word practice: the learner delimits each attempt with Start attempt / Finish sign. The TCN classifies the complete attempt locally on the phone.
 
 ### Local and Firebase Persistence
+Progress uses a local-first repository design:
+
+- The app loads the signed-in user's progress file from app-private application-support storage.
+- Progress is written locally before cloud synchronization begins.
+- Firebase initializes on demand rather than before runApp().
+- Firebase email/password authentication provides the user identity. The alpha used anonymous authentication.
+- The progress document syncs at users/{uid}/progress/current.
+- Firestore rules allow an authenticated user to read and write only their own fixed progress document. Collection listing and document deletion are denied.
+- If Firebase is unavailable, the app continues with its local copy and offers a retry action.
+
+The document contains only:
+
+schema version
+learned letters
+learned numbers
+completed exercise identifiers
+an update timestamp
+
+Raw glove recordings are never uploaded to Firebase. The UI exposes loading, saved locally, syncing, synced, offline/local-only, and failure states. Malformed local state falls back to a safe empty representation rather than crashing.
 
 ### Word-Recording and ML Foundation
+Record Signs creates labeled trials using the word-sequence-v1 contract.
+
+- Word captures use Stop → review → Save trial / Discard trial.
+- Each saved row keeps:
+     - the exact BLE packet
+     - parsed timestamps and sequence number
+     - five flex readings and six IMU readings
+     - label, pseudonymous signer ID, orientation, and trial metadata
+- Sessions stay app-private until exported as CSV/JSON through the Android share sheet.
+
+The backend can:
+
+- validate columns, values, labels, metadata, sequence order, timestamps, rate, and sensor ranges;
+- report malformed packets and gaps without repairing raw evidence;
+- resample trials and create fixed-length windows;
+- make deterministic splits that keep each trial and signer within one split;
+- fit standardization on training data only;
+- evaluate top-1 and top-5 accuracy, macro F1, confusion matrices, and signer/orientation groups;
+- build and smoke-test TCN, CNN-GRU, and CNN-LSTM candidates with float TFLite conversion.
+
+Synthetic fixtures are software-test data only and are marked non-reportable. The deployed TCN currently covers Hello, Please, and Yes. It was trained on recordings from a single wearer in a neutral orientation and has no rest/unknown class.
 
 ### Application Evidence
 
