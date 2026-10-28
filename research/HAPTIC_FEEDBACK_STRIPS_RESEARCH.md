@@ -1,5 +1,15 @@
 # Haptic Feedback Strips for Hand/Wrist ASL Guidance
 
+## Hardware follow-up - October 28, 2026
+
+The user confirms the piezo parts and new IMU are in hand; the existing glove
+still uses the demo's perfboard assembly. The [purchase listing](https://www.amazon.com/dp/B077YJ3H6R)
+was initially tentative; the user subsequently confirmed it is the correct link.
+Drive specifications, mounting and driver design remain pending.
+See S17 in [the report source notes](R3_REPORT_SOURCE_NOTES.md) for provenance.
+The ten-position feedback layout remains planned, and no new integrated or
+cue-perception result is established by receipt of parts.
+
 ## Current team decision - October 27, 2026
 
 The team confirms that **ten piezo buzzers have been acquired**. The planned

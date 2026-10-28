@@ -1,6 +1,7 @@
 # R3 report: verified source notes and citation corrections
 
-Checked October 27, 2026 for the [report-readiness assessment](../docs/R3_REPORT_READINESS.md).
+Checked October 27, 2026 for the [report-readiness assessment](../docs/R3_REPORT_READINESS.md),
+with hardware receipt and confirmed piezo purchase sourcing updated October 28.
 These are working source notes, not a finished bibliography or Helping Hand
 experimental results. Include only sources actually used in the final report.
 Research papers, standards and tool documentation support different kinds of
@@ -198,18 +199,21 @@ as sensor-glove ASL performance or a measured educational benefit.
 | T9 | KiCad, [Getting Started in KiCad](https://docs.kicad.org/9.0/en/getting_started_in_kicad/getting_started_in_kicad.html) | Schematic/PCB workflow, electrical/design-rule checks and fabrication outputs. This documentation version is a reference, not proof that the team used KiCad 9.0 or ran ERC/DRC. |
 | T10 | IEEE, [Code of Ethics](https://ieee-cas.org/about/ieee-code-ethics) | Professional obligations concerning public welfare, privacy, sustainable practices, fair treatment and evidence-based technical claims. An ethical framework, not a product certification. |
 | T11 | ITU/UNITAR, [Global E-waste Monitor 2024](https://www.itu.int/en/publications/ITU-D/pages/publications.aspx?media=electronic&parent=D-GEN-E_WASTE.01-2024) | Background for electronics disposal and repairability. Does not quantify this glove's environmental footprint or establish a net sustainability benefit. |
+| T12 | Firebase, [Privacy and Security in Firebase](https://firebase.google.com/support/privacy/), checked October 28 | Official documentation states Firebase service traffic is encrypted in transit using HTTPS. Supports the report's cloud networking description; does not prove deployed account isolation or recoverability. |
 
-The replacement flex sensor and IMU are now identified below. The installed old
-IMU and selected piezo part still need identification. Do not substitute a
+The replacement flex sensor and IMU are identified below. The installed old
+IMU still needs identification; the confirmed piezo purchase link is recorded in S17.
+Do not substitute a
 generic datasheet for an unidentified part. Review the existing TI datasheets and peer-reviewed
 haptic studies in [LINKS.md](LINKS.md) if the final report includes detailed
 haptic-driver decisions; this assessment did not re-audit every haptic source.
 
 ## 9-axis versus 6-axis IMU: rationale for the planned upgrade
 
-Team update, October 27: the ordered replacement is the Adafruit ICM-20948
-9-DoF breakout, product 4554 (S16 below). The following supports the design
-rationale, not a finding that the ordered part has improved Helping Hand.
+Team update: the replacement is the Adafruit ICM-20948 9-DoF breakout, product
+4554 (S16 below), confirmed received by October 28. Installation and validation
+were not reported. The following supports the design rationale, not a finding
+that the new part has improved Helping Hand.
 
 In the usual terminology, a 6-axis device provides three acceleration and three
 angular-rate channels. A 9-axis device adds three magnetic-field channels.
@@ -263,14 +267,15 @@ Record sample counts, calibration, environment and failure cases. Preserve
 meaningful palm orientation rather than normalizing it away indiscriminately.
 
 Suggested report wording: "A nine-axis inertial/magnetic sensor has been
-ordered to evaluate whether magnetometer-assisted fusion improves heading
+received to evaluate whether magnetometer-assisted fusion improves heading
 stability and wrist-orientation representation. Integration, calibration and
 comparison with the current six-axis approach remain planned."
 
 ## Confirmed replacement hardware
 
-Product links supplied by the user and checked October 27, 2026. Parts are
-ordered/awaited, not installed or validated. Retail prices below are reference
+Flex/IMU product links were checked October 27, 2026. The IMU was confirmed
+received by October 28; replacement-flex arrival remains unconfirmed. Neither
+installation nor new validation was reported. Retail prices below are reference
 prices observed that date, not verified team expenditure; shipping/tax excluded.
 
 ### S15. Replacement flex sensors
@@ -289,7 +294,7 @@ ADC endpoints as universal. Sensor-life figures from the sheet are manufacturer
 specifications, not measured glove durability. No conclusion about the direction
 of ADC change follows without checking the actual divider wiring.
 
-### S16. Ordered IMU breakout
+### S16. Received IMU breakout
 
 Adafruit Industries, [TDK InvenSense ICM-20948 9-DoF IMU, product 4554](https://www.adafruit.com/product/4554),
 STEMMA QT / Qwiic. Listed unit price: **$19.95**. The device combines a
@@ -313,12 +318,39 @@ not retrieved in this check. Use the exact revision when implementing register
 or fusion support. Do not transfer the BNO055's fusion modes from the earlier
 illustrative reference to the ICM-20948.
 
-For the preliminary report, these sources resolve component identity and
-support the repair/upgrade rationale. Old-sensor identity, paid costs,
-delivery/installation, piezo specifications and measured post-repair outcomes
-remain outstanding.
+### S17. Confirmed piezo purchase listing and remaining engineering checks
+
+The user supplied [Amazon ASIN B077YJ3H6R](https://www.amazon.com/dp/B077YJ3H6R)
+on October 28, initially saying they were fairly sure it matched the received
+parts. In a subsequent October 28 follow-up, they explicitly confirmed this
+is the correct purchase link; product matching is therefore resolved by the team.
+The seller identifies TIMESETL pickup discs, 27 mm across, as external-drive
+elements in a 15-piece pack. This is a seller listing with a team-confirmed
+purchase match, not a manufacturer datasheet. The project plans ten installed elements; do not
+infer the purchased quantity from the listing. Drive ratings were not verified.
+
+[Murata's external-drive diaphragm guidance](https://www.murata.com/en-global/support/faqs/sound/diaphragm/char/sch0001)
+explains that this class of sound component uses an alternating electrical
+drive. It is general technical background, not a substitute datasheet or
+proof of useful tactile guidance from the received parts. Confirm drive ratings,
+mounting, driver and perceivable cues on the glove; do not transfer assumed
+high-voltage requirements from other piezo actuators to these discs.
+
+For the preliminary report, flex/IMU sources resolve component identity and
+the confirmed piezo link resolves the missing-link and product-match reminders. Old-sensor
+identity, paid costs, flex delivery, installation, piezo drive
+specifications and measured post-repair outcomes remain outstanding.
 
 ## Suggested compact citation strategy
+
+Final bibliography follow-up, October 28: verified the haptic paper against its
+[publisher record](https://journals.sagepub.com/doi/10.1177/00187208241275734).
+M. Tajdari, J. Forsyth and S. Lim, "Sensitivity to Vibrotactile Stimulation in
+the Hand and Wrist: Effects of Motion, Temporal Patterns, and Biological Sex,"
+*Human Factors*, 67(4), pp. 331-346, 2025; first online August 23, 2024.
+The report now includes both the final issue metadata and online date. Its
+movement-related sensitivity finding remains a motivation for testing the
+glove, not evidence that the team's piezo implementation works.
 
 For a report limited to 3,500 words, prioritize S1, S2, S3, S4, S5/S6 and S7
 for background, need and ethics; select a few more only where they explain a

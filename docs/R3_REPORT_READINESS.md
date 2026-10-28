@@ -1,11 +1,12 @@
 # R3 preliminary report: evidence and research readiness
 
-Assessment date: October 27, 2026. Repository snapshot inspected: `7e75a4c`.
+Assessment date: October 27, 2026; hardware status updated October 28.
+Repository snapshot originally inspected: `7e75a4c`.
 Assignment: [R3: Preliminary Report](../R3-Preliminary-Report.md).
 External references: [R3 source notes](../research/R3_REPORT_SOURCE_NOTES.md).
 
 Drafting follow-up: the first complete [LaTeX report](R3_Preliminary_Report.tex)
-and [eight-page PDF draft](../output/pdf/R3_Preliminary_Report.pdf) are prepared.
+and [ten-page PDF draft](../output/pdf/R3_Preliminary_Report.pdf) are prepared.
 See the [review/build checklist](R3_REPORT_REVIEW.md) for verification and
 outstanding team inputs. The user confirmed **CEN4908C** for the report; retain
 the original assignment prompt's CEN3908C wording as source text.
@@ -22,7 +23,28 @@ largest remaining gap is reproducible physical beta and user-study evidence,
 followed by a current hardware specification, confirmed schedule, and a more
 complete needs/impact discussion. More literature cannot replace those results.
 
-**Current team update, October 27:** Approximately two flex sensors broke,
+**Current team update, October 28:** The glove remains at approximately the
+last demo's hardware stage, with electronics on perfboard. The ICM-20948 and
+piezo parts have been received; installation and testing were not reported.
+The user supplied the [piezo purchase link, ASIN B077YJ3H6R](https://www.amazon.com/dp/B077YJ3H6R)
+and subsequently confirmed that it is the correct purchased product.
+The [source notes](../research/R3_REPORT_SOURCE_NOTES.md) record the listing
+check and remaining part/driver questions. No replacement-flex receipt or new
+physical-test result was supplied.
+
+Demo-evidence follow-up: the user later supplied retrospective physical-demo
+observations and identified the faulty flex sensors as **thumb and index**.
+Letter completions, digit attempts, Hello/Please recognition with completion,
+and saved progress are recorded in [the demonstration notes](R3_DEMO_OBSERVATIONS.md).
+The user confirms October 5-6, NSC senior design lab, and the documented Fairphone
+Gen 6/Android 15 configuration. Gael verified green completion indicators in
+the app for practiced letters, numbers and words, then checked the actual
+Firebase database for corresponding progress records. Controlled trial logs,
+restart persistence and account isolation remain unconfirmed. This is historical demonstration evidence, not
+a fresh post-repair test. PCB work is evidenced October 22; temporal-model
+planning is recalled approximately during the week of October 19.
+
+**Previous team update, October 27:** Approximately two flex sensors broke,
 preventing reliable new acquisition; replacement flex sensors are on order.
 The team has received the piezo buzzers needed for the planned haptic subsystem
 and ordered a 9-axis IMU to replace the currently used 6-axis unit. The next
@@ -58,16 +80,19 @@ October 26, 2026), as an estimate rather than confirmed delivery. Confirm whethe
 that estimate also covers the new IMU. The user has now identified the flex
 replacement as [Adafruit Short Flex Sensor, product 1070](https://www.adafruit.com/product/1070)
 and the ordered IMU as [Adafruit ICM-20948 9-DoF breakout, product 4554](https://www.adafruit.com/product/4554).
-The piezo product link remains pending. Specifications and integration references
-are recorded in the [source notes](../research/R3_REPORT_SOURCE_NOTES.md).
+The piezo link and purchased-product match were confirmed October 28;
+an authoritative datasheet/drive ratings remain pending. Specifications and integration
+references are recorded in the [source notes](../research/R3_REPORT_SOURCE_NOTES.md).
 
 **Reminder for the next report/hardware session:**
 
 - [x] Receive the replacement flex-sensor and 9-axis IMU product links; supplied
   October 27 and checked against Adafruit documentation.
-- [ ] Ask Gael for the piezo-buzzer product name or purchase link, then verify
-  its datasheet and driver requirements. Keep actual purchase costs separate
-  from the dated retail prices in the source notes.
+- [x] Receive the piezo product link and confirm the purchased-product match
+  on October 28; recorded in the source notes.
+- [ ] Obtain piezo datasheet/drive ratings. Validate mounting, tactile cues and driver design.
+  Keep actual purchase costs separate from dated retail prices.
+- [x] Record October 28 confirmation that the new IMU and piezo parts are in hand.
 - [ ] Confirm actual delivery, which finger sensors were replaced and the
   repaired glove's calibration before collecting new model evidence.
 
@@ -78,7 +103,7 @@ attendance factors into post-mortem grades. The final written-report deadline
 and exact preliminary-report submission time were not supplied. Do not equate
 the presentation/showcase dates with an independently confirmed report deadline.
 
-Because the preliminary report is due the next day, use the current evidence
+Because the preliminary report is due October 28, use the current evidence
 and explicitly report the repair dependency. Do not make its completion depend
 on new sensors arriving or on running the planned November experiments.
 
@@ -86,20 +111,21 @@ on new sensors arriving or on running the planned November experiments.
 
 | Work item | Team-confirmed status | Information still needed |
 | --- | --- | --- |
-| Flex-sensor replacement | Approximately two sensors broke; Adafruit Short Flex Sensor #1070 replacements ordered, expected this week | Affected fingers, symptoms/onset, affected recording sessions, actual delivery, paid costs and repair owner. |
-| IMU upgrade | Adafruit ICM-20948 9-DoF breakout #4554 ordered; currently used unit described as 6-axis | Old module identity, actual delivery, paid cost, compatible driver/fusion work and integration owner. Improved recognition is a hypothesis, not a measured result. |
+| Flex-sensor replacement | Thumb and index sensors broke and produced bad values; Adafruit Short Flex Sensor #1070 replacements ordered, expected this week | Fault onset, affected recording sessions, actual delivery, paid costs and repair owner. |
+| IMU upgrade | Adafruit ICM-20948 9-DoF breakout #4554 received by October 28; old glove remains at demo/perfboard stage | Old module identity, paid cost, installation, compatible driver/fusion work and integration owner. Improved recognition is a hypothesis, not a measured result. |
 | PCB design | User confirms KiCad layout/design work since the demo; October 22 files substantiate schematic work. Current/backup board files have no placed or routed layout. | Owner, remaining circuit/footprint/layout work and review/fabrication dates. |
 | TCN improvement | User confirms ongoing investigation; the October 27 source review records specific opportunities in dataset coverage, windowing, rejection and sensor robustness | Team confirmation of any earlier specific work, implemented changes, experiment records and next evaluation plan. Current review findings are not measured improvements. |
-| Haptics | Ten piezo buzzers received; planned layout is five finger buzzers plus five in a dorsal-hand X; intended for finger identification and directional guidance | Exact part, driver/power circuit, cue-to-direction mapping, error estimation and how the app will decide to issue feedback. Integration and perception testing remain planned. |
+| Haptics | Piezo parts received; correct purchase link confirmed October 28. Planned ten-element layout remains five fingers plus a dorsal-hand X | Datasheet/drive ratings, driver/power circuit, mounting, cue mapping and error estimation. Integration and perception testing remain planned. |
 | Preliminary report | Due October 28, 2026; CEN4908C confirmed; first complete LaTeX/PDF draft prepared | Exact submission time, team content review and any cover-page corrections. |
 | Final milestones | November 19 presentation; December 3 tentative evening showcase | Final written-report deadline, task owners, internal repair/integration/test dates and final demonstrated feature scope. |
 
-For tomorrow's report, the most useful remaining answers are the specific PCB
-and TCN work completed/explored since the demo, haptic cue/error-mapping details,
-and what actually happened in the October demo or earlier physical tests
-(observed signs, failures, phone, date and any video/log). The remaining piezo
-product link has a reminder above; flex/IMU links are recorded. If a detail is
-unknown, retain a stated limitation; do not delay the whole draft waiting for it.
+For the October 28 report, the demo date/location, phone, successful letters,
+Hello/Please completion, progress-verification method, affected fingers and
+piezo purchase match are now recorded. The report covers all required topics;
+new general research is not needed to finish this submission. Original run
+records, more precise hardware details and haptic cue/error-mapping decisions
+would strengthen the engineering evidence, but can remain documented limitations
+or planned work. Do not delay the preliminary report for unrun future experiments.
 
 Suggested status paragraph: "Since the October 6 demonstration, the team has
 continued PCB design and investigation of improvements to the temporal
@@ -247,7 +273,8 @@ This artifact inspection is not a rerun of training, inference or physical tests
 - Confirmed outreach facts and consent/data-sharing arrangements. Public
   pseudonymous recordings still warrant checking permission and access scope.
 
-The ordered replacement parts are identified, but the currently installed old
+The replacement flex/IMU products are identified and the new IMU is received,
+but the currently installed old
 IMU still needs identification. The existing MPU-style register code is not
 an ICM-20948 driver; driver migration, units/axis checks, magnetometer acquisition
 and fusion remain planned. Current word inputs contain no magnetic channels.
