@@ -78,13 +78,55 @@ Letters and numbers: a target is completed when a matching prediction at ≥80% 
 ### Historical Beta Feature Status
 
 ### Historical Alpha Feature Status
+| Area | Alpha status | Evidence and boundary |
+| --- | --- | --- |
+| ESP32 sensor runtime | Implemented; current source builds | Reads five flex inputs and six accelerometer/gyroscope values and emits structured BLE packets. |
+| Static sign classification | Implemented; historically physically validated | The embedded 36-class TFLite MLP predicts `A`–`Z` and `0`–`9` from flex inputs. The team demonstrated glove-to-phone prediction and confidence output at the end of the previous semester. |
+| BLE interface | Implemented; historically physically validated | The app scans for `HelpingHand-Glove`, connects, subscribes to notifications, parses packets, and handles disconnect/reconnect states. Historical videos below show physical glove/sensor data reaching the phone. |
+| Learner practice | Implemented and automated-test validated | A tile selects a target. Progress is awarded only after a matching prediction at or above 80% confidence remains stable for at least 750 ms and five packets. |
+| Persistent progress | Implemented and automated-test validated | Learned letters, learned numbers, and completed exercises are saved locally first and synchronized to Firestore through anonymous authentication. |
+| Record Signs | Implemented; pilot physically exercised | The simplified static-sign flow selects a letter/number, counts down for three seconds, records live packets, and saves/exports CSV/JSON. A real-device pilot export is preserved in `backend/recorded_data/`; it is not model evidence because it has one signer and mostly one trial per label. |
+| Word preprocessing | Implemented and automated-test validated | Schema validation, quality reports, fixed-rate resampling, fixed windows, deterministic splits, and train-only standardization are present. |
+| Dynamic word models | Architecture foundation only | TCN, CNN-GRU, and CNN-LSTM candidates build and convert in software tests, but none has been trained or evaluated on a real Helping Hand word dataset. |
+| Glove haptics | Research/design direction only | Research recommends beginning with small LRA actuators and a closed-loop driver. No haptic circuit, firmware command path, or physical validation exists yet. |
 
 ### Historical Beta Rubric Traceablitiy
 
 ### Historical Alpha Rubric Traceability
 
+| Alpha requirement | Helping Hand implementation |
+| --- | --- |
+| Usability and user control | Clearly labeled navigation, BLE scan/connect controls, learner target selection, retry/reset controls, and explicit recording save/discard/export actions. |
+| Interface and navigation | Five persistent bottom-navigation destinations: Dashboard, Alphabet, Numbers, Record Signs, and BLE Testing. |
+| Perception and feedback | Connection, prediction, confidence, hold progress, success/retry, recording quality, local-save, synchronization, offline, and failure states appear near the action they describe. |
+| Responsiveness | BLE and Firebase work is asynchronous. Firebase initialization is lazy and cannot block application launch or local progress access. |
+| Build quality and robustness | Flutter analysis, Flutter tests, Android APK build, ESP32 build, and the complete backend test suite pass on the validation environment documented below. |
+| Vertical feature | The static learner loop connects physical sensor input, embedded inference, BLE transport, mobile feedback, and persistent learner state. |
+| Persistent state | Progress is written to app-private local storage first and optionally synchronized to an authenticated, user-owned Firestore document. |
+| Internal processing | The ESP32 performs static TFLite inference; Flutter validates stable predictions; the backend validates and prepares dynamic word sequences. |
+
 
 ### Architecture
+
+```mermaid
+flowchart LR
+    FLEX[Five flex sensors] --> ESP[Adafruit Feather ESP32-S3]
+    IMU[Accelerometer + gyroscope] --> ESP
+    MODEL[Static 36-class TFLite MLP] --> ESP
+    ESP -->|BLE notifications| BLE[Flutter BLE service]
+    BLE --> LIVE[Live telemetry and learner feedback]
+    LIVE --> TRACKER[Stable-prediction validator]
+    TRACKER --> PROGRESS[Progress repository]
+    PROGRESS --> LOCAL[App-private local JSON]
+    PROGRESS -->|Anonymous Auth| FIRESTORE[Cloud Firestore]
+    BLE --> RECORD[Record Signs workflow]
+    RECORD --> FILES[App-private CSV + JSON export]
+    FILES --> BACKEND[Validation and sequence preprocessing]
+    BACKEND --> WORDMODEL[Selected real-recording TCN]
+    WORDMODEL --> WORDPRACTICE[Flutter complete word attempts]
+    BLE --> WORDPRACTICE
+    WORDPRACTICE --> PROGRESS
+```
 
 ### Embedded Runtime
 The firmware targets an Adafruit Feather ESP32-S3 and lives in ESP32/src/main.cpp. It:
