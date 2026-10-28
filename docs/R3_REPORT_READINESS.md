@@ -4,6 +4,12 @@ Assessment date: October 27, 2026. Repository snapshot inspected: `7e75a4c`.
 Assignment: [R3: Preliminary Report](../R3-Preliminary-Report.md).
 External references: [R3 source notes](../research/R3_REPORT_SOURCE_NOTES.md).
 
+Drafting follow-up: the first complete [LaTeX report](R3_Preliminary_Report.tex)
+and [eight-page PDF draft](../output/pdf/R3_Preliminary_Report.pdf) are prepared.
+See the [review/build checklist](R3_REPORT_REVIEW.md) for verification and
+outstanding team inputs. The user confirmed **CEN4908C** for the report; retain
+the original assignment prompt's CEN3908C wording as source text.
+
 This is a preparation document, not the report or a new test-results record.
 Existing results below were inspected, not rerun in this assessment.
 
@@ -85,7 +91,7 @@ on new sensors arriving or on running the planned November experiments.
 | PCB design | User confirms KiCad layout/design work since the demo; October 22 files substantiate schematic work. Current/backup board files have no placed or routed layout. | Owner, remaining circuit/footprint/layout work and review/fabrication dates. |
 | TCN improvement | User confirms ongoing investigation; the October 27 source review records specific opportunities in dataset coverage, windowing, rejection and sensor robustness | Team confirmation of any earlier specific work, implemented changes, experiment records and next evaluation plan. Current review findings are not measured improvements. |
 | Haptics | Ten piezo buzzers received; planned layout is five finger buzzers plus five in a dorsal-hand X; intended for finger identification and directional guidance | Exact part, driver/power circuit, cue-to-direction mapping, error estimation and how the app will decide to issue feedback. Integration and perception testing remain planned. |
-| Preliminary report | Due October 28, 2026 | Exact submission time/course designation and any required cover-page details. We can draft using the existing team roster pending correction. |
+| Preliminary report | Due October 28, 2026; CEN4908C confirmed; first complete LaTeX/PDF draft prepared | Exact submission time, team content review and any cover-page corrections. |
 | Final milestones | November 19 presentation; December 3 tentative evening showcase | Final written-report deadline, task owners, internal repair/integration/test dates and final demonstrated feature scope. |
 
 For tomorrow's report, the most useful remaining answers are the specific PCB
@@ -218,8 +224,8 @@ This artifact inspection is not a rerun of training, inference or physical tests
    or change labels to compensate for damaged sensors. Replacement sensors
    can change calibration and the model's input distribution.
 9. **Dates and course metadata:** Proposed presentation roadmap dates are not
-   confirmed completion dates. The assignment says CEN3908C while project
-   materials also say CEN4908C; confirm the submission's course designation.
+   confirmed completion dates. The user confirmed CEN4908C for this report;
+   preserve CEN3908C in the original assignment transcription.
 
 ## Missing information, in priority order
 
