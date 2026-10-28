@@ -315,4 +315,16 @@ pin contract and hardware photographs are the accurate repository evidence for
 the alpha implementation. An updated as-built electrical schematic remains a
 documentation task for the next hardware assembly.
 
-For an updated schematic, look under 'pcb/' and lookfor 'pcb.kicad_sch'. It contains our ESP32-S3 and 
+For an updated schematic, look under 'pcb/' and look for 'pcb.kicad_sch'. It contains our ESP32-S3 and the 15 resistors for the flex sensors and the piezo buzzers.
+
+## Known Bugs and Incomplete Release Candidate Features
+
+
+## AI-Assisted Development Disclosure
+This repository follows the course AI-use policy in
+[`ai-policy/AI-USAGE.md`](ai-policy/AI-USAGE.md). Approved generative AI tools
+assisted with portions of research, planning, implementation, testing, and
+documentation. AI-assisted commits use a `GENAI=Yes` subject and an
+`AI-Assisted` trailer so the contribution is visible in version history. The
+student team remains responsible for reviewing, understanding, validating, and
+presenting all submitted work.
