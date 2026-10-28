@@ -6,13 +6,18 @@
 **Due:** October 28, 2026  
 **Last updated:** October 28, 2026
 
-Helping Hand is a wearable-assisted American SIgn Language (ASL) learning system developed for our course, CEN4908C (Computer Engineering Senior Design). The glove captures finger bend and wrist motion data, an ESP32 processes the signals from the sensors and sends them over Bluetooth Low Energy (BLE), and lastly an Android Flutter app provides live feedback, guided practice, recording tools, and persistent learner progress.
+Helping Hand is an American Sign Language (ASL) learning glove we are developing
+for CEN4908C, Computer Engineering Senior Design. The glove measures finger bend
+and wrist motion. An ESP32 processes the sensor readings and sends them over
+Bluetooth Low Energy (BLE) to our Android Flutter app, where users can practice
+signs, see live feedback, record gestures, and save their progress.
 
-The following repository contains the Helping Hand source code (firmware and software), hardware documentation, and PCB files.
+This repository contains our firmware, app, model-training code, hardware
+documentation, and the KiCad files for our PCB design, which is still in progress.
 
 - **Repository:** <https://github.com/GG1627/helping-hand>
-- **Current release candidate application snapshot:** ['']()
-- **Historical beta validation commit:** [`d581d19`](https://github.com/GG1627/helping-hand/commit/d581d19)
+- **Release candidate submission snapshot:** Not yet selected
+- **Historical beta application snapshot:** [`d581d19`](https://github.com/GG1627/helping-hand/commit/d581d19)
 - **Historical alpha validation commit:** [`cce9d38`](https://github.com/GG1627/helping-hand/commit/cce9d3887c5e52fafd4e35753f8e0de516051f79)
 - **Android package:** `com.example.flutter_app`
 - **Firebase project:** `helping-hand-83137`
@@ -20,25 +25,40 @@ The following repository contains the Helping Hand source code (firmware and sof
 
 ## Milestone Overview
 
-> The alpha details and validation results below refer specifically to commit
-> `cce9d38`. Current beta scope and known limitations are summarized here and in
-> [`docs/BETA_BUILD_STATUS.md`](docs/BETA_BUILD_STATUS.md). The course prompts
-> are preserved in [`M4-Beta-Build.md`](M4-Beta-Build.md) and
-> [`T2-Beta-Test-Plan.md`](T2-Beta-Test-Plan.md). The current report and test
-> work outline and test plan are [`output/pdf/M4_Beta_Build_Work_Outline.pdf`](output/pdf/M4_Beta_Build_Work_Outline.pdf)
+> The alpha results below are from commit `cce9d38`. Earlier beta work is
+> documented in [`docs/BETA_BUILD_STATUS.md`](docs/BETA_BUILD_STATUS.md).
+> The original assignments are in [`M4-Beta-Build.md`](M4-Beta-Build.md) and
+> [`T2-Beta-Test-Plan.md`](T2-Beta-Test-Plan.md). Our beta work outline and test
+> plan are available in [`output/pdf/M4_Beta_Build_Work_Outline.pdf`](output/pdf/M4_Beta_Build_Work_Outline.pdf)
 > and [`output/pdf/T2_Beta_Test_Plan.pdf`](output/pdf/T2_Beta_Test_Plan.pdf).
 
-The completed alpha path is:
+Our alpha build connected the following parts of the system:
 
-> Glove sensors → ESP32 static classifier → BLE packets → Flutter learner
-> feedback → local progress → authenticated Firestore synchronization
+> Glove sensors → ESP32 static classifier → BLE packets → Flutter feedback
+> → saved local progress → Firestore sync
 
-The app also contains a Record Signs workflow and a trained TCN for Hello,
-Please, and Yes. Flutter performs word inference locally on complete,
-user-delimited attempts and saves successful word completion. Android emulator
-replay passed; fresh physical-glove validation remains Not run. See the
-[training record](docs/WORD_MODEL_DEMO_TRAINING.md) and
-[integration instructions](docs/WORD_DEMO_INTEGRATION.md).
+As of October 27, about two of our flex sensors were broken. We ordered
+Adafruit Short Flex Sensor #1070 replacements and an ICM-20948 nine-axis IMU
+#4554. We still need to confirm their arrival, replace the sensors, and calibrate
+the glove. We have also received ten piezo buzzers: one for each finger and five
+in an X on the back of the hand. The firmware now sets up all ten buzzer pins
+and can play a timed PWM tone on one buzzer at a time without blocking the main
+loop. We still need to review the circuit, decide how each cue should work,
+and test it on the glove. The app and classifier do not trigger the buzzers yet.
+
+Since the October 6 demo, we have continued working on the KiCad schematic,
+planning the board layout, and looking into ways to improve the TCN. The PCB
+layout is not finished, and we have not measured an improvement in model
+accuracy from this work. More details are in the
+[October 27 status notes](docs/R3_REPORT_READINESS.md).
+
+The app includes Record Signs and a trained TCN for Hello, Please, and Yes.
+Users start an attempt, perform the sign, and finish the attempt. The phone
+runs the model locally and saves completion when the prediction meets the
+matching and confidence requirements. Recorded replay checks passed on the
+Android emulator. Fresh glove testing is **Not run**. See the
+[training notes](docs/WORD_MODEL_DEMO_TRAINING.md) and
+[integration guide](docs/WORD_DEMO_INTEGRATION.md).
 
 ### Release Candidate Implementation
 
@@ -48,20 +68,44 @@ replay passed; fresh physical-glove validation remains Not run. See the
 
 ### Historical Beta Feature Status
 
-### Historical Alpha Feature Status
-| Area | Alpha status | Evidence and boundary |
+| Area | What we added | Testing and remaining work |
 | --- | --- | --- |
-| ESP32 sensor runtime | Implemented; current source builds | Reads five flex inputs and six accelerometer/gyroscope values and emits structured BLE packets. |
-| Static sign classification | Implemented; historically physically validated | The embedded 36-class TFLite MLP predicts `A`–`Z` and `0`–`9` from flex inputs. The team demonstrated glove-to-phone prediction and confidence output at the end of the previous semester. |
-| BLE interface | Implemented; historically physically validated | The app scans for `HelpingHand-Glove`, connects, subscribes to notifications, parses packets, and handles disconnect/reconnect states. Historical videos below show physical glove/sensor data reaching the phone. |
-| Learner practice | Implemented and automated-test validated | A tile selects a target. Progress is awarded only after a matching prediction at or above 80% confidence remains stable for at least 750 ms and five packets. |
-| Persistent progress | Implemented and automated-test validated | Learned letters, learned numbers, and completed exercises are saved locally first and synchronized to Firestore through anonymous authentication. |
-| Record Signs | Implemented; pilot physically exercised | The simplified static-sign flow selects a letter/number, counts down for three seconds, records live packets, and saves/exports CSV/JSON. A real-device pilot export is preserved in `backend/recorded_data/`; it is not model evidence because it has one signer and mostly one trial per label. |
-| Word preprocessing | Implemented and automated-test validated | Schema validation, quality reports, fixed-rate resampling, fixed windows, deterministic splits, and train-only standardization are present. |
-| Dynamic word models | Architecture foundation only | TCN, CNN-GRU, and CNN-LSTM candidates build and convert in software tests, but none has been trained or evaluated on a real Helping Hand word dataset. |
-| Glove haptics | Research/design direction only | Research recommends beginning with small LRA actuators and a closed-loop driver. No haptic circuit, firmware command path, or physical validation exists yet. |
+| Accounts | Firebase email/password signup, sign-in, password reset, and sign-out. Creating an account can link the existing anonymous account to keep its progress. | We reported signup and sign-in working, but did not record the exact build/device or complete all account tests. |
+| Learning interface | Matching branding and colors, Alphabet/Numbers/Words selection pages, separate practice pages, and Back navigation. | Targeted code analysis and visual/software checks were completed. Current-phone navigation and usability tests with people outside the team are Not run. |
+| Static recognition | A recorded 34-class MLP runs on the ESP32 by default. We kept the original synthetic 36-class model for comparison. | The recorded model excludes J/Z. Held-out recordings were evaluated for A, B, 1, and 3 only, so these results do not show accuracy across all classes or on fresh live attempts. See the [static model notes](docs/STATIC_MLP_DEMO_MODEL.md). |
+| Word training | We compared TCN, CNN-GRU, and CNN-LSTM on 15 Hello/Please/Yes trials. Each model used the same nine training, three validation, and three test trials, with no trial split between sets. | All three models got 3/3 validation trials correct. TCN was selected because it was smallest and got 3/3 reserved test trials correct. The recordings came from one reported wearer at a neutral wrist angle, so we still need broader testing. |
+| Word practice | The app runs the 48,324-byte TCN locally using Start attempt / Finish sign. Completion requires the top prediction to match the selected word at 80% confidence or higher. | 42 focused Flutter checks, three native Android recorded replay checks, and a debug APK build passed. Fresh glove recognition and latency on the intended phone are Not run. |
+| Progress | Progress is saved locally for each user and synced to Firestore. Word completion uses the existing completed-exercise field. | We still need full app tests for word sync, restarting, switching accounts, offline recovery, and using another device. |
+| Recording and preprocessing | Users can review complete trials, save or discard them, and export CSV/JSON files. Preprocessing resamples using device timestamps and fits standardization on training data only. | Raw recordings are stored separately from Firebase progress. We need more repetitions, wearers, and wrist angles. |
+| Hardware feedback | We kept the existing flex/accelerometer/gyroscope BLE connection. Haptics were not integrated in the beta. | The later repair, IMU, buzzer, and PCB work is still in progress; ordering or receiving parts does not mean they have been integrated. |
 
-### Historical Beta Rubric Traceablitiy
+### Historical Alpha Feature Status
+
+| Area | Alpha status | Testing and limitations |
+| --- | --- | --- |
+| ESP32 sensor runtime | Implemented; September build passed | Reads five flex inputs and six accelerometer/gyroscope values and emits structured BLE packets. |
+| Static sign classification | Implemented; tested on the earlier glove | The alpha build’s embedded 36-class TFLite MLP predicts `A`–`Z` and `0`–`9` from flex inputs. The team demonstrated glove-to-phone prediction and confidence output at the end of the previous semester. |
+| BLE interface | Implemented; tested on the earlier glove | The app scans for `HelpingHand-Glove`, connects, subscribes to notifications, parses packets, and handles disconnect/reconnect states. Historical videos below show physical glove/sensor data reaching the phone. |
+| Learner practice | Implemented; automated checks passed | A tile selects a target. Progress is awarded only after a matching prediction at or above 80% confidence remains stable for at least 750 ms and five packets. |
+| Persistent progress | Implemented; automated checks passed | Learned letters, learned numbers, and completed exercises are saved locally first and synchronized to Firestore through anonymous authentication. |
+| Record Signs | Implemented; pilot recording collected | The simplified static-sign flow selects a letter/number, counts down for three seconds, records live packets, and saves/exports CSV/JSON. A real-device pilot export is preserved in `backend/recorded_data/`; it is not model evidence because it has one signer and mostly one trial per label. |
+| Word preprocessing | Implemented; automated checks passed | Schema validation, quality reports, fixed-rate resampling, fixed windows, deterministic splits, and train-only standardization are present. |
+| Dynamic word models | Architecture foundation only | TCN, CNN-GRU, and CNN-LSTM candidates build and convert in software tests, but no real-data word training had been completed at that alpha snapshot. |
+| Glove haptics | Research/design direction only | Research recommends beginning with small LRA actuators and a closed-loop driver. No haptic circuit, firmware command path, or physical validation existed at that alpha snapshot. |
+
+### Historical Beta Rubric Traceability
+
+| M4 requirement | What we implemented | What still needs testing or completion |
+| --- | --- | --- |
+| Usability, interface, and navigation | Matching account and learning screens, target selection, separate practice pages, Back, Retry, and progress indicators. | Current-phone control tests and usability sessions with people outside the team are Not run. |
+| Perception | Connection status, predictions, confidence, hold progress, word results, and save/sync status are shown near the relevant controls. | We still need to check whether users understand the feedback. Haptics were not integrated in the beta. |
+| Responsiveness | BLE and Firebase work asynchronously, and word inference runs in a background isolate. | Phone latency and sustained streaming measurements are Not run. |
+| Robustness and consistency | A shared BLE service, stable static-match rules, word recording/cancellation checks, and software regression checks. | Hardware edge cases, stress tests, rejection of unrelated motion, and static completion after Back still need work or testing. |
+| Aesthetic rigor | Consistent branding, bundled fonts, matching learning pages, and software layout checks. | On-device accessibility and glove appearance/comfort tests are Not run. |
+| External interface | Account, practice, recording, and progress controls connect to the app services. | Word recognition supports Hello/Please/Yes only. Sign-specific instructional media and haptic feedback are incomplete. |
+| Persistent state | Successful practice updates each user's local JSON progress and authenticated Firestore document. | We still need full tests for account separation, offline recovery, restoring progress after restart, and word sync. |
+| Internal systems | The ESP32 runs static recognition, Flutter runs the TCN, and the backend handles sequence validation, training, and export. | More wearer/wrist-angle testing, calibration after repairs, and fresh glove-to-phone tests are pending. |
+| Submission and effort evidence | Git history, training/integration notes, and beta work-outline/test-plan files record our work. | These files alone do not show that the M4 report, stakeholder defense, or every rubric requirement is complete. |
 
 ### Historical Alpha Rubric Traceability
 
@@ -83,13 +127,13 @@ replay passed; fresh physical-glove validation remains Not run. See the
 flowchart LR
     FLEX[Five flex sensors] --> ESP[Adafruit Feather ESP32-S3]
     IMU[Accelerometer + gyroscope] --> ESP
-    MODEL[Static 36-class TFLite MLP] --> ESP
+    MODEL[Recorded 34-class static MLP] --> ESP
     ESP -->|BLE notifications| BLE[Flutter BLE service]
     BLE --> LIVE[Live telemetry and learner feedback]
     LIVE --> TRACKER[Stable-prediction validator]
     TRACKER --> PROGRESS[Progress repository]
     PROGRESS --> LOCAL[App-private local JSON]
-    PROGRESS -->|Anonymous Auth| FIRESTORE[Cloud Firestore]
+    PROGRESS -->|Firebase email/password Auth| FIRESTORE[Cloud Firestore]
     BLE --> RECORD[Record Signs workflow]
     RECORD --> FILES[App-private CSV + JSON export]
     FILES --> BACKEND[Validation and sequence preprocessing]
@@ -100,6 +144,59 @@ flowchart LR
 ```
 
 ### Embedded Runtime
+
+The current firmware targets an **Adafruit Feather ESP32-S3** and is located in
+[`ESP32/src/main.cpp`](ESP32/src/main.cpp). It:
+
+- reads flex sensors on board aliases `A0` through `A4`;
+- initializes the I2C IMU bus using the Feather board definitions (`SDA=3`,
+  `SCL=4` in the validated environment);
+- probes IMU addresses `0x68` and `0x69` and retries if the device is missing;
+- samples five raw flex channels and six IMU channels;
+- runs the default five-input, 34-output real-recording static TFLite MLP
+  for 0–9 and letters excluding J/Z; the original synthetic 36-class model
+  remains available as a regression baseline;
+- sends the predicted label and confidence with each telemetry packet;
+- advertises a Nordic UART-style BLE service as `HelpingHand-Glove`; and
+- resumes advertising after a disconnect.
+
+The firmware is set to send readings at 40 Hz by default. We still need to
+measure the rate and packet loss on the phone. Sequence numbers and device
+timestamps let us check for missing or out-of-order packets.
+
+The buzzers are outputs. [`piezo.cpp`](ESP32/src/piezo.cpp) sets all ten pins LOW
+before waiting for the serial connection. `startPiezo(output, frequencyHz,
+durationMs)` plays one tone at 50% duty cycle. `updatePiezos()` stops it from
+the main loop when its time is up, and `stopPiezos()` cancels it early.
+
+The code rejects requests before setup, while another buzzer is active, or with
+an invalid output, frequency, or duration. It accepts 20–20,000 Hz and
+1–5,000 ms; these are code limits, not confirmed ratings for our buzzers. One
+LEDC channel is used for the selected pin, so only one buzzer can play at a
+time. We still need to choose a frequency for the actual piezo and driver.
+The buzzers stay off at startup and are not connected to app/classifier cues yet.
+
+| Buzzer position | Feather pin label | ESP32-S3 GPIO |
+| --- | --- | --- |
+| Thumb | A5 | 8 |
+| Index / pointer | D5 | 5 |
+| Middle finger | D6 | 6 |
+| Ring finger | D9 | 9 |
+| Pinky | D10 | 10 |
+| Hand matrix left | SCK | 36 |
+| Hand matrix right | MISO | 37 |
+| Hand matrix center | D12 | 12 |
+| Hand matrix up | D11 | 11 |
+| Hand matrix down | MOSI | 35 |
+
+These pins come from the resistor names and board labels in
+`pcb/pcb.kicad_sch`, checked against the Feather pin definitions. Left, right,
+center, up, and down describe the buzzer positions; we have not tested them as
+directional cues yet. SCK/MISO/MOSI are used as buzzer outputs here, so they
+cannot also be used for SPI at the same time. Compile-time checks catch repeated
+pins and conflicts with the flex or I2C pins. Physical buzzer output, how the
+cues feel/sound, driver suitability, and timing while BLE is running are
+**Not run**.
 
 ### Flutter Application
 
@@ -127,7 +224,7 @@ flowchart LR
 
 1. Power the flashed ESP32 glove.
 2. Enable Bluetooth and grant the Android permissions requested by the app.
-3. Open **BLE Testing** and select **Start Scan**, or select **Find glove** from
+3. Open **Developer Mode > BLE Testing** and select **Start Scan**, or select **Find glove** from
    Record Signs.
 4. The app targets the advertised name `HelpingHand-Glove` and can auto-connect
    when it appears.
@@ -137,7 +234,8 @@ flowchart LR
 ### 3. Complete a learner item
 
 1. Open **Alphabet** or **Numbers**.
-2. Select one target tile.
+2. Select one target tile to open its practice page. The current default
+   recorded static model supports 0–9 and letters except J/Z.
 3. Form the matching static sign with the connected glove.
 4. Hold the matching prediction at 80% confidence or higher for at least
    750 ms and five packets.
@@ -213,7 +311,7 @@ flutter_app/build/app/outputs/flutter-apk/app-debug.apk
 
 The Android Firebase client configuration targets the project listed above.
 Running the app does not require a service-account key. Use a team-provided
-test account; do not put credentials in this repository. The current beta
+test account; do not put credentials in this repository. The current application
 provides email/password account creation and sign-in. The older alpha used
 anonymous authentication; that historical behavior is not the current account
 flow.
@@ -278,8 +376,9 @@ Validate a real exported Record Signs session without editing it:
 .\.venv\Scripts\python.exe backend/prepare_word_sequences.py path/to/trials.csv
 ```
 
-The model-development entry points are intentionally retained for use only
-after the team approves a vocabulary and collects a sufficient real dataset:
+The model-development entry points support further training and evaluation.
+The three-word demo is already trained; broader recognition requires more
+real recordings and an evaluation protocol appropriate to the expanded scope:
 
 ```powershell
 .\.venv\Scripts\python.exe backend/train_word_models.py --help
@@ -307,7 +406,7 @@ flex0_raw=...,flex0_norm=...,...,flex4_raw=...,flex4_norm=...
 Malformed notifications are retained by the recording path with their original
 packet text and are marked invalid rather than silently repaired.
 
-## Validation results
+## Historical Alpha Validation Results
 
 These commands were run on **September 10, 2026** against implementation commit
 `cce9d3887c5e52fafd4e35753f8e0de516051f79`:
@@ -322,13 +421,13 @@ These commands were run on **September 10, 2026** against implementation commit
 | Complete `pytest backend/tests -q` with TensorFlow installed | Passed — 23 tests; 3 non-failing TFLite interpreter deprecation warnings |
 | Firebase environment | Correct alpha project verified; Anonymous Authentication enabled; Firestore available |
 | Firestore rules | Deployed and read back; authenticated owner-only fixed progress document; no open/test-mode access |
-| Current emulator run | Dashboard reached `Synced`, as shown above |
+| Historical alpha emulator run | Dashboard reached `Synced` in the September evidence |
 | Historical physical run | Glove/flex data reached a physical Android phone over BLE and changed the live visualization; static predictions and confidence were demonstrated by the team |
 
-Automated compilation and tests do not substitute for current physical-device
-validation. The physical evidence videos correspond to the previous integrated
-glove baseline; the glove was unavailable for a repeat run of the exact current
-software build at screenshot time.
+These results show what passed on the September build. We still need to test
+the current software on the repaired glove. The older videos show the earlier
+glove-to-phone connection; that glove was unavailable for another test when
+the screenshots were taken.
 
 ## Repository layout
 
@@ -336,36 +435,30 @@ software build at screenshot time.
 | --- | --- |
 | [`ESP32/`](ESP32/) | Feather ESP32-S3 firmware, static model header, and IMU diagnostics |
 | [`flutter_app/`](flutter_app/) | Android Flutter application, BLE client, learner loop, recording, local persistence, Firebase sync, and tests |
-| [`pcb/`](pcb/) | Schematic and PCB files for the PCB that will contain the ESP32 and resistors for the flex sensors and piezo buzzers|
+| [`pcb/`](pcb/) | In-progress KiCad schematic and board-design files for the planned glove PCB. |
 | [`backend/`](backend/) | Static artifacts, word-sequence validation/preprocessing, candidate training/selection/export, and tests |
 | [`docs/`](docs/) | Word-data collection and project documentation |
 | [`research/`](research/) | Word-level IMU recognition and haptic-feedback research |
-| [`app_glove_pictures_and_vids/`](app_glove_pictures_and_vids/) | Current emulator screenshots and historical physical integration evidence |
+| [`app_glove_pictures_and_vids/`](app_glove_pictures_and_vids/) | Earlier emulator screenshots and historical physical integration evidence |
 | [`hardware_pictures/`](hardware_pictures/) | Assembly and soldering photographs |
 | [`design_draft/`](design_draft/) | Original design document, Figma concepts, storyboard, networking diagram, and legacy schematic draft |
 | [`PLAN.md`](PLAN.md) | Living dynamic-word implementation plan |
 | [`ALPHA_BUILD_PLAN.md`](ALPHA_BUILD_PLAN.md) | Deadline-oriented alpha planning and acceptance checklist |
-| [`BETA_BUILD_PLAN.md`](BETA_BUILD_PLAN.md) | Deadline-oriented beta planning and acceptance checklist |
+| [`BETA_BUILD_PLAN.md`](BETA_BUILD_PLAN.md) | Beta implementation summary, architecture, historical evidence, and known limitations |
 
 ### Hardware documentation note
 
-The schematic image under `design_draft/schematic/` is retained as the original
-design-draft artifact. It depicts an ESP32-C3/LSM9DS1 concept and must not be
-treated as the as-built Feather ESP32-S3 wiring diagram. The current firmware
-pin contract and hardware photographs are the accurate repository evidence for
-the alpha implementation. An updated as-built electrical schematic remains a
-documentation task for the next hardware assembly.
-
-For an updated schematic, look under 'pcb/' and look for 'pcb.kicad_sch'. It contains our ESP32-S3 and the 15 resistors for the flex sensors and the piezo buzzers.
+The schematic in `design_draft/schematic/` is our original ESP32-C3/LSM9DS1
+concept, so it does not show the Feather ESP32-S3 glove wiring. Refer to the
+firmware pin definitions and hardware photos for the alpha setup. Our current
+KiCad schematic is
+[`pcb/pcb.kicad_sch`](pcb/pcb.kicad_sch), with board-design files under `pcb/`.
 
 ## Known Bugs and Incomplete Release Candidate Features
 
-
 ## AI-Assisted Development Disclosure
-This repository follows the course AI-use policy in
-[`ai-policy/AI-USAGE.md`](ai-policy/AI-USAGE.md). Approved generative AI tools
-assisted with portions of research, planning, implementation, testing, and
-documentation. AI-assisted commits use a `GENAI=Yes` subject and an
-`AI-Assisted` trailer so the contribution is visible in version history. The
-student team remains responsible for reviewing, understanding, validating, and
-presenting all submitted work.
+We used approved generative AI tools to help with parts of the research,
+planning, code, testing, and documentation, following the
+[course AI-use policy](ai-policy/AI-USAGE.md). AI-assisted commits include
+`GENAI=Yes` in the subject and an `AI-Assisted` trailer. Our team is responsible
+for reviewing, understanding, testing, and presenting the submitted work.

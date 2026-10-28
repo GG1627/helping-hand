@@ -7,6 +7,7 @@
 #include "flex_sensors.h"
 #include "imu_sensor.h"
 #include "telemetry.h"
+#include "piezo.h"
 using namespace std;
 
 namespace {
@@ -15,6 +16,7 @@ uint64_t sensorSequence = 0;
 }
 
 void setup() {
+  setupPiezos();
   Serial.begin(115200);
   while (!Serial) delay(10);
   delay(500);
@@ -51,6 +53,7 @@ void setup() {
 }
 
 void loop() {
+  updatePiezos();
   updateImu();
 
   const uint32_t nowUs = micros();

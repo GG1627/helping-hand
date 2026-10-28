@@ -6,6 +6,14 @@ constexpr int I2C_SDA_PIN = SDA;
 constexpr int I2C_SCL_PIN = SCL;
 constexpr size_t FLEX_SENSOR_COUNT = 5;
 constexpr int FLEX_SENSOR_PINS[FLEX_SENSOR_COUNT] = {A0, A1, A2, A3, A4};
+// pcb/pcb.kicad_sch: thumb/index/middle/ring/pinky, then dorsal
+// left/right/center/up/down. D5 etc. are GPIO numbers on this Feather.
+constexpr size_t PIEZO_COUNT = 10;
+constexpr int PIEZO_PINS[PIEZO_COUNT] = {A5, 5, 6, 9, 10, SCK, MISO, 12, 11, MOSI};
+// One LEDC channel is routed to the selected output; no simultaneous tones.
+constexpr uint8_t kPiezoLedcChannel = 0;
+constexpr uint8_t kPiezoResolutionBits = 10;
+constexpr uint32_t kPiezoMaxDurationMs = 5000;
 // Set to 0 with a build flag to restore the preserved synthetic 36-class model.
 #ifndef HH_USE_RECORDED_STATIC_MODEL
 #define HH_USE_RECORDED_STATIC_MODEL 1
