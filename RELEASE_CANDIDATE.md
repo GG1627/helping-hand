@@ -16,7 +16,7 @@ This repository contains our firmware, app, model-training code, hardware
 documentation, and the KiCad files for our PCB design, which is still in progress.
 
 - **Repository:** <https://github.com/GG1627/helping-hand>
-- **Release candidate submission snapshot:** Not yet selected
+- **Release candidate submission snapshot:** [`ff6a9ab`](https://github.com/GG1627/helping-hand/commit/ff6a9ab763f12f60e3a327d0df4f00a8784894b8)
 - **Historical beta application snapshot:** [`d581d19`](https://github.com/GG1627/helping-hand/commit/d581d19)
 - **Historical alpha validation commit:** [`cce9d38`](https://github.com/GG1627/helping-hand/commit/cce9d3887c5e52fafd4e35753f8e0de516051f79)
 - **Android package:** `com.example.flutter_app`
