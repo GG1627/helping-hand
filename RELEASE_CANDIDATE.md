@@ -37,7 +37,7 @@ Our alpha build connected the following parts of the system:
 > Glove sensors → ESP32 static classifier → BLE packets → Flutter feedback
 > → saved local progress → Firestore sync
 
-As of October 27, about two of our flex sensors were broken. We ordered
+As of October 27, about two of our flex sensors were broken, they were reading as flexed when they were not. We believe this is due to age. We ordered 5
 Adafruit Short Flex Sensor #1070 replacements and an ICM-20948 nine-axis IMU
 #4554. We still need to confirm their arrival, replace the sensors, and calibrate
 the glove. We have also received ten piezo buzzers: one for each finger and five
@@ -51,6 +51,7 @@ planning the board layout, and looking into ways to improve the TCN. The PCB
 layout is not finished, and we have not measured an improvement in model
 accuracy from this work. More details are in the
 [October 27 status notes](docs/R3_REPORT_READINESS.md).
+We have also begun planning on how to sew in the flex sensors and the 9-axis IMU into the glove using conductive thread and have practiced making small circuits with conductive thread to get a feel for it before adding it to our project. We plan to use multiple layers of fabric (like a PCB) to ensure that we do not short any connections.
 
 The app includes Record Signs and a trained TCN for Hello, Please, and Yes.
 Users start an attempt, perform the sign, and finish the attempt. The phone
@@ -93,19 +94,7 @@ Letters and numbers: a target is completed when a matching prediction at ≥80% 
   
 ### M5 Work and Rubric Status
 
-Usability, interface, and navigation - Account screens, branded Home and learning screens, Alphabet/Numbers/Words pickers, separate practice routes with Back.
 
-Perception and feedback	- Static practice shows prediction, confidence, hold progress, Retry, and BLE connection state. Word practice shows the attempt result. Account and sync status are visible.	
-
-Responsiveness -	BLE notifications and Firebase work are asynchronous. Firebase starts lazily.	
-
-Build quality and robustness - Static baseline kept for regression.	
-
-Dynamic word recognition -	TCN for Hello, Please, Yes using explicit complete attempts.	
-
-Hardware / PCB -	KiCad schematic and PCB with the ESP32-S3 and 15 resistors for the flex-sensor and piezo-buzzer circuits.	
-
-Documentation and process - Release README, beta plan, AI-use disclosure.	
 
 ### Historical Beta Feature Status
 
@@ -559,15 +548,6 @@ KiCad schematic is
 [`pcb/pcb.kicad_sch`](pcb/pcb.kicad_sch), with board-design files under `pcb/`.
 
 ## Known Bugs and Incomplete Release Candidate Features
-
-1. ESP32 firmware startup - ESP32/src/main.cpp waits for the USB Serial interface with no timeout. If no serial host opens the port, setup can stay blocked before BLE and sensor initialization.
-
-2. Flutter practice lifecycle -	A selected letter or number stays active after leaving its practice page. The app shell keeps accepting matching packets and can record completion while the learner is on the picker.
-
-3. Issues with the BLE connection + Power
-
-4. The flex sensors are bent so the readings are off meaning the ML prediction is incorrect - Purchased new sensors
-
 
 ## AI-Assisted Development Disclosure
 We used approved generative AI tools to help with parts of the research,
