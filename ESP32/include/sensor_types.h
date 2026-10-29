@@ -11,6 +11,12 @@ struct ImuSample {
   float gzDps;
 };
 
+struct MagneticSample {
+  float mxUt;
+  float myUt;
+  float mzUt;
+};
+
 struct FlexReadings {
   int raw[FLEX_SENSOR_COUNT];
   float norm[FLEX_SENSOR_COUNT];

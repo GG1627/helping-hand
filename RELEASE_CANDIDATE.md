@@ -21,6 +21,7 @@ documentation, and the KiCad files for our PCB design, which is still in progres
 - **Historical alpha validation commit:** [`cce9d38`](https://github.com/GG1627/helping-hand/commit/cce9d3887c5e52fafd4e35753f8e0de516051f79)
 - **Android package:** `com.example.flutter_app`
 - **Firebase project:** `helping-hand-83137`
+- **Demo:** <https://www.youtube.com/shorts/qQmO1KYz998>
 - **Team:** Brian, Gael, Kali, and Srinitha
 
 ## Milestone Overview
@@ -94,19 +95,15 @@ Letters and numbers: a target is completed when a matching prediction at ≥80% 
   
 ### M5 Work and Rubric Status
 
-Usability, interface, and navigation - Account screens, branded Home and learning screens, Alphabet/Numbers/Words pickers, separate practice routes with Back.
-
-Perception and feedback	- Static practice shows prediction, confidence, hold progress, Retry, and BLE connection state. Word practice shows the attempt result. Account and sync status are visible.	
-
-Responsiveness -	BLE notifications and Firebase work are asynchronous. Firebase starts lazily.	
-
-Build quality and robustness - Static baseline kept for regression.	
-
-Dynamic word recognition -	TCN for Hello, Please, Yes using explicit complete attempts.	
-
-Hardware / PCB -	KiCad schematic and PCB with the ESP32-S3 and 15 resistors for the flex-sensor and piezo-buzzer circuits.	
-
-Documentation and process - Release README, beta plan, AI-use disclosure.	
+| Rubric category | What we have implemented | Testing and remaining work |
+| --- | --- | --- |
+| Usability: Interface | Account screens, branded Home and learning screens, Alphabet/Numbers/Words selection pages, and saved progress indicators. Each target has its own practice page. | Software layout checks were completed. Accessibility checks on the intended phone and usability testing with people outside the team are **Not run**. |
+| Usability: Navigation | Users can select a target, open practice, return with Back, retry an attempt, and access account and connection controls. Other word pages explain when recognition is unavailable. | Current-phone navigation checks are **Not run**. A selected static target can still complete after leaving its practice page; we still need to decide how Back should handle an active target. |
+| Usability: Perception | Static practice shows prediction, confidence, hold progress, Retry, and BLE connection status. Word practice shows the predicted word and attempt result. Account and save/sync status are also visible. | We still need to check whether users understand the feedback. Buzzer pins and timed tone control are set up, but automatic corrective cues and physical feedback tests are **Not run**. |
+| Usability: Responsiveness | BLE and Firebase work asynchronously, Firebase starts when needed, and word inference runs in a background isolate. Buzzer timing is checked in the main loop without a blocking delay. | Latency on the intended phone and sustained BLE streaming measurements are **Not run**. |
+| Build Quality: Robustness | We kept the original static model for regression checks. Word attempts check packet validity and timing and are canceled on disconnect, Back, or backgrounding. Progress is saved locally before cloud sync. | Earlier word integration passed 42 focused Flutter checks, three native Android recorded replay checks, and a debug APK build. Current repaired-glove regression, stress testing, and full account/offline tests are **Not run**. |
+| Build Quality: Consistency | Static completion requires a matching prediction at 80% confidence or higher for at least 750 ms and five packets. Hello/Please/Yes use Start attempt / Finish sign and require the top predicted word to match at 80% confidence or higher. Progress is saved per account. | Repeatability across wearers and wrist angles, unrelated-motion rejection, and live account-isolation checks are **Not run**. The word model has no rest/unknown class. |
+| Build Quality: Aesthetic Rigor | Login, signup, Home, and learning screens share the Helping Hand text branding, colors, and fonts. Practice pages use matching controls and feedback. We are also planning the PCB layout and how to sew the sensors into the glove. | Software visual/layout checks were completed. The PCB layout and sewn assembly are still in progress; final glove appearance, fit, and comfort tests are **Not run**. |
 
 ### Historical Beta Feature Status
 
@@ -309,9 +306,47 @@ The backend can:
 
 Synthetic fixtures are software-test data only and are marked non-reportable. The deployed TCN currently covers Hello, Please, and Yes. It was trained on recordings from a single wearer in a neutral orientation and has no rest/unknown class.
 
-### Application Evidence
+## Application Evidence
+
+The following screenshots were captured from the current Android emulator
+build. The glove had been disassembled for the next hardware iteration during
+the summer, so the learner, recording, and BLE screenshots intentionally show
+the disconnected state. They demonstrate the current interface and navigation,
+not a current physical-glove connection. The Dashboard screenshot records the
+app reaching its `Synced` progress-storage state.
+
+<table>
+  <tr>
+    <td align="center"><img src="app_glove_pictures_and_vids/screen-1.png" width="250" alt="Helping Hand start screen"><br><strong>Start</strong></td>
+    <td align="center"><img src="app_glove_pictures_and_vids/screen-2.png" width="250" alt="Dashboard showing synchronized progress storage"><br><strong>Dashboard and sync</strong></td>
+    <td align="center"><img src="app_glove_pictures_and_vids/screen-3.png" width="250" alt="Alphabet learner practice screen"><br><strong>Alphabet practice</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="app_glove_pictures_and_vids/screen-4.png" width="250" alt="Numbers learner practice screen"><br><strong>Number practice</strong></td>
+    <td align="center"><img src="app_glove_pictures_and_vids/screen-5.png" width="250" alt="Record Signs metadata and connection screen"><br><strong>Record Signs</strong></td>
+    <td align="center"><img src="app_glove_pictures_and_vids/screen-6.png" width="250" alt="BLE Testing scan and connection screen"><br><strong>BLE Testing</strong></td>
+  </tr>
+</table>
 
 ### Historical Physical Integration Evidence
+
+These short videos were recorded at the end of the previous development
+semester. They establish that real flex-sensor changes reached the physical
+Android phone over BLE and changed the live hand visualization. The team's
+end-of-semester integration testing also displayed the static classifier's
+predicted sign and confidence on the phone.
+
+- [Bench flex sensor streaming to the phone (6 seconds)](app_glove_pictures_and_vids/vid-1.mp4)
+- [Wearable glove connected to the phone (8 seconds)](app_glove_pictures_and_vids/vid-2.mp4)
+
+<p align="center">
+  <img src="app_glove_pictures_and_vids/glove-1.jpeg" width="520" alt="Helping Hand glove with mounted flex sensors">
+</p>
+
+The videos are historical validation of the glove/BLE baseline. The current
+Firebase persistence, stable-prediction completion logic, and Record Signs
+workflow were validated through the current automated tests and emulator build;
+they were not present in exactly this form in the historical video.
 
 ## Release Candidate Navigation and Use
 
