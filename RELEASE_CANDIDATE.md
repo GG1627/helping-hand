@@ -41,7 +41,10 @@ Our alpha build connected the following parts of the system:
 As of October 27, about two of our flex sensors were broken, they were reading as flexed when they were not. We believe this is due to age. We ordered 5
 Adafruit Short Flex Sensor #1070 replacements and an ICM-20948 nine-axis IMU
 #4554. We still need to confirm their arrival, replace the sensors, and calibrate
-the glove. We have also received ten piezo buzzers: one for each finger and five
+the glove. Firmware support for the ICM-20948 and AK09916 magnetometer has now
+been added, while keeping the older sensor path. Magnetic data is available
+through serial diagnostics; orientation fusion and new-board testing are still
+pending. The BLE word-model inputs remain the existing six motion values. We have also received ten piezo buzzers: one for each finger and five
 in an X on the back of the hand. The firmware now sets up all ten buzzer pins
 and can play a timed PWM tone on one buzzer at a time without blocking the main
 loop. We still need to review the circuit, decide how each cue should work,
@@ -73,11 +76,11 @@ The RC keeps the full beta feature set and adds a custom PCB design:
 - Local progress files and the Firestore document users/{uid}/progress/current are scoped to the signed-in Firebase user.
 - Firebase Authentication stores credentials. Raw glove recordings stay in the CSV/JSON export workflow and are never uploaded to Firebase.
 
-3. Static recognition: the 36-class (A–Z, 0–9) on-device classifier and the stable-prediction completion rule are kept as the regression baseline.
+3. Static recognition: the recorded 34-class model is the default. The original 36-class (A–Z, 0–9) model is kept as a regression baseline, along with the stable-prediction completion rule.
 
 4. Dynamic word recognition: TCN inference with saved completion for Hello, Please, and Yes.
 
-5. Custom PCB (new in M5): a KiCad schematic and PCB layout. The board carries: the ESP32-S3 and 15 resistors for the flex-sensor and piezo-buzzer circuits.
+5. Custom PCB (new in M5): KiCad schematic work and board-layout planning for the ESP32-S3 and 15 resistors in the flex-sensor and piezo circuits. The board is not yet routed or fabricated.
    
 6. Process documentation:
 - BETA_BUILD_PLAN.md
@@ -165,7 +168,7 @@ Letters and numbers: a target is completed when a matching prediction at ≥80% 
 ```mermaid
 flowchart LR
     FLEX[Five flex sensors] --> ESP[Adafruit Feather ESP32-S3]
-    IMU[Accelerometer + gyroscope] --> ESP
+    IMU[IMU accelerometer + gyroscope] --> ESP
     MODEL[Recorded 34-class static MLP] --> ESP
     ESP -->|BLE notifications| BLE[Flutter BLE service]
     BLE --> LIVE[Live telemetry and learner feedback]
@@ -183,42 +186,44 @@ flowchart LR
 ```
 
 ### Embedded Runtime
-The firmware targets an Adafruit Feather ESP32-S3 and lives in ESP32/src/main.cpp. It:
 
-- reads flex sensors on board aliases A0 through A4;
-- initializes the I2C IMU bus using the Feather board definitions (SDA=3, SCL=4 in the validated environment);
-- probes IMU addresses 0x68 and 0x69 and retries if the device is missing;
-- samples five raw flex channels and six IMU channels;
-- runs the five-input, 36-output static TFLite classifier;
-- sends the predicted label and confidence with each telemetry packet;
-- advertises a Nordic UART-style BLE service as HelpingHand-Glove; and resumes advertising after a disconnect.
+The firmware runs on the Adafruit Feather ESP32-S3 in
+[`ESP32/src/main.cpp`](ESP32/src/main.cpp). It reads five flex sensors on
+A0–A4 and communicates with the IMU over I2C (SDA=3, SCL=4).
+[`imu_sensor.cpp`](ESP32/src/imu_sensor.cpp) now checks both 0x68 and 0x69 for
+supported MPU-style parts or the new ICM-20948. The ICM path uses its own banked
+register map, sets +/-2 g and +/-250 degrees/second ranges, and reads the
+AK09916 magnetometer through I2C bypass. Compass data is checked for readiness
+and overflow and reported in uncalibrated microteslas through serial diagnostics.
+A read failure in the motion sensor marks it offline and enables discovery retries.
+If the compass is unavailable, acceleration/gyro streaming can still continue.
 
-The sample rate is configured for 40 Hz by default and can be set at compile time to 25–50 Hz with HH_SENSOR_RATE_HZ. This is a configured target, not a measured phone-side rate. Sequence numbers and device timestamps let delivery rate, gaps, and ordering be checked.
+BLE still sends the existing ax/ay/az in g and gx/gy/gz in degrees/second.
+The current word model still uses five flex and six motion inputs; the new
+magnetic readings do not change its input shape. Magnetic calibration,
+axis alignment, fusion, and recognition on the replacement hardware still need
+testing. The firmware changes are checked against the
+[TDK datasheet](https://product.tdk.com/system/files/dam/doc/product/sensor/mortion-inertial/imu/data_sheet/ds-000189-icm-20948-v1.5.pdf).
 
-Hardware: the M5 PCB (pcb/pcb.kicad_sch) is designed to carry:
+The default static model is the recorded 34-class MLP; the original synthetic
+36-class model is kept for regression checks. Firmware sends predictions and
+confidence over BLE as `HelpingHand-Glove` and resumes advertising after a
+disconnect. The configured stream rate is 40 Hz (adjustable to 25–50 Hz).
+Phone-side rate and packet loss still need measurement.
 
-- the ESP32-S3
-- the resistors for the flex-sensor circuits
-- the resistors for the piezo-buzzer circuits
+The planned PCB schematic includes the ESP32-S3 and 15 resistors for the flex
+and piezo circuits. Placement, routing, fabrication, and board testing are not
+complete. The proposed sewn glove uses five fabric layers total: inner liner,
+first routing fabric, insulating separator, second routing fabric, and outer
+cover. This separates two routing levels; final routing and movement tests must
+confirm whether more local insulation is needed. See
+[`M5_Work_Outline.md`](M5_Work_Outline.md) for the assembly plan and references.
 
-The current firmware targets an **Adafruit Feather ESP32-S3** and is located in
-[`ESP32/src/main.cpp`](ESP32/src/main.cpp). It:
-
-- reads flex sensors on board aliases `A0` through `A4`;
-- initializes the I2C IMU bus using the Feather board definitions (`SDA=3`,
-  `SCL=4` in the validated environment);
-- probes IMU addresses `0x68` and `0x69` and retries if the device is missing;
-- samples five raw flex channels and six IMU channels;
-- runs the default five-input, 34-output real-recording static TFLite MLP
-  for 0–9 and letters excluding J/Z; the original synthetic 36-class model
-  remains available as a regression baseline;
-- sends the predicted label and confidence with each telemetry packet;
-- advertises a Nordic UART-style BLE service as `HelpingHand-Glove`; and
-- resumes advertising after a disconnect.
-
-The firmware is set to send readings at 40 Hz by default. We still need to
-measure the rate and packet loss on the phone. Sequence numbers and device
-timestamps let us check for missing or out-of-order packets.
+Host-side simulated-I2C regression checks passed; run
+`python3 ESP32/test/imu_host_test.py` with Python 3 and `g++`.
+The full build attempt timed out during installation of the missing
+`tool-openocd-esp32` package, so board compilation is not confirmed. New IMU
+bring-up, compass calibration, and sewn-glove testing are **Not run**.
 
 The buzzers are outputs. [`piezo.cpp`](ESP32/src/piezo.cpp) sets all ten pins LOW
 before waiting for the serial connection. `startPiezo(output, frequencyHz,
