@@ -313,12 +313,32 @@ Synthetic fixtures are software-test data only and are marked non-reportable. Th
 
 ## Application Evidence
 
-The following screenshots were captured from the current Android emulator
-build. The glove had been disassembled for the next hardware iteration during
-the summer, so the learner, recording, and BLE screenshots intentionally show
-the disconnected state. They demonstrate the current interface and navigation,
-not a current physical-glove connection. The Dashboard screenshot records the
-app reaching its `Synced` progress-storage state.
+These updated screenshots show our sign-in and account screens, Home, learning
+pages, and developer tools. Record Signs and BLE Testing show the disconnected
+state. These images show the interface, not a new glove-recognition test.
+
+<table>
+  <tr>
+    <td align="center"><img src="app_glove_pictures_and_vids/Start_Page.png" width="250" alt="Helping Hand sign-in screen"><br><strong>Sign in</strong></td>
+    <td align="center"><img src="app_glove_pictures_and_vids/Create_Account_Page.png" width="250" alt="Helping Hand account creation screen"><br><strong>Create account</strong></td>
+    <td align="center"><img src="app_glove_pictures_and_vids/Dashboard_Page.png" width="250" alt="Helping Hand Home screen and saved progress"><br><strong>Home</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="app_glove_pictures_and_vids/Alphabet_Page.png" width="250" alt="Alphabet target selection page"><br><strong>Alphabet</strong></td>
+    <td align="center"><img src="app_glove_pictures_and_vids/Number_Page.png" width="250" alt="Number target selection page"><br><strong>Numbers</strong></td>
+    <td align="center"><img src="app_glove_pictures_and_vids/Words_Page.png" width="250" alt="Starter word selection page"><br><strong>Words</strong></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="app_glove_pictures_and_vids/Record_Signs_Page.png" width="250" alt="Record Signs collection controls"><br><strong>Record Signs</strong></td>
+    <td align="center"><img src="app_glove_pictures_and_vids/BLE_Page.png" width="250" alt="BLE scan and connection controls"><br><strong>BLE Testing</strong></td>
+  </tr>
+</table>
+
+**Earlier app screenshots**
+
+The screenshots below are from the earlier Android emulator build. The glove
+was disconnected while we prepared the next hardware iteration. The Dashboard
+shows the earlier app reaching its `Synced` progress-storage state.
 
 <table>
   <tr>
@@ -332,6 +352,16 @@ app reaching its `Synced` progress-storage state.
     <td align="center"><img src="app_glove_pictures_and_vids/screen-6.png" width="250" alt="BLE Testing scan and connection screen"><br><strong>BLE Testing</strong></td>
   </tr>
 </table>
+
+### Glove Pictures
+
+Our updated glove assembly is shown below. The photo documents the hardware
+arrangement; the planned sewn assembly, nine-axis IMU integration, and ten-piezo
+feedback system still need completion and testing.
+
+<p align="center">
+  <img src="app_glove_pictures_and_vids/new_glove.webp" width="520" alt="Updated Helping Hand glove assembly with mounted electronics, battery, and sensor wiring">
+</p>
 
 ### Historical Physical Integration Evidence
 
