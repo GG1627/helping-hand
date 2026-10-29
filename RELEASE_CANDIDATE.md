@@ -94,7 +94,19 @@ Letters and numbers: a target is completed when a matching prediction at ≥80% 
   
 ### M5 Work and Rubric Status
 
+Usability, interface, and navigation - Account screens, branded Home and learning screens, Alphabet/Numbers/Words pickers, separate practice routes with Back.
 
+Perception and feedback	- Static practice shows prediction, confidence, hold progress, Retry, and BLE connection state. Word practice shows the attempt result. Account and sync status are visible.	
+
+Responsiveness -	BLE notifications and Firebase work are asynchronous. Firebase starts lazily.	
+
+Build quality and robustness - Static baseline kept for regression.	
+
+Dynamic word recognition -	TCN for Hello, Please, Yes using explicit complete attempts.	
+
+Hardware / PCB -	KiCad schematic and PCB with the ESP32-S3 and 15 resistors for the flex-sensor and piezo-buzzer circuits.	
+
+Documentation and process - Release README, beta plan, AI-use disclosure.	
 
 ### Historical Beta Feature Status
 
@@ -549,6 +561,15 @@ KiCad schematic is
 
 ## Known Bugs and Incomplete Release Candidate Features
 
+1. ESP32 firmware startup - ESP32/src/main.cpp waits for the USB Serial interface with no timeout. If no serial host opens the port, setup can stay blocked before BLE and sensor initialization.
+
+2. Flutter practice lifecycle -	A selected letter or number stays active after leaving its practice page. The app shell keeps accepting matching packets and can record completion while the learner is on the picker.
+
+3. Issues with the BLE connection + Power.
+
+4. The flex sensors are bent so the readings are off meaning the ML prediction is incorrect - Purchased new sensors.
+
+   
 ## AI-Assisted Development Disclosure
 We used approved generative AI tools to help with parts of the research,
 planning, code, testing, and documentation, following the
