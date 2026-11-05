@@ -78,6 +78,14 @@ usable. Those derived/static diagnostic values are preserved inside
 
 ## Manifest
 
+New development exports may append `calibration_profile_id` and embed the
+matching `glove-calibration-v1` snapshot in the manifest. Each session freezes
+one profile; the loader rejects mismatched row/snapshot IDs. Raw readings stay
+unchanged, and model features remain the original eleven fields. See
+[developer calibration](../../docs/DEVELOPER_CALIBRATION.md) for capture, export,
+initial quality checks, and the separate retraining/rebuild step. Older exports
+without a profile still load.
+
 `manifest.json` contains the schema/session ID, `data_origin`, app version,
 configured target rate, observed `who` values, vocabulary/version, saved-trial
 summaries, discarded-trial reasons, total/valid counts, and an explicit

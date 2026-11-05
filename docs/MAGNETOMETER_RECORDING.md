@@ -3,6 +3,10 @@
 Implemented November 5, 2026. This extends acquisition and export; it does not
 retrain the static or word models or implement orientation fusion.
 
+For sensor operation, wiring, calibration, sampling/filter limitations, and the
+next recognition experiments, see the November 5
+[ICM-20948 integration reference](../research/ICM20948_INTEGRATION_REFERENCE.md).
+
 ## Data path
 
 The ESP32 reads the AK09916 through the existing ICM-20948 driver. Each telemetry

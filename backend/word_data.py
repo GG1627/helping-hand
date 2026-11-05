@@ -115,6 +115,7 @@ class WordSample:
     mx_ut: float | None = None
     my_ut: float | None = None
     mz_ut: float | None = None
+    calibration_profile_id: str | None = None
 
     @property
     def features(self) -> tuple[float, ...]:
@@ -512,6 +513,7 @@ def _sample_from_row(
         mx_ut=mx_ut,
         my_ut=my_ut,
         mz_ut=mz_ut,
+        calibration_profile_id=(row.get("calibration_profile_id") or "").strip() or None,
     )
 
 
@@ -521,6 +523,9 @@ def _check_manifest(
     report: ValidationReport,
 ) -> None:
     if manifest is None:
+        if any(sample.calibration_profile_id for sample in samples):
+            report.add("error", "calibration_profile_missing_manifest",
+                       "Calibration-linked rows require their manifest profile snapshot.")
         return
     if manifest.get("schema_version") != SCHEMA_VERSION:
         report.add(
@@ -544,6 +549,18 @@ def _check_manifest(
             "Manifest should identify data_origin as 'real' or 'synthetic_fixture'.",
         )
     magnetic_count = sum(sample.mag_status == "ok" for sample in samples)
+    profile_id = manifest.get("calibration_profile_id")
+    sample_profiles = {sample.calibration_profile_id for sample in samples}
+    if any(sample_profiles) or profile_id is not None:
+        snapshot = manifest.get("calibration_profile")
+        if (sample_profiles != {profile_id} or not isinstance(snapshot, dict)
+                or snapshot.get("profile_id") != profile_id
+                or snapshot.get("schema_version") != "glove-calibration-v1"
+                or manifest.get("calibration_applied_to_recorded_values") is not False):
+            report.add(
+                "error", "calibration_profile_mismatch",
+                "Recording rows must reference one matching calibration snapshot; raw values must remain unmodified.",
+            )
     # Legacy manifests used false as a fixed placeholder. Only compare new
     # count-bearing manifests, and only when all CSV rows could be parsed.
     if "magnetometer_packet_count" in manifest and len(samples) == report.row_count:

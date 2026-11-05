@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'ble_packet.dart';
+import 'calibration_service.dart';
 
 const String wordRecordingSchemaVersion = 'word-sequence-v1';
 const int wordRecordingTargetRateHz = 40;
@@ -43,6 +44,7 @@ const List<String> wordRecordingCsvColumns = [
   'mx_ut',
   'my_ut',
   'mz_ut',
+  'calibration_profile_id',
 ];
 
 enum TrialRecordingState { idle, recording, review }
@@ -79,12 +81,14 @@ class RecordedPacketRow {
     required this.metadata,
     required this.sampleIndex,
     required this.packet,
+    this.calibrationProfileId,
   });
 
   final String sessionId;
   final TrialMetadata metadata;
   final int sampleIndex;
   final BlePacket packet;
+  final String? calibrationProfileId;
 
   List<Object?> toCsvValues() => [
     wordRecordingSchemaVersion,
@@ -116,6 +120,7 @@ class RecordedPacketRow {
     packet.mx,
     packet.my,
     packet.mz,
+    calibrationProfileId,
   ];
 
   bool get isAcceptedPacket => metadata.vocabularyVersion == 'static-asl-v1'
@@ -136,11 +141,17 @@ class SavedSessionFiles {
 }
 
 class RecordingService extends ChangeNotifier {
-  RecordingService({StorageDirectoryProvider? storageDirectoryProvider})
-    : _storageDirectoryProvider =
-          storageDirectoryProvider ?? getApplicationDocumentsDirectory;
+  RecordingService({
+    StorageDirectoryProvider? storageDirectoryProvider,
+    this.calibrationProfileProvider,
+    this.calibrationReady,
+  }) : _storageDirectoryProvider =
+           storageDirectoryProvider ?? getApplicationDocumentsDirectory;
 
   final StorageDirectoryProvider _storageDirectoryProvider;
+  final CalibrationProfile? Function()? calibrationProfileProvider;
+  final bool Function()? calibrationReady;
+  Map<String, dynamic>? _sessionCalibrationProfile;
   final List<RecordedPacketRow> _acceptedRows = [];
   final List<Map<String, Object?>> _savedTrials = [];
   final List<Map<String, Object?>> _discardedTrials = [];
@@ -160,6 +171,9 @@ class RecordingService extends ChangeNotifier {
   TrialMetadata? get currentMetadata => _currentMetadata;
   String? get sessionId => _sessionId;
   String? get sessionVocabularyVersion => _sessionVocabularyVersion;
+  String? get calibrationProfileId => _sessionId == null
+      ? calibrationProfileProvider?.call()?.id
+      : _sessionCalibrationProfile?['profile_id'] as String?;
   String get message => _message;
   int get currentPacketCount => _currentRows.length;
   int get currentValidPacketCount =>
@@ -186,6 +200,7 @@ class RecordingService extends ChangeNotifier {
     _sessionId = null;
     _sessionCreatedAt = null;
     _sessionVocabularyVersion = null;
+    _sessionCalibrationProfile = null;
     _lastSavedFiles = null;
     _message = 'Ready for a new session. Previous files remain saved locally.';
     notifyListeners();
@@ -257,6 +272,14 @@ class RecordingService extends ChangeNotifier {
     if (!hasFreshValidPacket) {
       return 'Wait for a complete, recent sensor packet before recording.';
     }
+    if (calibrationReady != null && !calibrationReady!()) {
+      return 'Wait for the saved calibration profile to load.';
+    }
+    final profile = calibrationProfileProvider?.call();
+    if (_sessionId != null &&
+        _sessionCalibrationProfile?['profile_id'] != profile?.id) {
+      return 'Calibration changed. Export and start a new recording session.';
+    }
 
     final normalized = metadata.normalized();
     final validationError = _validateMetadata(normalized);
@@ -270,6 +293,7 @@ class RecordingService extends ChangeNotifier {
     }
 
     final now = DateTime.now().toUtc();
+    if (_sessionId == null) _sessionCalibrationProfile = profile?.toJson();
     _sessionId ??= _buildSessionId(now);
     _sessionCreatedAt ??= now;
     _sessionVocabularyVersion ??= normalized.vocabularyVersion;
@@ -293,6 +317,8 @@ class RecordingService extends ChangeNotifier {
         metadata: _currentMetadata!,
         sampleIndex: _currentRows.length,
         packet: packet,
+        calibrationProfileId:
+            _sessionCalibrationProfile?['profile_id'] as String?,
       ),
     );
     notifyListeners();
@@ -504,6 +530,9 @@ class RecordingService extends ChangeNotifier {
       'magnetometer_units': 'uT',
       'magnetometer_frame': 'sensor_native',
       'magnetometer_calibrated': false,
+      'calibration_profile_id': _sessionCalibrationProfile?['profile_id'],
+      'calibration_profile': _sessionCalibrationProfile,
+      'calibration_applied_to_recorded_values': false,
     };
     await manifest.writeAsString(
       '${const JsonEncoder.withIndent('  ').convert(manifestValue)}\n',

@@ -52,6 +52,31 @@ def test_generated_fixture_is_deterministic_and_valid(tmp_path: Path) -> None:
     assert any(issue.code == "device_sequence_gap" for issue in recording.report.issues)
 
 
+def test_recording_calibration_snapshot_must_match_every_row(tmp_path: Path) -> None:
+    csv_path, manifest_path = generate_fixture_session(tmp_path / "fixture")
+    rows = _read_rows(csv_path)
+    for row in rows:
+        row["calibration_profile_id"] = "cal_1"
+    columns = REQUIRED_COLUMNS + ("calibration_profile_id",)
+    _write_rows(csv_path, rows, columns)
+    manifest = json.loads(manifest_path.read_text())
+    manifest.update(calibration_profile_id="cal_1", calibration_applied_to_recorded_values=False,
+                    calibration_profile={"schema_version": "glove-calibration-v1", "profile_id": "cal_1"})
+    manifest_path.write_text(json.dumps(manifest))
+    recording = load_recording(csv_path)
+    assert recording.report.is_valid
+    assert recording.samples[0].calibration_profile_id == "cal_1"
+    assert recording.samples[0].features[0] == float(rows[0]["flex_thumb_raw"])
+    rows[0]["calibration_profile_id"] = "cal_2"
+    _write_rows(csv_path, rows, columns)
+    recording = load_recording(csv_path)
+    assert not recording.report.is_valid
+    assert any(issue.code == "calibration_profile_mismatch" for issue in recording.report.issues)
+    manifest_path.unlink()
+    recording = load_recording(csv_path)
+    assert any(issue.code == "calibration_profile_missing_manifest" for issue in recording.report.issues)
+
+
 def test_optional_magnetics_preserve_old_features_and_missing_values(tmp_path: Path) -> None:
     csv_path, manifest_path = generate_fixture_session(tmp_path / "fixture")
     legacy = load_recording(csv_path)

@@ -46,6 +46,13 @@ replacement, installation, and calibration remain unconfirmed. Firmware support 
 been added, while keeping the older sensor path. The November 5 recording update
 adds optional magnetic data to BLE and CSV/JSON exports as well as serial
 diagnostics; see [the recording notes](docs/MAGNETOMETER_RECORDING.md).
+The [ICM-20948 integration reference](research/ICM20948_INTEGRATION_REFERENCE.md)
+covers wiring, calibration, fusion, current driver limitations, and recognition
+experiments for the received nine-axis board.
+Developer Mode now includes a [guided calibration workflow](docs/DEVELOPER_CALIBRATION.md)
+for measured flex ranges, stationary gyro bias, axis checks, profile export,
+and profile-linked raw recordings. Applying calibration to inference remains a
+separate reviewed model/firmware update.
 Orientation fusion and new-board testing are still
 pending. The BLE word-model inputs remain the existing six motion values. We have also received ten piezo buzzers: one for each finger and five
 in an X on the back of the hand. The firmware now sets up all ten buzzer pins

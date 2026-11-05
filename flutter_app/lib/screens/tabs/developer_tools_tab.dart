@@ -8,10 +8,12 @@ class DeveloperToolsTab extends StatelessWidget {
     super.key,
     required this.onOpenRecordSigns,
     required this.onOpenBleTesting,
+    required this.onOpenCalibration,
   });
 
   final VoidCallback onOpenRecordSigns;
   final VoidCallback onOpenBleTesting;
+  final VoidCallback onOpenCalibration;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +38,13 @@ class DeveloperToolsTab extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          const SizedBox(height: WarmClayTheme.cardGap),
+          _ToolCard(
+            icon: Icons.tune,
+            title: 'Glove calibration',
+            description: 'Measure finger ranges and check the mounted IMU.',
+            onTap: onOpenCalibration,
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
           _ToolCard(

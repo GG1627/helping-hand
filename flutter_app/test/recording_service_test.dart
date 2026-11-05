@@ -99,13 +99,13 @@ void main() {
     expect(await service.saveTrial(), isNull);
     final files = service.lastSavedFiles!;
     final lines = await files.csv.readAsLines();
-    expect(lines[1], endsWith(',not_reported,,,'));
-    expect(lines[2], endsWith(',unavailable,,,'));
+    expect(lines[1], endsWith(',not_reported,,,,'));
+    expect(lines[2], endsWith(',unavailable,,,,'));
     expect(
       lines[3],
       contains(',ok,0.00000000000,-12.5000000000,31.2000000000'),
     );
-    expect(lines[4], endsWith(',invalid,,,'));
+    expect(lines[4], endsWith(',invalid,,,,'));
     expect(lines[4], contains('mx=NaN'));
     final manifest = jsonDecode(await files.manifest.readAsString());
     expect(manifest['magnetometer_data_present'], isTrue);
