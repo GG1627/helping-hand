@@ -52,6 +52,9 @@ replacement-part question, not calibration or model performance. See the
 [hardware source notes](../research/R3_REPORT_SOURCE_NOTES.md) for citations.
 The current model remains an 11-feature accelerometer/gyro/flex model; using
 magnetic or derived orientation features requires an explicit pipeline update.
+On October 28, the user confirmed the ICM-20948 was received and the glove
+remained at its perfboard/demo hardware stage. Receipt does not establish new
+inference, sensor-fusion or calibration results.
 
 ## Connection to planned haptics
 

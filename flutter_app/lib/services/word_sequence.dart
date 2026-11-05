@@ -17,6 +17,12 @@ const wordFeatureColumns = <String>[
   'gy',
   'gz',
 ];
+const magneticWordFeatureColumns = <String>[
+  ...wordFeatureColumns,
+  'mx_ut',
+  'my_ut',
+  'mz_ut',
+];
 
 String displayWord(String word) => word
     .split('_')
@@ -24,8 +30,15 @@ String displayWord(String word) => word
     .join(' ');
 
 class WordFrame {
-  WordFrame(this.timestampMs, this.sequence, List<double> values)
-    : values = List.unmodifiable(values);
+  WordFrame(
+    this.timestampMs,
+    this.sequence,
+    List<double> values, {
+    List<double>? magneticValues,
+  }) : values = List.unmodifiable(values),
+       magneticValues = magneticValues == null
+           ? null
+           : List.unmodifiable(magneticValues);
   factory WordFrame.fromPacket(BlePacket packet) {
     if (!packet.isValid ||
         packet.deviceTimestampMs! < 0 ||
@@ -33,19 +46,27 @@ class WordFrame {
         packet.flexRaw.any((value) => value! < 0 || value > 4095)) {
       throw const FormatException('Incomplete glove sensor packet.');
     }
-    return WordFrame(packet.deviceTimestampMs!, packet.deviceSequence!, [
-      ...packet.flexRaw.map((value) => value!.toDouble()),
-      packet.ax!,
-      packet.ay!,
-      packet.az!,
-      packet.gx!,
-      packet.gy!,
-      packet.gz!,
-    ]);
+    return WordFrame(
+      packet.deviceTimestampMs!,
+      packet.deviceSequence!,
+      [
+        ...packet.flexRaw.map((value) => value!.toDouble()),
+        packet.ax!,
+        packet.ay!,
+        packet.az!,
+        packet.gx!,
+        packet.gy!,
+        packet.gz!,
+      ],
+      magneticValues: packet.hasMagneticData
+          ? [packet.mx!, packet.my!, packet.mz!]
+          : null,
+    );
   }
   final int timestampMs;
   final int sequence;
   final List<double> values;
+  final List<double>? magneticValues;
 }
 
 class WordModelSpec {
@@ -53,6 +74,12 @@ class WordModelSpec {
     : windowSamples = json['window_samples'] as int,
       rateHz = (json['target_rate_hz'] as num).toDouble(),
       vocabulary = List<String>.from(json['vocabulary'] as List),
+      featureColumns = List<String>.unmodifiable(
+        json['feature_columns'] as List,
+      ),
+      windowPolicy =
+          (json['preprocessing']?['window_policy'] as String?) ??
+          'center_trim_edge_pad',
       mean = List<num>.from(
         json['standardizer']['mean'] as List,
       ).map((n) => n.toDouble()).toList(),
@@ -62,20 +89,41 @@ class WordModelSpec {
     bool same(List<dynamic> a, List<dynamic> b) =>
         a.length == b.length &&
         List.generate(a.length, (i) => a[i] == b[i]).every((v) => v);
+    final preprocessing = json['preprocessing'];
+    final featureSet = preprocessing?['feature_set'] ?? 'flex_imu6';
+    final expectedFeatures = featureSet == 'flex_imu6'
+        ? wordFeatureColumns
+        : featureSet == 'flex_imu9'
+        ? magneticWordFeatureColumns
+        : <String>[];
+    if (preprocessing != null &&
+        (preprocessing['schema_version'] != 'sequence-preprocessing-v1' ||
+            preprocessing['window_samples'] != windowSamples ||
+            preprocessing['target_rate_hz'] != rateHz)) {
+      throw const FormatException('Conflicting preprocessing metadata.');
+    }
     if (json['architecture'] != 'tcn' ||
         json['trained'] != true ||
-        windowSamples != 96 ||
-        rateHz != 40 ||
+        windowSamples < 4 ||
+        windowSamples > 400 ||
+        !rateHz.isFinite ||
+        rateHz < 25 ||
+        rateHz > 50 ||
+        ![
+          'center_trim_edge_pad',
+          'reject_overlength_edge_pad',
+        ].contains(windowPolicy) ||
         !same(vocabulary, trainedWords) ||
-        !same(json['feature_columns'] as List, wordFeatureColumns) ||
+        expectedFeatures.isEmpty ||
+        !same(featureColumns, expectedFeatures) ||
         !same(
           json['standardizer']['feature_columns'] as List,
-          wordFeatureColumns,
+          featureColumns,
         ) ||
         json['standardizer']['method'] != 'per_feature_standardization' ||
         json['standardizer']['fitted_split'] != 'train' ||
-        mean.length != 11 ||
-        scale.length != 11 ||
+        mean.length != featureCount ||
+        scale.length != featureCount ||
         mean.any((n) => !n.isFinite) ||
         scale.any((n) => !n.isFinite || n <= 0)) {
       throw const FormatException('Incompatible word model metadata.');
@@ -84,6 +132,9 @@ class WordModelSpec {
   final int windowSamples;
   final double rateHz;
   final List<String> vocabulary;
+  final List<String> featureColumns;
+  final String windowPolicy;
+  int get featureCount => featureColumns.length;
   final List<double> mean;
   final List<double> scale;
 
@@ -93,9 +144,20 @@ class WordModelSpec {
     if (frames.length < 2) {
       throw const FormatException('Not enough sensor data.');
     }
+    final values = frames.map((frame) {
+      if (featureCount == 14 && frame.values.length == 11) {
+        if (frame.magneticValues == null || frame.magneticValues!.length != 3) {
+          throw const FormatException(
+            'This model needs complete magnetic readings.',
+          );
+        }
+        return [...frame.values, ...frame.magneticValues!];
+      }
+      return frame.values;
+    }).toList();
     for (var i = 0; i < frames.length; i++) {
-      if (frames[i].values.length != 11 ||
-          frames[i].values.any((n) => !n.isFinite) ||
+      if (values[i].length != featureCount ||
+          values[i].any((n) => !n.isFinite) ||
           (i > 0 && frames[i].timestampMs <= frames[i - 1].timestampMs)) {
         throw const FormatException('Invalid sensor sequence.');
       }
@@ -103,8 +165,13 @@ class WordModelSpec {
     final start = frames.first.timestampMs;
     final count =
         ((frames.last.timestampMs - start) / (1000 / rateHz)).floor() + 1;
-    if (count > 400) {
+    if (count > (rateHz * 10).floor()) {
       throw const FormatException('Gesture recording is too long.');
+    }
+    if (count > windowSamples && windowPolicy == 'reject_overlength_edge_pad') {
+      throw const FormatException(
+        'The complete attempt exceeds this model’s window.',
+      );
     }
     var right = 1;
     final resampled = List.generate(count, (index) {
@@ -119,8 +186,10 @@ class WordModelSpec {
           (timestamp - left.timestampMs) /
           (next.timestampMs - left.timestampMs);
       return List.generate(
-        11,
-        (f) => left.values[f] + ratio * (next.values[f] - left.values[f]),
+        featureCount,
+        (f) =>
+            values[right - 1][f] +
+            ratio * (values[right][f] - values[right - 1][f]),
       );
     });
     final trim = math.max(0, count - windowSamples) ~/ 2;
@@ -129,7 +198,7 @@ class WordModelSpec {
     return List.generate(windowSamples, (i) {
       final row = resampled[(i + trim - pad).clamp(0, count - 1)];
       return List.generate(
-        11,
+        featureCount,
         (f) => f32(f32(f32(row[f]) - f32(mean[f])) / f32(scale[f])),
       );
     });

@@ -62,6 +62,7 @@ REQUIRED_COLUMNS = (
     "raw_packet",
     "packet_valid",
 )
+MAGNETIC_COLUMNS = ("mag_status", "mx_ut", "my_ut", "mz_ut")
 
 _WORD_RE = re.compile(r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$")
 _ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
@@ -110,6 +111,11 @@ class WordSample:
     flex_pinky_raw: int
     raw_packet: str
     packet_valid: bool
+    mag_status: str = "not_reported"
+    mx_ut: float | None = None
+    my_ut: float | None = None
+    mz_ut: float | None = None
+    calibration_profile_id: str | None = None
 
     @property
     def features(self) -> tuple[float, ...]:
@@ -394,6 +400,38 @@ def _validate_text_fields(
         )
 
 
+def _magnetic_from_row(
+    row: Mapping[str, str], report: ValidationReport, row_number: int
+) -> tuple[str, float | None, float | None, float | None]:
+    """Preserve optional raw compass values without changing model features.
+
+    Magnetic faults are warnings: a valid flex/accel/gyro row remains usable by
+    the deployed 11-feature model. Never fill missing compass readings with zero.
+    """
+    if not any(name in row for name in MAGNETIC_COLUMNS):
+        return "not_reported", None, None, None
+    status = (row.get("mag_status") or "").strip()
+    values = [(row.get(name) or "").strip() for name in MAGNETIC_COLUMNS[1:]]
+    if all(name in row for name in MAGNETIC_COLUMNS):
+        if status == "ok":
+            try:
+                parsed = tuple(float(value) for value in values)
+                if all(math.isfinite(value) for value in parsed):
+                    return status, parsed[0], parsed[1], parsed[2]
+            except ValueError:
+                pass
+        elif status in {"unavailable", "not_reported"} and not any(values):
+            return status, None, None, None
+    report.add(
+        "warning", "invalid_magnetic_data",
+        "Optional magnetic data is invalid or incomplete; raw CSV is preserved.",
+        row_number=row_number,
+        session_id=row.get("session_id") or None,
+        trial_id=row.get("trial_id") or None,
+    )
+    return "invalid", None, None, None
+
+
 def _sample_from_row(
     row: Mapping[str, str], report: ValidationReport, row_number: int
 ) -> WordSample | None:
@@ -416,6 +454,7 @@ def _sample_from_row(
         name: _parse_float(row, name, report, row_number) for name in float_names
     }
     packet_valid = _parse_bool(row, report, row_number)
+    mag_status, mx_ut, my_ut, mz_ut = _magnetic_from_row(row, report, row_number)
     if any(value is None for value in integers.values()):
         return None
     if any(value is None for value in floats.values()) or packet_valid is None:
@@ -470,6 +509,11 @@ def _sample_from_row(
         flex_pinky_raw=integers["flex_pinky_raw"],  # type: ignore[arg-type]
         raw_packet=row.get("raw_packet") or "",
         packet_valid=packet_valid,
+        mag_status=mag_status,
+        mx_ut=mx_ut,
+        my_ut=my_ut,
+        mz_ut=mz_ut,
+        calibration_profile_id=(row.get("calibration_profile_id") or "").strip() or None,
     )
 
 
@@ -479,6 +523,9 @@ def _check_manifest(
     report: ValidationReport,
 ) -> None:
     if manifest is None:
+        if any(sample.calibration_profile_id for sample in samples):
+            report.add("error", "calibration_profile_missing_manifest",
+                       "Calibration-linked rows require their manifest profile snapshot.")
         return
     if manifest.get("schema_version") != SCHEMA_VERSION:
         report.add(
@@ -501,6 +548,30 @@ def _check_manifest(
             "data_origin_missing",
             "Manifest should identify data_origin as 'real' or 'synthetic_fixture'.",
         )
+    magnetic_count = sum(sample.mag_status == "ok" for sample in samples)
+    profile_id = manifest.get("calibration_profile_id")
+    sample_profiles = {sample.calibration_profile_id for sample in samples}
+    if any(sample_profiles) or profile_id is not None:
+        snapshot = manifest.get("calibration_profile")
+        if (sample_profiles != {profile_id} or not isinstance(snapshot, dict)
+                or snapshot.get("profile_id") != profile_id
+                or snapshot.get("schema_version") != "glove-calibration-v1"
+                or manifest.get("calibration_applied_to_recorded_values") is not False):
+            report.add(
+                "error", "calibration_profile_mismatch",
+                "Recording rows must reference one matching calibration snapshot; raw values must remain unmodified.",
+            )
+    # Legacy manifests used false as a fixed placeholder. Only compare new
+    # count-bearing manifests, and only when all CSV rows could be parsed.
+    if "magnetometer_packet_count" in manifest and len(samples) == report.row_count:
+        if (
+            manifest["magnetometer_packet_count"] != magnetic_count
+            or manifest.get("magnetometer_data_present") != bool(magnetic_count)
+        ):
+            report.add(
+                "warning", "manifest_magnetic_mismatch",
+                "Manifest magnetic availability/count does not match parsed CSV rows.",
+            )
 
 
 def _summarize_trials(
@@ -757,13 +828,24 @@ def load_recordings(
 
 
 def resample_trial(
-    samples: Sequence[WordSample], *, target_rate_hz: float = DEFAULT_TARGET_RATE_HZ
+    samples: Sequence[WordSample], *, target_rate_hz: float = DEFAULT_TARGET_RATE_HZ,
+    feature_columns: Sequence[str] = FEATURE_COLUMNS,
 ) -> ResampledSequence:
     """Linearly interpolate one valid trial on its monotonic device clock."""
 
     if not math.isfinite(target_rate_hz) or target_rate_hz <= 0:
         raise ValueError("target_rate_hz must be a finite positive number")
     valid = [sample for sample in samples if sample.packet_valid]
+    if tuple(feature_columns) not in (FEATURE_COLUMNS, FEATURE_COLUMNS + ("mx_ut", "my_ut", "mz_ut")):
+        raise ValueError("unsupported raw feature order")
+    source_values = []
+    for sample in valid:
+        if len(feature_columns) == 14 and sample.mag_status != "ok":
+            raise ValueError(f"{sample.trial_id}: 14-feature preparation requires complete magnetic data; no filling is allowed")
+        values = tuple(getattr(sample, name) for name in feature_columns)
+        if any(value is None or not math.isfinite(value) for value in values):
+            raise ValueError("selected sensor features must be finite and present")
+        source_values.append(values)
     if len(valid) < 2:
         raise ValueError("at least two valid packets are required for resampling")
     first = valid[0]
@@ -791,8 +873,8 @@ def resample_trial(
         left_time = relative_source[left]
         right_time = relative_source[right]
         ratio = (timestamp - left_time) / (right_time - left_time)
-        left_values = valid[left].features
-        right_values = valid[right].features
+        left_values = source_values[left]
+        right_values = source_values[right]
         output_values.append(
             tuple(
                 left_value + ratio * (right_value - left_value)
@@ -815,17 +897,22 @@ def resample_trial(
 
 
 def fixed_window(
-    sequence: ResampledSequence, *, window_size: int
+    sequence: ResampledSequence, *, window_size: int,
+    window_policy: str = "center_trim_edge_pad",
 ) -> FixedWindowSequence:
     """Center-trim or edge-pad a resampled complete trial to ``window_size``."""
 
     if window_size < 1:
         raise ValueError("window_size must be positive")
+    if window_policy not in {"center_trim_edge_pad", "reject_overlength_edge_pad"}:
+        raise ValueError("unsupported window policy")
     values = list(sequence.values)
     if not values:
         raise ValueError("cannot window an empty sequence")
 
     trimmed = max(0, len(values) - window_size)
+    if trimmed and window_policy == "reject_overlength_edge_pad":
+        raise ValueError(f"{sequence.trial_id}: complete attempt has {len(values)} samples, exceeding window {window_size}; refusing to trim")
     padded = max(0, window_size - len(values))
     if trimmed:
         left_trim = trimmed // 2

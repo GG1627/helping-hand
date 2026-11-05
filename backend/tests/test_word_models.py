@@ -72,3 +72,22 @@ def test_model_configuration_round_trip_and_validation() -> None:
         WordModelConfig(architecture="transformer", window_samples=16, num_classes=6)
     with pytest.raises(ValueError, match="num_classes"):
         WordModelConfig(architecture="tcn", window_samples=16, num_classes=1)
+
+
+@pytest.mark.parametrize("features", [11, 14])
+def test_long_window_tcn_converts_and_runs_with_candidate_feature_layout(features, tmp_path):
+    config = WordModelConfig(architecture="tcn", window_samples=224, num_classes=3,
+                             feature_count=features, conv_filters=4, dense_units=4)
+    model = build_word_model(config, compile_model=False)
+    converted = convert_to_tflite(model, temporary_parent=tmp_path)
+    runtime = tf.lite.Interpreter(model_content=converted)
+    runtime.allocate_tensors()
+    inp, out = runtime.get_input_details()[0], runtime.get_output_details()[0]
+    assert inp['shape'].tolist() == [1, 224, features]
+    runtime.set_tensor(inp['index'], np.zeros((1, 224, features), dtype=np.float32))
+    runtime.invoke()
+    probabilities = runtime.get_tensor(out['index'])
+    assert probabilities.shape == (1, 3)
+    assert np.isfinite(probabilities).all()
+    assert np.allclose(probabilities.sum(), 1, atol=1e-5)
+    keras.backend.clear_session()

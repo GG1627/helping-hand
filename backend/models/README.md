@@ -1,5 +1,11 @@
 # Model artifacts
 
+November 5 preprocessing follow-up: training/evaluation now support explicit
+11/14-feature raw layouts and center-trim or reject-overlength windows. See
+[configurable sequence preparation](../../docs/SEQUENCE_PREPROCESSING.md) for
+preview commands, metadata, parity checks, and deployment requirements. The
+bundled 96 × 11 TCN remains unchanged; longer windows require retraining.
+
 The existing `asl_model.keras`, `asl_model.tflite`, and `scaler_params.json`
 belong to the legacy static 36-class MLP baseline. They must remain available
 and must not be overwritten by word-model experiments.

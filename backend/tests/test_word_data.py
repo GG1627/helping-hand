@@ -12,6 +12,7 @@ from backend.generate_word_sequence_fixtures import (
 )
 from backend.word_data import (
     FEATURE_COLUMNS,
+    MAGNETIC_COLUMNS,
     REQUIRED_COLUMNS,
     fixed_window,
     load_recording,
@@ -49,6 +50,80 @@ def test_generated_fixture_is_deterministic_and_valid(tmp_path: Path) -> None:
     assert recording.manifest is not None
     assert recording.manifest["data_origin"] == "synthetic_fixture"
     assert any(issue.code == "device_sequence_gap" for issue in recording.report.issues)
+
+
+def test_recording_calibration_snapshot_must_match_every_row(tmp_path: Path) -> None:
+    csv_path, manifest_path = generate_fixture_session(tmp_path / "fixture")
+    rows = _read_rows(csv_path)
+    for row in rows:
+        row["calibration_profile_id"] = "cal_1"
+    columns = REQUIRED_COLUMNS + ("calibration_profile_id",)
+    _write_rows(csv_path, rows, columns)
+    manifest = json.loads(manifest_path.read_text())
+    manifest.update(calibration_profile_id="cal_1", calibration_applied_to_recorded_values=False,
+                    calibration_profile={"schema_version": "glove-calibration-v1", "profile_id": "cal_1"})
+    manifest_path.write_text(json.dumps(manifest))
+    recording = load_recording(csv_path)
+    assert recording.report.is_valid
+    assert recording.samples[0].calibration_profile_id == "cal_1"
+    assert recording.samples[0].features[0] == float(rows[0]["flex_thumb_raw"])
+    rows[0]["calibration_profile_id"] = "cal_2"
+    _write_rows(csv_path, rows, columns)
+    recording = load_recording(csv_path)
+    assert not recording.report.is_valid
+    assert any(issue.code == "calibration_profile_mismatch" for issue in recording.report.issues)
+    manifest_path.unlink()
+    recording = load_recording(csv_path)
+    assert any(issue.code == "calibration_profile_missing_manifest" for issue in recording.report.issues)
+
+
+def test_optional_magnetics_preserve_old_features_and_missing_values(tmp_path: Path) -> None:
+    csv_path, manifest_path = generate_fixture_session(tmp_path / "fixture")
+    legacy = load_recording(csv_path)
+    assert legacy.samples[0].mag_status == "not_reported"
+    assert legacy.samples[0].mx_ut is None
+    rows = _read_rows(csv_path)
+    for row in rows:
+        row.update(mag_status="unavailable", mx_ut="", my_ut="", mz_ut="")
+    rows[0].update(mag_status="ok", mx_ut="0", my_ut="-12.5", mz_ut="31.2")
+    rows[1].update(mag_status="not_reported")
+    rows[2].update(mag_status="invalid")
+    _write_rows(csv_path, rows, REQUIRED_COLUMNS + MAGNETIC_COLUMNS)
+    manifest = json.loads(manifest_path.read_text())
+    manifest.update(magnetometer_data_present=True, magnetometer_packet_count=1)
+    manifest_path.write_text(json.dumps(manifest))
+    recording = load_recording(csv_path)
+    assert recording.report.is_valid
+    assert recording.samples[0].mx_ut == 0
+    assert recording.samples[0].my_ut == -12.5
+    assert recording.samples[0].mz_ut == 31.2
+    assert recording.samples[1].mx_ut is None
+    assert recording.samples[2].mag_status == "invalid"
+    assert [s.features for s in recording.samples] == [s.features for s in legacy.samples]
+    assert any(i.code == "invalid_magnetic_data" for i in recording.report.issues)
+    assert not any(i.code == "manifest_magnetic_mismatch" for i in recording.report.issues)
+
+
+@pytest.mark.parametrize("status,mx,my,mz", [
+    ("ok", "1", "2", ""), ("ok", "nan", "2", "3"),
+    ("ok", "inf", "2", "3"), ("unavailable", "1", "2", "3"),
+    ("unknown", "", "", ""),
+])
+def test_invalid_optional_magnetics_are_reported_without_losing_base_row(
+    tmp_path: Path, status: str, mx: str, my: str, mz: str
+) -> None:
+    csv_path, _ = generate_fixture_session(tmp_path / "fixture")
+    rows = _read_rows(csv_path)
+    for row in rows:
+        row.update(mag_status="not_reported", mx_ut="", my_ut="", mz_ut="")
+    rows[0].update(mag_status=status, mx_ut=mx, my_ut=my, mz_ut=mz)
+    _write_rows(csv_path, rows, REQUIRED_COLUMNS + MAGNETIC_COLUMNS)
+    recording = load_recording(csv_path)
+    assert recording.report.is_valid
+    assert len(recording.samples) == len(rows)
+    assert recording.samples[0].mag_status == "invalid"
+    assert recording.samples[0].mx_ut is None
+    assert any(i.code == "invalid_magnetic_data" for i in recording.report.issues)
 
 
 def test_missing_column_and_bad_numeric_are_reported(tmp_path: Path) -> None:

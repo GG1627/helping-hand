@@ -40,10 +40,24 @@ Our alpha build connected the following parts of the system:
 
 As of October 27, about two of our flex sensors were broken, they were reading as flexed when they were not. We believe this is due to age. We ordered 5
 Adafruit Short Flex Sensor #1070 replacements and an ICM-20948 nine-axis IMU
-#4554. We still need to confirm their arrival, replace the sensors, and calibrate
-the glove. Firmware support for the ICM-20948 and AK09916 magnetometer has now
-been added, while keeping the older sensor path. Magnetic data is available
-through serial diagnostics; orientation fusion and new-board testing are still
+#4554. On November 5, Gael confirmed that all required parts have arrived,
+including the replacement flex sensors, ICM-20948, and piezo elements. Sensor
+replacement, installation, and calibration remain unconfirmed. Firmware support for the ICM-20948 and AK09916 magnetometer has now
+been added, while keeping the older sensor path. The November 5 recording update
+adds optional magnetic data to BLE and CSV/JSON exports as well as serial
+diagnostics; see [the recording notes](docs/MAGNETOMETER_RECORDING.md).
+The [ICM-20948 integration reference](research/ICM20948_INTEGRATION_REFERENCE.md)
+covers wiring, calibration, fusion, current driver limitations, and recognition
+experiments for the received nine-axis board.
+Developer Mode now includes a [guided calibration workflow](docs/DEVELOPER_CALIBRATION.md)
+for measured flex ranges, stationary gyro bias, axis checks, profile export,
+and profile-linked raw recordings. Applying calibration to inference remains a
+separate reviewed model/firmware update.
+The [sequence preprocessing guide](docs/SEQUENCE_PREPROCESSING.md) documents
+longer-window and 11/14-feature candidate preparation, strict no-trim checks,
+and Python/Flutter parity. The deployed word model remains 96 × 11 until a
+replacement is trained and validated.
+Orientation fusion and new-board testing are still
 pending. The BLE word-model inputs remain the existing six motion values. We have also received ten piezo buzzers: one for each finger and five
 in an X on the back of the hand. The firmware now sets up all ten buzzer pins
 and can play a timed PWM tone on one buzzer at a time without blocking the main

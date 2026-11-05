@@ -1,22 +1,25 @@
 #include "telemetry.h"
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 // KALI ADDED A CHANGE SO SHE CAN COMMIT THIS IM GOING CRAZZZZYYY
 
 using namespace std;
 
-void formatTelemetry(char* payload, size_t capacity, uint64_t packetSequence,
+bool formatTelemetry(char* payload, size_t capacity, uint64_t packetSequence,
                      uint64_t deviceTimestampMs, uint8_t imuWhoAmI,
                      const ImuSample& sample, bool imuSampleOk,
                      const FlexReadings& flex, const char* expectedLabel,
                      const FlexPrediction& prediction,
-                     bool predictionOk) {
-  if (capacity == 0) return;
+                     bool predictionOk, const MagneticSample& magnetic,
+                     bool magneticOk) {
+  if (capacity == 0) return false;
+  int written;
   const char* predictedLabel = prediction.overall.label;
   const float predictedConfidence = prediction.overall.confidence;
   if (imuSampleOk) {
-    snprintf(
+    written = snprintf(
       payload,
       capacity,
       "seq=%llu,t_ms=%llu,who=0x%02X,ax=%.3f,ay=%.3f,az=%.3f,gx=%.3f,gy=%.3f,gz=%.3f,expected=%s,pred=%s,pred_conf=%.1f,flex0_raw=%d,flex0_norm=%.3f,flex1_raw=%d,flex1_norm=%.3f,flex2_raw=%d,flex2_norm=%.3f,flex3_raw=%d,flex3_norm=%.3f,flex4_raw=%d,flex4_norm=%.3f",
@@ -44,7 +47,7 @@ void formatTelemetry(char* payload, size_t capacity, uint64_t packetSequence,
       flex.norm[4]
     );
   } else {
-    snprintf(
+    written = snprintf(
       payload,
       capacity,
       "seq=%llu,t_ms=%llu,imu=offline,expected=%s,pred=%s,pred_conf=%.1f,flex0_raw=%d,flex0_norm=%.3f,flex1_raw=%d,flex1_norm=%.3f,flex2_raw=%d,flex2_norm=%.3f,flex3_raw=%d,flex3_norm=%.3f,flex4_raw=%d,flex4_norm=%.3f",
@@ -65,11 +68,34 @@ void formatTelemetry(char* payload, size_t capacity, uint64_t packetSequence,
       flex.norm[4]
     );
   }
-  const size_t used = strlen(payload);
-  snprintf(payload + used, capacity - used,
+  if (written < 0 || static_cast<size_t>(written) >= capacity) {
+    payload[0] = '\0';
+    return false;
+  }
+  size_t used = strlen(payload);
+  written = snprintf(payload + used, capacity - used,
            ",pred_letter=%s,pred_letter_conf=%.1f,pred_number=%s,pred_number_conf=%.1f",
            predictionOk ? prediction.letter.label : "NA",
            predictionOk ? prediction.letter.confidence : 0.0f,
            predictionOk ? prediction.number.label : "NA",
            predictionOk ? prediction.number.confidence : 0.0f);
+  if (written < 0 || static_cast<size_t>(written) >= capacity - used) {
+    payload[0] = '\0';
+    return false;
+  }
+  used = strlen(payload);
+  // A valid zero is meaningful; absent/stale/overflow data has no axes.
+  if (magneticOk && isfinite(magnetic.mxUt) && isfinite(magnetic.myUt) &&
+      isfinite(magnetic.mzUt)) {
+    written = snprintf(payload + used, capacity - used,
+                       ",mag=ok,mx=%.3f,my=%.3f,mz=%.3f",
+                       magnetic.mxUt, magnetic.myUt, magnetic.mzUt);
+  } else {
+    written = snprintf(payload + used, capacity - used, ",mag=unavailable");
+  }
+  if (written < 0 || static_cast<size_t>(written) >= capacity - used) {
+    payload[0] = '\0';
+    return false;
+  }
+  return true;
 }

@@ -2,6 +2,13 @@
 
 ## Purpose
 
+November 5 follow-up: the received Adafruit ICM-20948 and current firmware are
+covered in [the hardware integration reference](ICM20948_INTEGRATION_REFERENCE.md).
+Use that reference for electrical details, magnetic calibration/alignment,
+sampling/filter review, fusion alternatives, and the proposed recognition
+experiments. The earlier architecture recommendation below is research history;
+the deployed word demo now uses a TCN, as documented in the training record.
+
 The current Helping Hand classifier treats recognition primarily as static pose classification: flex-sensor and IMU values are passed to a TFLite MLP for 36 classes. Word-level American Sign Language recognition is a different problem. A sign is a sequence of sensor measurements, so the system must model temporal motion while remaining reliable when the glove or wrist is held at a different orientation.
 
 This document summarizes research relevant to that transition and records the current architecture recommendation. Reported results below come from different datasets, sensor configurations, and evaluation protocols; they should be used as design evidence rather than as directly comparable performance guarantees.
