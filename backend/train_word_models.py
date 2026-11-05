@@ -13,6 +13,11 @@ import json
 from pathlib import Path
 from typing import Sequence
 
+try:
+    from .sequence_preprocessing import SequencePreprocessing, FEATURE_SETS, WINDOW_POLICIES
+except ImportError:
+    from sequence_preprocessing import SequencePreprocessing, FEATURE_SETS, WINDOW_POLICIES
+
 import tensorflow as tf
 from tensorflow import keras
 
@@ -182,7 +187,13 @@ def _train_candidate(
     learning_rate: float,
     verbose: int,
     defer_test: bool = False,
+    preprocessing: SequencePreprocessing | None = None,
 ) -> dict[str, object]:
+    preprocessing = preprocessing or SequencePreprocessing(window_samples, target_rate_hz)
+    if preprocessing.window_samples != window_samples or preprocessing.target_rate_hz != target_rate_hz:
+        raise ValueError("training shape/rate does not match preprocessing")
+    if tuple(standardizer.feature_columns) != preprocessing.feature_columns:
+        raise ValueError("standardizer does not match preprocessing features")
     output_directory.mkdir(parents=True, exist_ok=False)
     arrays = {
         split: model_arrays(examples, vocabulary, standardizer)
@@ -252,6 +263,7 @@ def _train_candidate(
         "vocabulary": list(vocabulary),
         "target_rate_hz": target_rate_hz,
         "window_samples": window_samples,
+        "preprocessing": preprocessing.to_dict(),
         "feature_columns": list(standardizer.feature_columns),
         "standardizer": standardizer.to_dict(),
         "split_manifest": split_manifest.to_dict(),
@@ -308,6 +320,8 @@ def build_parser() -> argparse.ArgumentParser:
         default=list(ARCHITECTURES),
     )
     parser.add_argument("--window-samples", required=True, type=int)
+    parser.add_argument("--feature-set", choices=FEATURE_SETS, default="flex_imu6")
+    parser.add_argument("--window-policy", choices=WINDOW_POLICIES, default="center_trim_edge_pad")
     parser.add_argument("--target-rate-hz", type=float, default=DEFAULT_TARGET_RATE_HZ)
     parser.add_argument("--split-manifest", type=Path)
     parser.add_argument(
@@ -369,10 +383,13 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
     try:
+        preprocessing = SequencePreprocessing(args.window_samples, args.target_rate_hz,
+                                              args.feature_set, args.window_policy)
         examples = prepare_examples(
             recordings,
             window_samples=args.window_samples,
             target_rate_hz=args.target_rate_hz,
+            preprocessing=preprocessing,
         )
         data_origin = _origin(examples)
         if data_origin == "real" and supplied_vocabulary is None:
@@ -454,6 +471,7 @@ def main(argv: list[str] | None = None) -> int:
                     learning_rate=args.learning_rate,
                     verbose=args.verbose,
                     defer_test=args.defer_test,
+                    preprocessing=preprocessing,
                 )
             )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -470,6 +488,12 @@ def main(argv: list[str] | None = None) -> int:
         "vocabulary": list(vocabulary),
         "split_manifest": str(args.output_directory / "split_manifest.json"),
         "candidates": summaries,
+        "preprocessing": preprocessing.to_dict(),
+        "window_coverage": [
+            {"trial": item.trial_key, "resampled_samples": item.resampled_sample_count,
+             "trimmed_samples": item.trimmed_samples, "padded_samples": item.padded_samples}
+            for item in examples
+        ],
         "selection_status": "not_selected_requires_same_split_real_data_comparison",
     }
     rendered = json.dumps(summary, indent=2, sort_keys=True)

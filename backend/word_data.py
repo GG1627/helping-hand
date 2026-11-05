@@ -828,13 +828,24 @@ def load_recordings(
 
 
 def resample_trial(
-    samples: Sequence[WordSample], *, target_rate_hz: float = DEFAULT_TARGET_RATE_HZ
+    samples: Sequence[WordSample], *, target_rate_hz: float = DEFAULT_TARGET_RATE_HZ,
+    feature_columns: Sequence[str] = FEATURE_COLUMNS,
 ) -> ResampledSequence:
     """Linearly interpolate one valid trial on its monotonic device clock."""
 
     if not math.isfinite(target_rate_hz) or target_rate_hz <= 0:
         raise ValueError("target_rate_hz must be a finite positive number")
     valid = [sample for sample in samples if sample.packet_valid]
+    if tuple(feature_columns) not in (FEATURE_COLUMNS, FEATURE_COLUMNS + ("mx_ut", "my_ut", "mz_ut")):
+        raise ValueError("unsupported raw feature order")
+    source_values = []
+    for sample in valid:
+        if len(feature_columns) == 14 and sample.mag_status != "ok":
+            raise ValueError(f"{sample.trial_id}: 14-feature preparation requires complete magnetic data; no filling is allowed")
+        values = tuple(getattr(sample, name) for name in feature_columns)
+        if any(value is None or not math.isfinite(value) for value in values):
+            raise ValueError("selected sensor features must be finite and present")
+        source_values.append(values)
     if len(valid) < 2:
         raise ValueError("at least two valid packets are required for resampling")
     first = valid[0]
@@ -862,8 +873,8 @@ def resample_trial(
         left_time = relative_source[left]
         right_time = relative_source[right]
         ratio = (timestamp - left_time) / (right_time - left_time)
-        left_values = valid[left].features
-        right_values = valid[right].features
+        left_values = source_values[left]
+        right_values = source_values[right]
         output_values.append(
             tuple(
                 left_value + ratio * (right_value - left_value)
@@ -886,17 +897,22 @@ def resample_trial(
 
 
 def fixed_window(
-    sequence: ResampledSequence, *, window_size: int
+    sequence: ResampledSequence, *, window_size: int,
+    window_policy: str = "center_trim_edge_pad",
 ) -> FixedWindowSequence:
     """Center-trim or edge-pad a resampled complete trial to ``window_size``."""
 
     if window_size < 1:
         raise ValueError("window_size must be positive")
+    if window_policy not in {"center_trim_edge_pad", "reject_overlength_edge_pad"}:
+        raise ValueError("unsupported window policy")
     values = list(sequence.values)
     if not values:
         raise ValueError("cannot window an empty sequence")
 
     trimmed = max(0, len(values) - window_size)
+    if trimmed and window_policy == "reject_overlength_edge_pad":
+        raise ValueError(f"{sequence.trial_id}: complete attempt has {len(values)} samples, exceeding window {window_size}; refusing to trim")
     padded = max(0, window_size - len(values))
     if trimmed:
         left_trim = trimmed // 2

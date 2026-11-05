@@ -20,6 +20,11 @@ from typing import Iterable, Mapping, Sequence
 import numpy as np
 
 try:
+    from .sequence_preprocessing import SequencePreprocessing
+except ImportError:
+    from sequence_preprocessing import SequencePreprocessing
+
+try:
     from .word_data import (
         DEFAULT_TARGET_RATE_HZ,
         FEATURE_COLUMNS,
@@ -288,9 +293,15 @@ def prepare_examples(
     *,
     window_samples: int,
     target_rate_hz: float = DEFAULT_TARGET_RATE_HZ,
+    preprocessing: SequencePreprocessing | None = None,
 ) -> tuple[SequenceExample, ...]:
     """Convert validated recordings into fixed windows without crossing trials."""
 
+    config = preprocessing
+    if config is not None and (config.window_samples != window_samples or config.target_rate_hz != target_rate_hz):
+        raise ValueError("preprocessing must match window_samples and target_rate_hz")
+    columns = config.feature_columns if config else FEATURE_COLUMNS
+    policy = config.window_policy if config else "center_trim_edge_pad"
     if window_samples < 1:
         raise ValueError("window_samples must be positive")
     if not math.isfinite(target_rate_hz) or target_rate_hz <= 0:
@@ -313,8 +324,10 @@ def prepare_examples(
             )
         origins.add(origin)
         for samples in recording.trials().values():
-            resampled = resample_trial(samples, target_rate_hz=target_rate_hz)
-            window = fixed_window(resampled, window_size=window_samples)
+            resampled = resample_trial(samples, target_rate_hz=target_rate_hz, feature_columns=columns)
+            if config is not None:
+                config.check_capture_length(len(resampled.values))
+            window = fixed_window(resampled, window_size=window_samples, window_policy=policy)
             first = samples[0]
             trial_key = f"{first.session_id}/{first.trial_id}"
             if trial_key in seen_trials:
@@ -331,7 +344,7 @@ def prepare_examples(
                     vocabulary_version=first.vocabulary_version,
                     data_origin=origin,
                     target_rate_hz=target_rate_hz,
-                    feature_columns=tuple(FEATURE_COLUMNS),
+                    feature_columns=tuple(columns),
                     values=np.asarray(window.values, dtype=np.float32),
                     source_sample_count=len(samples),
                     valid_sample_count=sum(sample.packet_valid for sample in samples),

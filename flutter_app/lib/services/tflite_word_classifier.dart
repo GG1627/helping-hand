@@ -29,7 +29,7 @@ class TfliteWordClassifier implements WordClassifier {
       if (!listEquals(interpreter.getInputTensor(0).shape, [
             1,
             spec.windowSamples,
-            11,
+            spec.featureCount,
           ]) ||
           !listEquals(interpreter.getOutputTensor(0).shape, [
             1,
@@ -57,7 +57,11 @@ class TfliteWordClassifier implements WordClassifier {
     // Errors propagate normally and leaving the page cannot free a live pointer.
     final result = await compute(
       _inferWord,
-      _WordInferenceRequest(bytes, spec.prepare(frames)),
+      _WordInferenceRequest(
+        bytes,
+        spec.prepare(frames),
+        spec.vocabulary.length,
+      ),
     );
     return WordPrediction.fromProbabilities(
       result.probabilities,
@@ -75,9 +79,10 @@ class TfliteWordClassifier implements WordClassifier {
 }
 
 class _WordInferenceRequest {
-  const _WordInferenceRequest(this.bytes, this.input);
+  const _WordInferenceRequest(this.bytes, this.input, this.classCount);
   final Uint8List bytes;
   final List<List<double>> input;
+  final int classCount;
 }
 
 class _WordInferenceResult {
@@ -93,7 +98,7 @@ _WordInferenceResult _inferWord(_WordInferenceRequest request) {
     options: InterpreterOptions()..threads = 1,
   );
   try {
-    final output = [List<double>.filled(trainedWords.length, 0)];
+    final output = [List<double>.filled(request.classCount, 0)];
     interpreter.run([request.input], output);
     return _WordInferenceResult(
       output.single,

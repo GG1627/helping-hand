@@ -53,6 +53,10 @@ Developer Mode now includes a [guided calibration workflow](docs/DEVELOPER_CALIB
 for measured flex ranges, stationary gyro bias, axis checks, profile export,
 and profile-linked raw recordings. Applying calibration to inference remains a
 separate reviewed model/firmware update.
+The [sequence preprocessing guide](docs/SEQUENCE_PREPROCESSING.md) documents
+longer-window and 11/14-feature candidate preparation, strict no-trim checks,
+and Python/Flutter parity. The deployed word model remains 96 × 11 until a
+replacement is trained and validated.
 Orientation fusion and new-board testing are still
 pending. The BLE word-model inputs remain the existing six motion values. We have also received ten piezo buzzers: one for each finger and five
 in an X on the back of the hand. The firmware now sets up all ten buzzer pins
