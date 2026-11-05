@@ -65,6 +65,60 @@ void main() {
     expect(manifest['magnetometer_data_present'], isFalse);
   });
 
+  test('exports mixed magnetic availability without inventing axes', () async {
+    expect(
+      service.startTrial(
+        const TrialMetadata(
+          word: 'hello',
+          vocabularyVersion: 'words-draft',
+          signerId: 'signer_01',
+          orientationCondition: 'neutral',
+          trialId: 'mag_trial',
+        ),
+        isConnected: true,
+        hasFreshValidPacket: true,
+      ),
+      isNull,
+    );
+    const extensions = [
+      '',
+      ',mag=unavailable',
+      ',mag=ok,mx=0,my=-12.5,mz=31.2',
+      ',mag=ok,mx=NaN,my=2,mz=3',
+    ];
+    for (var index = 0; index < extensions.length; index++) {
+      final packet = _packet(index);
+      service.handlePacket(
+        BlePacket.parse(
+          '${packet.raw}${extensions[index]}',
+          receivedAt: packet.receivedAt,
+        ),
+      );
+    }
+    service.stopTrial();
+    expect(await service.saveTrial(), isNull);
+    final files = service.lastSavedFiles!;
+    final lines = await files.csv.readAsLines();
+    expect(lines[1], endsWith(',not_reported,,,'));
+    expect(lines[2], endsWith(',unavailable,,,'));
+    expect(
+      lines[3],
+      contains(',ok,0.00000000000,-12.5000000000,31.2000000000'),
+    );
+    expect(lines[4], endsWith(',invalid,,,'));
+    expect(lines[4], contains('mx=NaN'));
+    final manifest = jsonDecode(await files.manifest.readAsString());
+    expect(manifest['magnetometer_data_present'], isTrue);
+    expect(manifest['magnetometer_packet_count'], 1);
+    expect(manifest['magnetometer_status_counts'], {
+      'ok': 1,
+      'unavailable': 1,
+      'not_reported': 1,
+      'invalid': 1,
+    });
+    expect(manifest['magnetometer_calibrated'], isFalse);
+  });
+
   test(
     'rejects disconnected, invalid metadata, and duplicate saved trials',
     () async {

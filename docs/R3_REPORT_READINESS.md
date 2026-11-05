@@ -1,6 +1,13 @@
 # R3 preliminary report: evidence and research readiness
 
 Assessment date: October 27, 2026; hardware status updated October 28.
+
+**November 5 follow-up:** Gael confirmed that all required parts have arrived,
+including replacement flex sensors, the ICM-20948, and piezo elements. The
+October report evidence below retains its original cutoff. Waiting for delivery
+is no longer the current blocker; replacement/installation, calibration, and
+fresh physical validation remain unconfirmed. Subsequent M5 firmware adds IMU
+and piezo control support; see `../M5_Work_Outline.md` for its verification limits.
 Repository snapshot originally inspected: `7e75a4c`.
 Assignment: [R3: Preliminary Report](../R3-Preliminary-Report.md).
 External references: [R3 source notes](../research/R3_REPORT_SOURCE_NOTES.md).

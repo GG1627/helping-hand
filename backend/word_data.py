@@ -62,6 +62,7 @@ REQUIRED_COLUMNS = (
     "raw_packet",
     "packet_valid",
 )
+MAGNETIC_COLUMNS = ("mag_status", "mx_ut", "my_ut", "mz_ut")
 
 _WORD_RE = re.compile(r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$")
 _ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
@@ -110,6 +111,10 @@ class WordSample:
     flex_pinky_raw: int
     raw_packet: str
     packet_valid: bool
+    mag_status: str = "not_reported"
+    mx_ut: float | None = None
+    my_ut: float | None = None
+    mz_ut: float | None = None
 
     @property
     def features(self) -> tuple[float, ...]:
@@ -394,6 +399,38 @@ def _validate_text_fields(
         )
 
 
+def _magnetic_from_row(
+    row: Mapping[str, str], report: ValidationReport, row_number: int
+) -> tuple[str, float | None, float | None, float | None]:
+    """Preserve optional raw compass values without changing model features.
+
+    Magnetic faults are warnings: a valid flex/accel/gyro row remains usable by
+    the deployed 11-feature model. Never fill missing compass readings with zero.
+    """
+    if not any(name in row for name in MAGNETIC_COLUMNS):
+        return "not_reported", None, None, None
+    status = (row.get("mag_status") or "").strip()
+    values = [(row.get(name) or "").strip() for name in MAGNETIC_COLUMNS[1:]]
+    if all(name in row for name in MAGNETIC_COLUMNS):
+        if status == "ok":
+            try:
+                parsed = tuple(float(value) for value in values)
+                if all(math.isfinite(value) for value in parsed):
+                    return status, parsed[0], parsed[1], parsed[2]
+            except ValueError:
+                pass
+        elif status in {"unavailable", "not_reported"} and not any(values):
+            return status, None, None, None
+    report.add(
+        "warning", "invalid_magnetic_data",
+        "Optional magnetic data is invalid or incomplete; raw CSV is preserved.",
+        row_number=row_number,
+        session_id=row.get("session_id") or None,
+        trial_id=row.get("trial_id") or None,
+    )
+    return "invalid", None, None, None
+
+
 def _sample_from_row(
     row: Mapping[str, str], report: ValidationReport, row_number: int
 ) -> WordSample | None:
@@ -416,6 +453,7 @@ def _sample_from_row(
         name: _parse_float(row, name, report, row_number) for name in float_names
     }
     packet_valid = _parse_bool(row, report, row_number)
+    mag_status, mx_ut, my_ut, mz_ut = _magnetic_from_row(row, report, row_number)
     if any(value is None for value in integers.values()):
         return None
     if any(value is None for value in floats.values()) or packet_valid is None:
@@ -470,6 +508,10 @@ def _sample_from_row(
         flex_pinky_raw=integers["flex_pinky_raw"],  # type: ignore[arg-type]
         raw_packet=row.get("raw_packet") or "",
         packet_valid=packet_valid,
+        mag_status=mag_status,
+        mx_ut=mx_ut,
+        my_ut=my_ut,
+        mz_ut=mz_ut,
     )
 
 
@@ -501,6 +543,18 @@ def _check_manifest(
             "data_origin_missing",
             "Manifest should identify data_origin as 'real' or 'synthetic_fixture'.",
         )
+    magnetic_count = sum(sample.mag_status == "ok" for sample in samples)
+    # Legacy manifests used false as a fixed placeholder. Only compare new
+    # count-bearing manifests, and only when all CSV rows could be parsed.
+    if "magnetometer_packet_count" in manifest and len(samples) == report.row_count:
+        if (
+            manifest["magnetometer_packet_count"] != magnetic_count
+            or manifest.get("magnetometer_data_present") != bool(magnetic_count)
+        ):
+            report.add(
+                "warning", "manifest_magnetic_mismatch",
+                "Manifest magnetic availability/count does not match parsed CSV rows.",
+            )
 
 
 def _summarize_trials(

@@ -8,6 +8,11 @@
 
 **Repository Snapshot:** October 28, 2026; RC Commit [`ff6a9ab`](https://github.com/GG1627/helping-hand/commit/ff6a9ab763f12f60e3a327d0df4f00a8784894b8)
 
+**November 5 follow-up:** Gael confirmed that all required parts have arrived,
+including replacement flex sensors, the ICM-20948, and piezo elements. The
+October 28 snapshot below is historical; installation, calibration, and new
+physical test results have not yet been confirmed.
+
 ### Work Completed
 
 - **Nine-axis IMU design and firmware:** We changed our planned IMU from the

@@ -38,6 +38,11 @@ const List<String> wordRecordingCsvColumns = [
   'flex_pinky_raw',
   'raw_packet',
   'packet_valid',
+  // Optional additive v1 extension; the original columns retain their order.
+  'mag_status',
+  'mx_ut',
+  'my_ut',
+  'mz_ut',
 ];
 
 enum TrialRecordingState { idle, recording, review }
@@ -107,6 +112,10 @@ class RecordedPacketRow {
     packet.flexRaw[4],
     packet.raw,
     isAcceptedPacket,
+    packet.magneticStatus,
+    packet.mx,
+    packet.my,
+    packet.mz,
   ];
 
   bool get isAcceptedPacket => metadata.vocabularyVersion == 'static-asl-v1'
@@ -480,7 +489,21 @@ class RecordingService extends ChangeNotifier {
           .where((row) => row.isAcceptedPacket)
           .length,
       'raw_packets_preserved': true,
-      'magnetometer_data_present': false,
+      'magnetometer_data_present': _acceptedRows.any(
+        (row) => row.packet.hasMagneticData,
+      ),
+      'magnetometer_packet_count': _acceptedRows
+          .where((row) => row.packet.hasMagneticData)
+          .length,
+      'magnetometer_status_counts': {
+        for (final status in ['ok', 'unavailable', 'not_reported', 'invalid'])
+          status: _acceptedRows
+              .where((row) => row.packet.magneticStatus == status)
+              .length,
+      },
+      'magnetometer_units': 'uT',
+      'magnetometer_frame': 'sensor_native',
+      'magnetometer_calibrated': false,
     };
     await manifest.writeAsString(
       '${const JsonEncoder.withIndent('  ').convert(manifestValue)}\n',

@@ -50,6 +50,27 @@ Malformed notifications are retained with `raw_packet`, `packet_valid=false`,
 and blank unavailable parsed fields. The validator reports those blanks as
 quality errors rather than silently inventing values.
 
+### Optional magnetic recording extension (November 5, 2026)
+
+New exports append `mag_status`, `mx_ut`, `my_ut`, and `mz_ut` after the original
+v1 columns. The required columns, schema version, and deployed 11-feature input
+order remain unchanged. Older exports with none of these columns still load.
+
+`mag_status` is `ok`, `unavailable`, `not_reported` (legacy firmware), or
+`invalid`. Only `ok` has three finite magnetic readings, in microteslas, in the
+AK09916's native sensor axes. Missing or invalid vectors remain blank, never
+zero-filled or carried forward from an earlier sample. A measured zero is valid.
+The values are not calibrated, fused orientation, or aligned to glove axes.
+Malformed optional magnetic data produces a backend warning without removing a
+valid flex/accel/gyro sample. Exact evidence remains in the CSV and `raw_packet`.
+
+New manifests derive `magnetometer_data_present`, `magnetometer_packet_count`,
+and `magnetometer_status_counts` from the saved rows, and identify units, frame,
+and calibration state. These describe observed sample availability, not proof
+that every sample or every trial contains magnetic data. The backend preserves
+magnetic values on `WordSample`; sequence preprocessing still uses the existing
+11 fields. Training with magnetic/orientation features is a later stage.
+
 Firmware also preserves the legacy `expected`, `pred`, `pred_conf`, and
 normalized flex fields in the BLE packet so the static classifier remains
 usable. Those derived/static diagnostic values are preserved inside

@@ -30,6 +30,19 @@ void main() {
           .map((raw) => WordFrame.fromPacket(BlePacket.parse(raw)))
           .toList();
       final actual = spec.prepare(frames);
+      // New magnetic fields must not change the deployed model's tensor.
+      for (final extension in [
+        ',mag=ok,mx=0,my=-12.5,mz=31.2',
+        ',mag=unavailable',
+        ',mag=ok,mx=NaN,my=2,mz=3',
+      ]) {
+        final extended = packets
+            .map(
+              (raw) => WordFrame.fromPacket(BlePacket.parse('$raw$extension')),
+            )
+            .toList();
+        expect(spec.prepare(extended), equals(actual));
+      }
       final expected = trial['expected_input'] as List;
       expect(actual.length, 96);
       for (var t = 0; t < 96; t++) {
