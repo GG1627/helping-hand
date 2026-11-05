@@ -7,6 +7,7 @@
 #include "flex_sensors.h"
 #include "imu_sensor.h"
 #include "telemetry.h"
+#include "piezo.h"
 using namespace std;
 
 namespace {
@@ -15,6 +16,7 @@ uint64_t sensorSequence = 0;
 }
 
 void setup() {
+  setupPiezos();
   Serial.begin(115200);
   while (!Serial) delay(10);
   delay(500);
@@ -51,6 +53,7 @@ void setup() {
 }
 
 void loop() {
+  updatePiezos();
   updateImu();
 
   const uint32_t nowUs = micros();
@@ -71,6 +74,8 @@ void loop() {
 
   ImuSample sample{};
   const bool imuSampleOk = readImuSample(sample);
+  MagneticSample magnetic{};
+  const bool magneticOk = readMagneticSample(magnetic);
 
   char payload[kTelemetryCapacity];
   formatTelemetry(payload, sizeof(payload), packetSequence, deviceTimestampMs,
@@ -84,4 +89,9 @@ void loop() {
     flexModelInput(4, flex.raw[4])
   );
   sendBlePayload(payload);
+  // Diagnostic only: preserve the existing BLE/model six-motion-feature contract.
+  if (magneticOk) {
+    Serial.printf("mag_uT,mx=%.3f,my=%.3f,mz=%.3f\n",
+                  magnetic.mxUt, magnetic.myUt, magnetic.mzUt);
+  }
 }
