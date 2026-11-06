@@ -8,6 +8,7 @@
 #include "imu_sensor.h"
 #include "telemetry.h"
 #include "piezo.h"
+#include "serial_startup.h"
 using namespace std;
 
 namespace {
@@ -18,7 +19,7 @@ uint64_t sensorSequence = 0;
 void setup() {
   setupPiezos();
   Serial.begin(115200);
-  while (!Serial) delay(10);
+  waitForSerialStartup(kSerialStartupWaitMs);
   delay(500);
 
   Serial.println("\n=== HelpingHand IMU + BLE Runtime ===");

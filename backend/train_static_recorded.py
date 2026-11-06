@@ -18,7 +18,12 @@ from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 
-from word_models import convert_to_tflite
+try:
+    from .word_models import convert_to_tflite
+    from .training_augmentation import AugmentationConfig, TrainingTrial, augment_training_trials
+except ImportError:
+    from word_models import convert_to_tflite
+    from training_augmentation import AugmentationConfig, TrainingTrial, augment_training_trials
 
 ROOT = Path(__file__).resolve().parents[1]
 FEATURES = [f"flex_{finger}_raw" for finger in ("thumb", "index", "middle", "ring", "pinky")]
@@ -102,7 +107,16 @@ def main() -> None:
     parser.add_argument("--priority-labels", nargs="*", default=[])
     parser.add_argument("--priority-weight", type=float, default=1.0)
     parser.add_argument("--replace-priority-with-latest-source", action="store_true")
+    parser.add_argument("--augmentation-config", type=Path,
+                        help="Optional bounded training-only raw flex perturbations")
+    parser.add_argument("--manifests", type=Path, nargs="+",
+                        help="Optional manifest paths, one per source CSV")
+    parser.add_argument("--allow-synthetic-smoke", action="store_true",
+                        help="Permit explicitly labeled fixtures; metrics remain non-reportable")
+    parser.add_argument("--split-manifest", type=Path, help="Reuse frozen whole-trial assignments")
+    parser.add_argument("--defer-test", action="store_true", help="Do not infer or report test trials during candidate tuning")
     args = parser.parse_args()
+    augmentation = AugmentationConfig.read(args.augmentation_config)
     faulthandler.dump_traceback_later(90, repeat=True)
     if args.output_directory.exists():
         raise ValueError("Use a new output directory to preserve previous runs")
@@ -115,8 +129,17 @@ def main() -> None:
     tf.config.threading.set_intra_op_parallelism_threads(2)
     tf.keras.utils.set_random_seed(args.seed)
     config = firmware_calibration(ROOT / "ESP32/include/firmware_config.h")
-    sources, frames = [], []
+    sources, frames, origins = [], [], set()
+    if args.manifests is not None and len(args.manifests) != len(args.csv):
+        raise ValueError("Provide one manifest per source CSV")
     for source_index, path in enumerate(args.csv):
+        suffix = path.stem[len('trials'):] if path.stem.startswith('trials') else ''
+        manifest_path = args.manifests[source_index] if args.manifests is not None else path.with_name(f'manifest{suffix}.json')
+        manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+        origin = manifest.get('data_origin')
+        if origin not in {'real', 'synthetic_fixture'}:
+            raise ValueError('Every static source needs a manifest declaring real or synthetic_fixture origin')
+        origins.add(origin)
         frame = pd.read_csv(path)
         required = set(FEATURES + ["session_id", "trial_id", "word", "sample_index", "packet_valid", "vocabulary_version"])
         if not required.issubset(frame.columns):
@@ -131,9 +154,18 @@ def main() -> None:
         values = frame[FEATURES].to_numpy(dtype=np.float32)
         if not np.isfinite(values).all() or (values < 0).any() or (values > 4095).any():
             raise ValueError("Invalid raw ADC readings")
-        sources.append({"path": path.as_posix(), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "frames": len(frame)})
+        sources.append({"path": path.as_posix(), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "frames": len(frame),
+                        "manifest": manifest_path.as_posix(), "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+                        "data_origin": origin})
         frame["source_index"] = source_index
         frames.append(frame)
+    if len(origins) != 1:
+        raise ValueError('Real recordings and synthetic fixtures must not be mixed')
+    data_origin = next(iter(origins))
+    if data_origin == 'synthetic_fixture' and not args.allow_synthetic_smoke:
+        raise ValueError('Synthetic fixtures require --allow-synthetic-smoke')
+    if data_origin == 'synthetic_fixture' and args.export_header is not None:
+        raise ValueError('Fixture smoke models must not be exported as firmware headers')
     data = pd.concat(frames, ignore_index=True)
     if data.duplicated(["session_id", "trial_id", "sample_index"]).any():
         raise ValueError("Duplicate frames or repeated source recordings")
@@ -167,7 +199,22 @@ def main() -> None:
         for index, group in enumerate(groups):
             split = ("test" if index == 0 else "validation" if index == 1 else "train") if len(groups) >= 3 else "train"
             assignments[group] = split
+    if args.split_manifest is not None:
+        frozen = json.loads(args.split_manifest.read_text(encoding='utf-8'))
+        supplied = frozen.get('assignments')
+        if (not isinstance(supplied, dict) or set(supplied) != set(data.group.unique())
+                or not set(supplied.values()).issubset({'train', 'validation', 'test'})):
+            raise ValueError('Frozen split must assign every selected trial exactly once')
+        frozen_sources = frozen.get('sources')
+        if (not isinstance(frozen_sources, list)
+                or not all(isinstance(source, dict) and isinstance(source.get('sha256'), str)
+                           for source in frozen_sources)
+                or sorted(source['sha256'] for source in frozen_sources) != sorted(source['sha256'] for source in sources)):
+            raise ValueError('Frozen split source CSV hashes must match this run')
+        assignments = supplied
     data["split"] = data.group.map(assignments)
+    if set(data.loc[data.split.eq('train'), 'label']) != set(labels):
+        raise ValueError('Every class must have original training trials')
     x = calibrate(data[FEATURES].to_numpy(), config)
     y = np.array([labels.index(label) for label in data.label], dtype=np.int32)
     masks = {split: data.split.eq(split).to_numpy() for split in ("train", "validation", "test")}
@@ -184,6 +231,26 @@ def main() -> None:
     scaler = StandardScaler().fit(x[masks["train"]], sample_weight=weights)
     mean, scale = scaler.mean_.astype(np.float32), scaler.scale_.astype(np.float32)
     z = ((x - mean) / scale).astype(np.float32)
+    # Fit calibration/scaler and assign whole trials before augmentation.
+    train_x, train_y, train_weights = z[masks['train']], y[masks['train']], weights
+    augmentation_manifest = {"config": augmentation.to_dict(), "enabled": False,
+                             "validation_or_test_augmented": False, "scaler_fit": "original_training_only"}
+    if augmentation.copies_per_trial:
+        parent_groups = sorted(train.group.unique())
+        raw_trials = [TrainingTrial(group, str(train.loc[train.group.eq(group), 'label'].iloc[0]),
+                                   train.loc[train.group.eq(group), FEATURES].to_numpy(dtype=np.float32))
+                      for group in parent_groups]
+        descendants, augmentation_manifest = augment_training_trials(
+            raw_trials, feature_columns=FEATURES, split_assignments=assignments,
+            config=augmentation, data_origin=data_origin)
+        weighted = train.copy()
+        weighted['training_weight'] = weights
+        parent_weights = {group: weighted.loc[weighted.group.eq(group), 'training_weight'].to_numpy(dtype=np.float32)
+                          for group in parent_groups}
+        raw_augmented = np.concatenate([item.values for item in descendants])
+        train_x = ((calibrate(raw_augmented, config) - mean) / scale).astype(np.float32)
+        train_y = np.concatenate([np.full(len(item.values), labels.index(item.label), dtype=np.int32) for item in descendants])
+        train_weights = np.concatenate([parent_weights[item.parent_key] * item.weight_multiplier for item in descendants])
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(5,)),
         tf.keras.layers.Dense(128, activation="relu"), tf.keras.layers.Dropout(0.3),
@@ -192,14 +259,14 @@ def main() -> None:
     ])
     model.compile(optimizer="adam", loss="sparse_categorical_crossentropy")
     best_loss, best_weights, stale, history = float("inf"), None, 0, []
-    train_indices = np.flatnonzero(masks["train"])
+    train_indices = np.arange(len(train_y))
     validation_indices = np.flatnonzero(masks["validation"])
     for epoch in range(args.epochs):
         order = rng.permutation(len(train_indices))
         model.reset_metrics()
         for offset in range(0, len(order), 32):
             batch = order[offset:offset + 32]
-            model.train_on_batch(z[train_indices[batch]], y[train_indices[batch]], sample_weight=weights[batch])
+            model.train_on_batch(train_x[train_indices[batch]], train_y[train_indices[batch]], sample_weight=train_weights[batch])
         probability = model(z[validation_indices], training=False).numpy()
         val_loss = float(np.mean(-np.log(np.clip(probability[np.arange(len(probability)), y[validation_indices]], 1e-7, 1))))
         history.append({"epoch": epoch + 1, "validation_loss": val_loss})
@@ -226,19 +293,23 @@ def main() -> None:
         raise ValueError("Unexpected TFLite input/output shape")
     if input_info["dtype"] != np.float32 or output_info["dtype"] != np.float32:
         raise ValueError("This deployment requires float32 TFLite tensors")
+    evaluated_indices = np.flatnonzero(~masks['test']) if args.defer_test else np.arange(len(z))
     tflite_probabilities = []
-    for sample in z:
+    for sample in z[evaluated_indices]:
         interpreter.set_tensor(input_info["index"], sample[None, :])
         interpreter.invoke()
         tflite_probabilities.append(interpreter.get_tensor(output_info["index"])[0])
-    probabilities = np.array(tflite_probabilities)
-    keras_probabilities = model(z, training=False).numpy()
-    error = float(np.max(np.abs(probabilities - keras_probabilities)))
+    probabilities = np.full((len(z), len(labels)), np.nan, dtype=np.float32)
+    probabilities[evaluated_indices] = np.array(tflite_probabilities)
+    keras_probabilities = model(z[evaluated_indices], training=False).numpy()
+    error = float(np.max(np.abs(probabilities[evaluated_indices] - keras_probabilities)))
     if error > 1e-4:
         raise ValueError(f"Keras/TFLite parity failed: {error}")
     predictions = probabilities.argmax(axis=1)
     evaluations = {}
     for split, mask in masks.items():
+        if args.defer_test and split == 'test':
+            continue
         indices = np.flatnonzero(mask)
         subset = data.loc[mask]
         trial_results = []
@@ -258,12 +329,21 @@ def main() -> None:
             "trial_results": trial_results,
         }
     metadata = {
-        "schema_version": "static-recorded-mlp-v1", "data_origin": "real", "classes": labels,
+        "schema_version": "static-recorded-mlp-v1", "data_origin": data_origin, "classes": labels,
+        "accuracy_reporting_allowed": data_origin == 'real',
+        "synthetic_fixture_smoke_only": data_origin == 'synthetic_fixture',
         "tensorflow_version": tf.__version__, "keras_version": tf.keras.__version__,
         "feature_cols": FEATURES, "mean": mean.tolist(), "scale": scale.tolist(), "calibration": config,
         "sources": sources, "excluded_frames": excluded, "trials_per_class": counts, "seed": args.seed,
         "priority_labels": sorted(priority), "priority_weight": args.priority_weight,
-        "split_strategy": "whole session/trial groups; seed-shuffled per class; one validation and one test trial when >=3 trials, otherwise train-only",
+        "test_evaluation_status": 'deferred_until_model_selection' if args.defer_test else 'evaluated',
+        "supplied_split_manifest": str(args.split_manifest) if args.split_manifest else None,
+        "supplied_split_manifest_sha256": hashlib.sha256(args.split_manifest.read_bytes()).hexdigest() if args.split_manifest else None,
+        "augmentation": {"config": augmentation.to_dict(), "original_training_frames": int(masks['train'].sum()),
+                         "original_training_trials": int(train.group.nunique()),
+                         "training_frames_including_descendants": len(train_y), "manifest": "augmentation_manifest.json"},
+        "split_strategy": ("frozen whole session/trial assignments with matching source CSV hashes" if args.split_manifest else
+                           "whole session/trial groups; seed-shuffled per class; one validation and one test trial when >=3 trials, otherwise train-only"),
         "evaluation_scope": "trial-held-out within collected sessions; not independently verified signer or session generalization",
         "architecture": "5 -> Dense(128,relu) -> Dropout(.3) -> Dense(64,relu) -> Dropout(.2) -> Dense(classes,softmax)",
         "training_weighting": "equal total weight per training trial within class; class totals multiplied by explicit priority weight",
@@ -275,12 +355,15 @@ def main() -> None:
         "limitations": ["Small team dataset", "Correlated frames within trials", "No rest/unknown class; model always selects a supported class", "Calibrated channels clamp at the measured bent/straight endpoints recorded in calibration metadata", "Recorded signer IDs are metadata, not verified independent people"],
     }
     save_json(args.output_directory / "metadata.json", metadata)
+    save_json(args.output_directory / "augmentation_manifest.json", augmentation_manifest)
     save_json(args.output_directory / "split_manifest.json", {"assignments": assignments, "sources": sources})
     save_json(args.output_directory / "history.json", history)
     if args.export_header:
         write_header(args.export_header, model_bytes, labels, mean, scale, config)
     faulthandler.cancel_dump_traceback_later()
-    print(json.dumps({"classes": labels, "trials_per_class": counts, "epochs": len(history),
+    print(json.dumps({"data_origin": data_origin, "accuracy_reporting_allowed": data_origin == 'real',
+                      "result_scope": 'synthetic_fixture_software_smoke_only' if data_origin == 'synthetic_fixture' else 'real_recording_evaluation',
+                      "classes": labels, "trials_per_class": counts, "epochs": len(history),
                       "tflite_size_bytes": len(model_bytes), "parity_error": error,
                       "evaluation": {name: {key: value for key, value in result.items()
                                              if key not in {"frame_confusion_matrix", "trial_results"}}

@@ -4,6 +4,8 @@
 
 constexpr int I2C_SDA_PIN = SDA;
 constexpr int I2C_SCL_PIN = SCL;
+// Optional USB monitor grace period. Sensor/BLE setup must also run on battery.
+constexpr uint32_t kSerialStartupWaitMs = 1500;
 constexpr size_t FLEX_SENSOR_COUNT = 5;
 constexpr int FLEX_SENSOR_PINS[FLEX_SENSOR_COUNT] = {A0, A1, A2, A3, A4};
 // pcb/pcb.kicad_sch: thumb/index/middle/ring/pinky, then dorsal
