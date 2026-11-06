@@ -11,6 +11,11 @@ import json
 from pathlib import Path
 from typing import Sequence
 
+try:
+    from .sequence_preprocessing import SequencePreprocessing
+except ImportError:
+    from sequence_preprocessing import SequencePreprocessing
+
 import numpy as np
 from sklearn.metrics import confusion_matrix, f1_score
 
@@ -190,6 +195,7 @@ def main(argv: list[str] | None = None) -> int:
         target_rate_hz = float(metadata["target_rate_hz"])
         window_samples = int(metadata["window_samples"])
         standardizer = SequenceStandardizer.from_dict(metadata["standardizer"])
+        preprocessing = SequencePreprocessing.from_metadata(metadata)
         split_manifest = SplitManifest.from_dict(metadata["split_manifest"])
     except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
         print(f"Model metadata error: {exc}")
@@ -201,6 +207,7 @@ def main(argv: list[str] | None = None) -> int:
             recordings,
             window_samples=window_samples,
             target_rate_hz=target_rate_hz,
+            preprocessing=preprocessing,
         )
         origins = {example.data_origin for example in examples}
         if len(origins) != 1:

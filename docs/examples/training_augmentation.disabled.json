@@ -1,0 +1,8 @@
+{
+  "schema_version": "training-augmentation-v1",
+  "copies_per_trial": 0,
+  "seed": 7,
+  "noise_bounds": {},
+  "offset_bounds": {},
+  "measurement_reference": ""
+}

@@ -6,6 +6,17 @@
 **Due:** October 28, 2026  
 **Last updated:** October 28, 2026
 
+**November 5 hardware follow-up:** Gael confirmed that all required parts have
+arrived, including the replacement flex sensors, ICM-20948, and piezo elements.
+Installation, calibration, and physical validation remain unconfirmed.
+The subsequent [magnetic recording update](docs/MAGNETOMETER_RECORDING.md)
+extends BLE and CSV/JSON export; the October snapshot below predates that change.
+
+**November 6 follow-up:** The optional USB Serial wait is now bounded in source;
+see [startup and demo evaluation tools](docs/DEMO_READINESS_TOOLS.md). Physical
+battery-only startup remains Not run. The known-bug list below retains the
+historical release-candidate snapshot.
+
 Helping Hand is an American Sign Language (ASL) learning glove we are developing
 for CEN4908C, Computer Engineering Senior Design. The glove measures finger bend
 and wrist motion. An ESP32 processes the sensor readings and sends them over
@@ -40,8 +51,8 @@ Our alpha build connected the following parts of the system:
 
 As of October 27, about two of our flex sensors were broken, they were reading as flexed when they were not. We believe this is due to age. We ordered 5
 Adafruit Short Flex Sensor #1070 replacements and an ICM-20948 nine-axis IMU
-#4554. We still need to confirm their arrival, replace the sensors, and calibrate
-the glove. Firmware support for the ICM-20948 and AK09916 magnetometer has now
+#4554. All required parts are now received, confirmed November 5; sensor
+replacement and glove calibration remain unconfirmed. Firmware support for the ICM-20948 and AK09916 magnetometer has now
 been added, while keeping the older sensor path. Magnetic data is available
 through serial diagnostics; orientation fusion and new-board testing are still
 pending. The BLE word-model inputs remain the existing six motion values. We have also received ten piezo buzzers: one for each finger and five

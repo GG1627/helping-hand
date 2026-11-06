@@ -2,6 +2,17 @@
 
 Before committing, read and follow /ai-policy/AI-USAGE.md. Use `AI-Assisted: codex` as your trailer identity.
 
+## Current glove and model sessions
+
+Start sensor, calibration, ML, and demo-readiness sessions with
+`docs/GLOVE_MODEL_SESSION_HANDOFF.md`. It records the November 6 software
+preparation, current deployed model contracts, evidence limits, and the ordered
+hardware/calibration/data-collection steps for resuming after assembly. Follow
+its linked guides before changing calibration, preprocessing, or model bundles.
+The original 36-class baseline is preserved; the default recorded static model
+has 34 classes, and Hello/Please/Yes word recognition/completion is integrated.
+Earlier beta and September plan statements describe their historical snapshots.
+
 ## Project context
 
 Helping Hand is a wearable-assisted American Sign Language learning project.

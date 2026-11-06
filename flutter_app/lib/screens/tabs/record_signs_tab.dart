@@ -135,6 +135,13 @@ class _RecordSignsTabState extends State<RecordSignsTab> {
           '${widget.bleService.observedSampleRateHz.toStringAsFixed(1)} Hz',
           style: Theme.of(context).textTheme.labelSmall,
         ),
+        const SizedBox(height: 6),
+        Text(
+          widget.recordingService.calibrationProfileId == null
+              ? 'Calibration: no profile attached; raw recording.'
+              : 'Calibration profile: ${widget.recordingService.calibrationProfileId}',
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
       ],
     ),
   );
@@ -201,8 +208,8 @@ class _RecordSignsTabState extends State<RecordSignsTab> {
             controller: _vocabularyController,
             enabled: !disabled && widget.recordingService.sessionId == null,
             decoration: const InputDecoration(
-                  labelText: 'Vocabulary version',
-                  helperMaxLines: 2,
+              labelText: 'Vocabulary version',
+              helperMaxLines: 2,
               helperText:
                   'Use words-draft for pilots; words-v1 after team approval.',
             ),

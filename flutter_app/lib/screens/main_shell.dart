@@ -9,6 +9,8 @@ import '../services/firebase_progress_remote_store.dart';
 import '../services/json_progress_local_store.dart';
 import '../services/progress_repository.dart';
 import '../services/recording_service.dart';
+import '../services/calibration_service.dart';
+import 'calibration_screen.dart';
 import '../services/stable_prediction_tracker.dart';
 import '../theme/helping_hand_theme.dart';
 import '../widgets/stable_prediction_practice_card.dart';
@@ -46,6 +48,7 @@ class _MainShellState extends State<MainShell> {
   bool _developerMode = false;
   late final BleConnectionService _bleService;
   late final RecordingService _recordingService;
+  late final CalibrationService _calibrationService;
   late final ProgressRepository _progressRepository;
   late final bool _ownsProgressRepository;
   late ProgressRepositoryState _progressState;
@@ -64,7 +67,12 @@ class _MainShellState extends State<MainShell> {
   void initState() {
     super.initState();
     _bleService = BleConnectionService();
-    _recordingService = RecordingService();
+    _calibrationService = CalibrationService();
+    _recordingService = RecordingService(
+      calibrationProfileProvider: () => _calibrationService.activeProfile,
+      calibrationReady: () => _calibrationService.initialized,
+    );
+    unawaited(_calibrationService.initialize());
     _ownsProgressRepository = widget.progressRepository == null;
     _progressRepository =
         widget.progressRepository ??
@@ -90,6 +98,7 @@ class _MainShellState extends State<MainShell> {
     unawaited(_progressSubscription?.cancel());
     if (_ownsProgressRepository) _progressRepository.dispose();
     _recordingService.dispose();
+    _calibrationService.dispose();
     _bleService.dispose();
     _practiceRevision.dispose();
     super.dispose();
@@ -262,6 +271,22 @@ class _MainShellState extends State<MainShell> {
         ),
         BleTestingTab(bleService: _bleService),
         DeveloperToolsTab(
+          onOpenCalibration: () {
+            setState(() {
+              _selectedPracticeTarget = null;
+              _predictionResult = const StablePredictionResult.idle();
+            });
+            _practiceRevision.value++;
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => CalibrationScreen(
+                  bleService: _bleService,
+                  calibration: _calibrationService,
+                  recording: _recordingService,
+                ),
+              ),
+            );
+          },
           onOpenRecordSigns: () => setState(() => tabIndex = 4),
           onOpenBleTesting: () => setState(() => tabIndex = 5),
         ),

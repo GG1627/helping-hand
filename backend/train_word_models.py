@@ -13,8 +13,19 @@ import json
 from pathlib import Path
 from typing import Sequence
 
+try:
+    from .sequence_preprocessing import SequencePreprocessing, FEATURE_SETS, WINDOW_POLICIES
+except ImportError:
+    from sequence_preprocessing import SequencePreprocessing, FEATURE_SETS, WINDOW_POLICIES
+
 import tensorflow as tf
+import numpy as np
 from tensorflow import keras
+
+try:
+    from .training_augmentation import AugmentationConfig, TrainingTrial, augment_training_trials
+except ImportError:
+    from training_augmentation import AugmentationConfig, TrainingTrial, augment_training_trials
 
 try:
     from .evaluate_word_models import (
@@ -182,12 +193,36 @@ def _train_candidate(
     learning_rate: float,
     verbose: int,
     defer_test: bool = False,
+    preprocessing: SequencePreprocessing | None = None,
+    augmentation: AugmentationConfig | None = None,
 ) -> dict[str, object]:
+    preprocessing = preprocessing or SequencePreprocessing(window_samples, target_rate_hz)
+    if preprocessing.window_samples != window_samples or preprocessing.target_rate_hz != target_rate_hz:
+        raise ValueError("training shape/rate does not match preprocessing")
+    if tuple(standardizer.feature_columns) != preprocessing.feature_columns:
+        raise ValueError("standardizer does not match preprocessing features")
     output_directory.mkdir(parents=True, exist_ok=False)
     arrays = {
         split: model_arrays(examples, vocabulary, standardizer)
         for split, examples in grouped.items()
     }
+    augmentation = augmentation or AugmentationConfig()
+    train_x, train_y = arrays['train']
+    train_weights = None
+    augmentation_manifest = {"config": augmentation.to_dict(), "enabled": False,
+                             "validation_or_test_augmented": False, "scaler_fit": "original_training_only"}
+    if augmentation.copies_per_trial:
+        descendants, augmentation_manifest = augment_training_trials(
+            [TrainingTrial(item.trial_key, item.word, item.values, item.padded_samples)
+             for item in grouped['train']],
+            feature_columns=standardizer.feature_columns,
+            split_assignments={item.trial_key: item.split for item in split_manifest.assignments},
+            config=augmentation, data_origin=data_origin)
+        train_x = np.stack([standardizer.transform(item.values) for item in descendants])
+        train_y = np.asarray([vocabulary.index(item.label) for item in descendants], dtype=np.int32)
+        train_weights = np.asarray([item.weight_multiplier for item in descendants], dtype=np.float32)
+    (output_directory / 'augmentation_manifest.json').write_text(
+        json.dumps(augmentation_manifest, indent=2, allow_nan=False) + '\n', encoding='utf-8')
     model_config = WordModelConfig(
         architecture=architecture,
         window_samples=window_samples,
@@ -203,8 +238,9 @@ def _train_candidate(
     keras.utils.set_random_seed(seed)
     model = build_word_model(model_config)
     history = model.fit(
-        arrays["train"][0],
-        arrays["train"][1],
+        train_x,
+        train_y,
+        sample_weight=train_weights,
         validation_data=arrays["validation"],
         epochs=epochs,
         batch_size=batch_size,
@@ -252,6 +288,11 @@ def _train_candidate(
         "vocabulary": list(vocabulary),
         "target_rate_hz": target_rate_hz,
         "window_samples": window_samples,
+        "preprocessing": preprocessing.to_dict(),
+        "augmentation": {"config": augmentation.to_dict(),
+                         "original_training_trials": len(grouped['train']),
+                         "training_sequences_including_descendants": len(train_y),
+                         "manifest": "augmentation_manifest.json"},
         "feature_columns": list(standardizer.feature_columns),
         "standardizer": standardizer.to_dict(),
         "split_manifest": split_manifest.to_dict(),
@@ -308,6 +349,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=list(ARCHITECTURES),
     )
     parser.add_argument("--window-samples", required=True, type=int)
+    parser.add_argument("--feature-set", choices=FEATURE_SETS, default="flex_imu6")
+    parser.add_argument("--window-policy", choices=WINDOW_POLICIES, default="center_trim_edge_pad")
+    parser.add_argument("--augmentation-config", type=Path,
+                        help="Optional bounded training-only perturbations; disabled by default")
     parser.add_argument("--target-rate-hz", type=float, default=DEFAULT_TARGET_RATE_HZ)
     parser.add_argument("--split-manifest", type=Path)
     parser.add_argument(
@@ -369,10 +414,14 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 2
     try:
+        preprocessing = SequencePreprocessing(args.window_samples, args.target_rate_hz,
+                                              args.feature_set, args.window_policy)
+        augmentation = AugmentationConfig.read(args.augmentation_config)
         examples = prepare_examples(
             recordings,
             window_samples=args.window_samples,
             target_rate_hz=args.target_rate_hz,
+            preprocessing=preprocessing,
         )
         data_origin = _origin(examples)
         if data_origin == "real" and supplied_vocabulary is None:
@@ -405,7 +454,7 @@ def main(argv: list[str] | None = None) -> int:
         grouped = examples_by_split(examples, split_manifest)
         _require_usable_splits(grouped, vocabulary)
         standardizer = SequenceStandardizer.fit(grouped["train"])
-    except ValueError as exc:
+    except (OSError, ValueError) as exc:
         print(f"Dataset error: {exc}")
         return 2
 
@@ -454,6 +503,8 @@ def main(argv: list[str] | None = None) -> int:
                     learning_rate=args.learning_rate,
                     verbose=args.verbose,
                     defer_test=args.defer_test,
+                    preprocessing=preprocessing,
+                    augmentation=augmentation,
                 )
             )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -470,6 +521,12 @@ def main(argv: list[str] | None = None) -> int:
         "vocabulary": list(vocabulary),
         "split_manifest": str(args.output_directory / "split_manifest.json"),
         "candidates": summaries,
+        "preprocessing": preprocessing.to_dict(),
+        "window_coverage": [
+            {"trial": item.trial_key, "resampled_samples": item.resampled_sample_count,
+             "trimmed_samples": item.trimmed_samples, "padded_samples": item.padded_samples}
+            for item in examples
+        ],
         "selection_status": "not_selected_requires_same_split_real_data_comparison",
     }
     rendered = json.dumps(summary, indent=2, sort_keys=True)

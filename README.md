@@ -24,6 +24,13 @@ documentation, and the KiCad files for our PCB design, which is still in progres
 - **Demo:** <https://www.youtube.com/shorts/qQmO1KYz998>
 - **Team:** Brian, Gael, Kali, and Srinitha
 
+**Current development handoff (November 6):** Software preparation for the
+repaired glove is ready for physical calibration and real data collection. Start
+with [the glove/model session handoff](docs/GLOVE_MODEL_SESSION_HANDOFF.md) for
+completed changes, current model contracts, verification limits, and the next
+steps once assembly is done. The milestone dates and historical evidence below
+remain labeled for their original submissions.
+
 ## Milestone Overview
 
 > The alpha results below are from commit `cce9d38`. Earlier beta work is
@@ -40,10 +47,24 @@ Our alpha build connected the following parts of the system:
 
 As of October 27, about two of our flex sensors were broken, they were reading as flexed when they were not. We believe this is due to age. We ordered 5
 Adafruit Short Flex Sensor #1070 replacements and an ICM-20948 nine-axis IMU
-#4554. We still need to confirm their arrival, replace the sensors, and calibrate
-the glove. Firmware support for the ICM-20948 and AK09916 magnetometer has now
-been added, while keeping the older sensor path. Magnetic data is available
-through serial diagnostics; orientation fusion and new-board testing are still
+#4554. On November 5, Gael confirmed that all required parts have arrived,
+including the replacement flex sensors, ICM-20948, and piezo elements. Sensor
+replacement, installation, and calibration remain unconfirmed. Firmware support for the ICM-20948 and AK09916 magnetometer has now
+been added, while keeping the older sensor path. The November 5 recording update
+adds optional magnetic data to BLE and CSV/JSON exports as well as serial
+diagnostics; see [the recording notes](docs/MAGNETOMETER_RECORDING.md).
+The [ICM-20948 integration reference](research/ICM20948_INTEGRATION_REFERENCE.md)
+covers wiring, calibration, fusion, current driver limitations, and recognition
+experiments for the received nine-axis board.
+Developer Mode now includes a [guided calibration workflow](docs/DEVELOPER_CALIBRATION.md)
+for measured flex ranges, stationary gyro bias, axis checks, profile export,
+and profile-linked raw recordings. Applying calibration to inference remains a
+separate reviewed model/firmware update.
+The [sequence preprocessing guide](docs/SEQUENCE_PREPROCESSING.md) documents
+longer-window and 11/14-feature candidate preparation, strict no-trim checks,
+and Python/Flutter parity. The deployed word model remains 96 × 11 until a
+replacement is trained and validated.
+Orientation fusion and new-board testing are still
 pending. The BLE word-model inputs remain the existing six motion values. We have also received ten piezo buzzers: one for each finger and five
 in an X on the back of the hand. The firmware now sets up all ten buzzer pins
 and can play a timed PWM tone on one buzzer at a time without blocking the main
@@ -563,6 +584,9 @@ real recordings and an evaluation protocol appropriate to the expanded scope:
 See [`backend/data/README.md`](backend/data/README.md) for the schema and
 privacy contract and [`backend/models/README.md`](backend/models/README.md) for
 the model artifact policy.
+Optional training-only perturbations for static and word candidates are documented
+in [training augmentation](docs/TRAINING_AUGMENTATION.md). They default to disabled
+until the repaired glove supplies measured limits.
 
 ## BLE packet contract
 
@@ -631,7 +655,10 @@ KiCad schematic is
 
 ## Known Bugs and Incomplete Release Candidate Features
 
-1. ESP32 firmware startup - ESP32/src/main.cpp waits for the USB Serial interface with no timeout. If no serial host opens the port, setup can stay blocked before BLE and sensor initialization.
+1. ESP32 firmware startup - The November 6 update bounds the optional USB Serial
+   wait to approximately 1.5 seconds before continuing to sensor/BLE setup.
+   Firmware compilation and host checks passed; physical battery-only boot is
+   Not run. See [startup and demo evaluation tools](docs/DEMO_READINESS_TOOLS.md).
 
 2. Flutter practice lifecycle -	A selected letter or number stays active after leaving its practice page. The app shell keeps accepting matching packets and can record completion while the learner is on the picker.
 
