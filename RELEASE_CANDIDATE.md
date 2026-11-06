@@ -12,6 +12,11 @@ Installation, calibration, and physical validation remain unconfirmed.
 The subsequent [magnetic recording update](docs/MAGNETOMETER_RECORDING.md)
 extends BLE and CSV/JSON export; the October snapshot below predates that change.
 
+**November 6 follow-up:** The optional USB Serial wait is now bounded in source;
+see [startup and demo evaluation tools](docs/DEMO_READINESS_TOOLS.md). Physical
+battery-only startup remains Not run. The known-bug list below retains the
+historical release-candidate snapshot.
+
 Helping Hand is an American Sign Language (ASL) learning glove we are developing
 for CEN4908C, Computer Engineering Senior Design. The glove measures finger bend
 and wrist motion. An ESP32 processes the sensor readings and sends them over

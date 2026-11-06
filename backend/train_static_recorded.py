@@ -18,7 +18,10 @@ from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from sklearn.preprocessing import StandardScaler
 import tensorflow as tf
 
-from word_models import convert_to_tflite
+try:
+    from .word_models import convert_to_tflite
+except ImportError:
+    from word_models import convert_to_tflite
 
 ROOT = Path(__file__).resolve().parents[1]
 FEATURES = [f"flex_{finger}_raw" for finger in ("thumb", "index", "middle", "ring", "pinky")]

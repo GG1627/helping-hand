@@ -645,7 +645,10 @@ KiCad schematic is
 
 ## Known Bugs and Incomplete Release Candidate Features
 
-1. ESP32 firmware startup - ESP32/src/main.cpp waits for the USB Serial interface with no timeout. If no serial host opens the port, setup can stay blocked before BLE and sensor initialization.
+1. ESP32 firmware startup - The November 6 update bounds the optional USB Serial
+   wait to approximately 1.5 seconds before continuing to sensor/BLE setup.
+   Firmware compilation and host checks passed; physical battery-only boot is
+   Not run. See [startup and demo evaluation tools](docs/DEMO_READINESS_TOOLS.md).
 
 2. Flutter practice lifecycle -	A selected letter or number stays active after leaving its practice page. The app shell keeps accepting matching packets and can record completion while the learner is on the picker.
 
