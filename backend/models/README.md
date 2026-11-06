@@ -1,5 +1,10 @@
 # Model artifacts
 
+November 6 training follow-up: optional bounded, training-only augmentation is
+available for recorded MLP and sequence candidates. It defaults to disabled and
+requires measured limits before real use. See [training augmentation](../../docs/TRAINING_AUGMENTATION.md)
+for provenance, frozen-split comparisons, and reserved-test handling.
+
 November 5 preprocessing follow-up: training/evaluation now support explicit
 11/14-feature raw layouts and center-trim or reject-overlength windows. See
 [configurable sequence preparation](../../docs/SEQUENCE_PREPROCESSING.md) for

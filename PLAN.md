@@ -1,8 +1,15 @@
 # Teach ML Words — Living Implementation Plan
 
 **Issue:** #7
-**Status:** Collection, preprocessing, and untrained model-code foundations implemented; physical-device validation and real data collection pending.
-**Last updated:** 2026-09-10
+**Status:** Main-wearer software preparation ready; assembled-glove calibration and new real recordings are next. Recorded MLP and three-word TCN demo models already exist.
+**Last updated:** 2026-11-06
+
+Start with [the current glove/model handoff](docs/GLOVE_MODEL_SESSION_HANDOFF.md)
+for the deployed contracts, November changes, evidence boundaries, and ordered
+next steps. The phases and dated September implementation notes below retain
+the original planning snapshot; statements that no real word model has been
+trained are historical. The handoff and linked October/November records describe
+current behavior.
 
 ## Goal
 
@@ -38,9 +45,11 @@ selected, or deployed, and no fixture-trained artifact is retained.
 
 ## Working principles
 
-- Real, labeled sign recordings are the source of training and reported model
-  performance. Synthetic data is for fixtures, smoke tests, and pipeline
-  development only.
+- Real, labeled sign recordings are the source of independent training and
+  reported model-performance evidence. Synthetic fixtures remain software-only.
+  Optional bounded descendants of real training trials are now supported by
+  [training augmentation](docs/TRAINING_AUGMENTATION.md), disabled until measured
+  limits are justified; they never become independent evaluation evidence.
 - A complete recording/trial is the unit of splitting. Windows from one trial
   must never be separated across training and test data.
 - The initial solution must work without a magnetometer. Any yaw-stabilized

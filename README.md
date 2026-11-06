@@ -24,6 +24,13 @@ documentation, and the KiCad files for our PCB design, which is still in progres
 - **Demo:** <https://www.youtube.com/shorts/qQmO1KYz998>
 - **Team:** Brian, Gael, Kali, and Srinitha
 
+**Current development handoff (November 6):** Software preparation for the
+repaired glove is ready for physical calibration and real data collection. Start
+with [the glove/model session handoff](docs/GLOVE_MODEL_SESSION_HANDOFF.md) for
+completed changes, current model contracts, verification limits, and the next
+steps once assembly is done. The milestone dates and historical evidence below
+remain labeled for their original submissions.
+
 ## Milestone Overview
 
 > The alpha results below are from commit `cce9d38`. Earlier beta work is
@@ -577,6 +584,9 @@ real recordings and an evaluation protocol appropriate to the expanded scope:
 See [`backend/data/README.md`](backend/data/README.md) for the schema and
 privacy contract and [`backend/models/README.md`](backend/models/README.md) for
 the model artifact policy.
+Optional training-only perturbations for static and word candidates are documented
+in [training augmentation](docs/TRAINING_AUGMENTATION.md). They default to disabled
+until the repaired glove supplies measured limits.
 
 ## BLE packet contract
 
