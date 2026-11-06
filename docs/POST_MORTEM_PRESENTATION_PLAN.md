@@ -5,6 +5,17 @@ This document plans the presentation while project development continues.
 It does not schedule completion of the hardware, firmware, models, or app.
 The [P3 assignment](../P3-Post-Mortem-Presentation.md) governs requirements.
 
+## First HTML draft
+
+Draft 01 was built November 6 in
+[`post_mortem_presentation/index.html`](../post_mortem_presentation/index.html),
+with eight main slides, two separated backups, inline/standalone speaker notes,
+and a draft PDF. See the [deck README](../post_mortem_presentation/README.md),
+[content review](../post_mortem_presentation/CONTENT_REVIEW.md), and
+[recorded presentation checks](../post_mortem_presentation/verification.md).
+Final photos, results, haptic behavior, coverage, team stories, and speaker/demo
+assignments remain draft content. The beta deck is unchanged.
+
 ## Confirmed presentation direction
 
 - Build another **local HTML presentation in the beta style**, with local

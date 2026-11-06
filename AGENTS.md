@@ -90,3 +90,14 @@ model validation.
 For HTML slides for `Beta_Presentation_Guidelines.md`, use
 `docs/BETA_PRESENTATION_STYLE_GUIDE.md` for the app-matched palette, typography,
 visual treatment, and evidence labels. The assignment guidelines govern content.
+
+## Post-mortem presentation
+
+For the November 19, 2026 presentation, start with
+`docs/POST_MORTEM_PRESENTATION_PLAN.md`, then `post_mortem_presentation/README.md`
+and `post_mortem_presentation/CONTENT_REVIEW.md`. The first draft uses the beta
+HTML style with eight main slides and separate backups; preserve the beta deck.
+Intended final scope includes PCB, new IMU, haptics, A-Z, 0-9, and the app's
+eight words. Keep those goals separate from current implementation/results.
+Update photos, diagrams, inline/standalone notes, and exports together when
+content changes. Presentation checks are not glove/model/haptic validation.
