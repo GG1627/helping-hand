@@ -1,0 +1,60 @@
+(version 1)
+
+# V-One conductive-ink printing / riveted-via profile, v1.0.1
+# Intended for KiCad 9 and 10. See VONE-DRC-README.md before use.
+# SPDX-License-Identifier: GPL-3.0-only
+# Based on Voltera guidance; independently prepared, not a Voltera release.
+# https://docs.voltera.io/docs/v-one/learn-v-one/circuit-design-for-v-one/circuit-design-guidelines
+# IMPORTANT: These rules CHECK geometry; they do not resize existing objects.
+# Do not combine this file with the alternative 8 mil profile.
+# Preserve stricter electrical rules: custom rules can override netclass values.
+# Put reviewed, more-specific rules AFTER these general rules.
+
+# Voltera recommends 10 mil traces and spacing for new users.
+(rule "VONE - 10 mil track width"
+  (constraint track_width (min 10mil)))
+
+(rule "VONE - 10 mil different-net clearance"
+  (constraint clearance (min 10mil)))
+
+# Implementation of the same printable-width target at pad/zone connections.
+# This is not a universal check of every narrow feature in Gerber artwork.
+(rule "VONE - 10 mil pad to zone connection width"
+  (constraint connection_width (min 10mil)))
+
+# Voltera recommends at least 16 mil isolation around planes/polygons.
+(rule "VONE - 16 mil zone isolation"
+  (condition "A.Type == 'Zone'")
+  (constraint clearance (min 16mil)))
+
+# Thermal spoke width is an OPT setting in KiCad 9/10, not a min DRC limit.
+# connection_width above is the associated pad/zone connection check.
+(rule "VONE - thermal connection geometry"
+  (constraint thermal_relief_gap (min 10mil))
+  (constraint thermal_spoke_width (opt 10mil)))
+
+# This profile assumes ALL vias use Voltera's small or large rivets.
+# 1.5 mm large-rivet holes require that actual bit; supplied large bit is 1.6 mm.
+# Remove/adapt the following three rules if using wire-through or another via process.
+(rule "VONE - riveted vias require through type and matching drill"
+  (condition "A.Type == 'Via'")
+  (constraint assertion "(A.Via_Type == 'Through') && ((A.Hole == 0.7mm) || (A.Hole == 1.5mm) || (A.Hole == 1.6mm))"))
+
+# 1.30 mm is OUR conservative small-via recommendation, not Voltera's minimum.
+(rule "VONE - small rivet via recommended pad"
+  (condition "(A.Type == 'Via') && (A.Hole == 0.7mm)")
+  (constraint via_diameter (min 1.30mm)))
+
+# Voltera's large rivet head is 2.2 mm; pad must cover it. Enlarge where possible.
+(rule "VONE - large rivet via head coverage"
+  (condition "(A.Type == 'Via') && ((A.Hole == 1.5mm) || (A.Hole == 1.6mm))")
+  (constraint via_diameter (min 2.20mm)))
+
+# Standard V-One workflow uses only the two outer conductive layers.
+# Also set Physical Stackup to TWO layers; this rule does not change the stackup.
+(rule "VONE - no internal routed layers"
+  (layer inner)
+  (constraint disallow track zone))
+
+# MANUAL CHECKS remain: component pad/rivet dimensions, available drill bits,
+# package pitch, hatch fill, board size/clamping, ink resistance, and exports.
