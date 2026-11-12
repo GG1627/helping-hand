@@ -27,6 +27,7 @@ disclosure requirements.
 - [Evidence/readiness notes](R3_REPORT_READINESS.md).
 - [Research source notes](../research/R3_REPORT_SOURCE_NOTES.md).
 - [Word reference plan and full old-bibliography audit](../research/R3_WORD_REFERENCE_PLAN.md).
+- [Settled sources and section citation plan](../research/R3_WORD_REFERENCES.md).
 - [Demo observations](R3_DEMO_OBSERVATIONS.md).
 
 Preserve the previous PDF and source as historical artifacts. This handoff is
@@ -60,11 +61,15 @@ project results into the October report. Ask focused section-specific questions
 when team experience or missing facts would improve the content; flag useful
 photos or diagrams, including readable hand drawings the user can supply.
 
-The user's November 12 priority is to remove unnecessary/repetitive citations
-and maintain a complete working source list before drafting. The reference
-plan audits all 38 earlier entries, proposes 16 starting sources, separates
-conditional sources and internal evidence, and defers final IEEE numbering
-until first-citation order is known. The final source count is not fixed.
+The user authorized settling the reference selection before drafting. The
+selected-reference file now contains 21 sources (20 external and one repository
+pointer), bibliography metadata, a section citation plan, and verification
+limits. It supersedes the audit's earlier 16-source proposal. Magnetic
+calibration, haptic perception, cloud HTTPS, and the actual phone inference
+package have been included for specific content needs. Extra internal
+citations remain working evidence links. Final IEEE numbering follows first
+use; remove unused sources when reconciling the finished report. Source
+selection is complete for the intended scope; proceed to the Introduction.
 
 Use ordinary paragraphs, simple headings, and Word-compatible tables or
 figures where useful. First-person plural is appropriate for documented team

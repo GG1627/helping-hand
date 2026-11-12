@@ -1,5 +1,11 @@
 # R3 Word report reference plan
 
+**Selection settled:** use [R3 Word selected references](R3_WORD_REFERENCES.md)
+as the authoritative drafting list. It selects 21 sources from this audit and
+the follow-up checks, including one repository pointer. This file preserves
+the original 38-entry audit and reserve-source decisions; its 16-source
+starting list below is the earlier proposal, not the current selection.
+
 Prepared November 12, 2026 for the Word rewrite. The user confirmed that the
 report retains its **October 28, 2026 project cutoff**.
 
@@ -206,7 +212,7 @@ below. This overview does not prove that our deployment enforces isolation.
 
 ### KICAD
 
-The KiCad Documentation Team, *Getting Started in KiCad*, ver. 9.0.
+The KiCad Documentation Contributors, *Getting Started in KiCad*, ver. 9.0.
 Accessed: Nov. 12, 2026. [Online]. Available:
 https://docs.kicad.org/9.0/en/getting_started_in_kicad/getting_started_in_kicad.html
 
@@ -250,9 +256,9 @@ Reopen the relevant passages before drafting a substantive claim from them.
 | ORIENTATION | A. Yurtman, B. Barshan, and B. Fidan, "Activity Recognition Invariant to Wearable Sensor Unit Orientation Using Differential Rotational Transformations Represented by Quaternions," *Sensors*, vol. 18, no. 8, Art. no. 2725, 2018, doi: [10.3390/s18082725](https://doi.org/10.3390/s18082725). | Retain for a substantive quaternion-preprocessing proposal. Publisher page retrieved this session. Activity recognition is not ASL; normalization was not implemented at the cutoff. |
 | MAGNETIC | M. Kok and T. B. Schön, "Magnetometer Calibration Using Inertial Sensors," *IEEE Sensors Journal*, vol. 16, no. 14, pp. 5679-5689, 2016, doi: [10.1109/JSEN.2016.2569160](https://doi.org/10.1109/JSEN.2016.2569160). [Author record](https://arxiv.org/abs/1601.05257). | Retain for heading drift, magnetic calibration, or fusion rationale. Journal metadata and author abstract checked this session. Cite the journal article, not a second separate entry for its preprint copy. |
 | HAPTIC-STUDY | M. Tajdari, J. Forsyth, and S. Lim, "Sensitivity to Vibrotactile Stimulation in the Hand and Wrist: Effects of Motion, Temporal Patterns, and Biological Sex," *Human Factors*, vol. 67, no. 4, pp. 331-346, Apr. 2025, doi: [10.1177/00187208241275734](https://doi.org/10.1177/00187208241275734). | Retain if discussing research on cue perception during movement. Publisher abstract/metadata checked; first online Aug. 23, 2024. Does not validate our purchased actuators. |
-| FIREBASE-AUTH | Firebase, "Authenticate with Firebase using password-based accounts on Flutter." https://firebase.google.com/docs/auth/flutter/password-auth | Retain for specific authentication behavior or implementation guidance used. Previously recorded; not freshly rechecked. |
-| FIRESTORE-RULES | Firebase, "Writing conditions for Cloud Firestore Security Rules." https://firebase.google.com/docs/firestore/security/rules-conditions | Retain for owner-scoped access rules. Documentation cannot establish that our deployed rules were verified. Previously recorded; not freshly rechecked. |
-| FIREBASE-PRIVACY | Firebase, "Privacy and Security in Firebase." https://firebase.google.com/support/privacy/ | Retain if making a specific transport/security claim. Previously recorded; not freshly rechecked. |
+| FIREBASE-AUTH | Firebase, "Authenticate with Firebase using password-based accounts on Flutter." https://firebase.google.com/docs/auth/flutter/password-auth | Reserve for specific authentication guidance. Rechecked Nov. 12, including email/password sign-in. Current selection uses the general integration page for basic tool attribution. |
+| FIRESTORE-RULES | Firebase, "Writing conditions for Cloud Firestore Security Rules." https://firebase.google.com/docs/firestore/security/rules-conditions | Reserve for specific ownership-rule discussion. Rechecked Nov. 12, including request identity and document ownership conditions. Does not establish that our deployment was verified. |
+| FIREBASE-PRIVACY | Firebase, "Privacy and Security in Firebase." https://firebase.google.com/support/privacy/ | Promoted to the settled list for HTTPS/cloud transport. Data-encryption section and Sep. 24, 2026 modification date checked Nov. 12. Does not prove application account isolation. |
 | FLEX-DATASHEET | Spectra Symbol, *Flex Sensor Datasheet*, rev. A2. https://cdn-shop.adafruit.com/datasheets/SpectraFlex2inch.pdf | Retain if using its electrical/mechanical specifications. Manufacturer PDF retrieved and revision checked this session. Do not combine with the Adafruit product page under one number. |
 | IMU-GUIDE | Adafruit Industries, "ICM-20948 Arduino Guide." https://learn.adafruit.com/adafruit-tdk-invensense-icm-20948-9-dof-imu/arduino | Retain only if using this particular implementation guidance, which must remain planned at the cutoff. Previously recorded; not freshly rechecked. |
 | IEEE-ETHICS | IEEE, "IEEE Code of Ethics." https://ieee-cas.org/about/ieee-code-ethics | Retain if explicitly applying the code. The page returned little usable text this session; verify a readable official copy before quoting a clause. A citation alone does not establish ethical practice. |
