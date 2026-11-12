@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Firebase authentication and progress sync need network access in every build. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- BLE permissions for Android 12+ -->
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"
@@ -18,6 +21,7 @@
     <application
         android:label="flutter_app"
         android:name="${applicationName}"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher">
 
         <meta-data

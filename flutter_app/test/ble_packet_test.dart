@@ -27,6 +27,35 @@ void main() {
     expect(packet.flexRaw, [500, 450, 400, 350, 300]);
     expect(packet.predictedLabel, 'A');
     expect(packet.predictedConfidence, 91.5);
+    expect(packet.magneticStatus, 'not_reported');
+    expect(packet.hasMagneticData, isFalse);
+  });
+
+  test('magnetic availability preserves legacy model inputs', () {
+    const base =
+        'seq=1,t_ms=25,who=0xEA,ax=0,ay=0,az=1,gx=0,gy=0,gz=0,'
+        'flex0_raw=500,flex1_raw=450,flex2_raw=400,flex3_raw=350,flex4_raw=300';
+    final valid = BlePacket.parse('$base,mag=ok,mx=0,my=-12.5,mz=31.2');
+    expect(valid.isValid, isTrue);
+    expect(valid.hasMagneticData, isTrue);
+    expect([valid.mx, valid.my, valid.mz], [0, -12.5, 31.2]);
+    for (final extension in [
+      'mag=unavailable',
+      'mag=ok,mx=1,my=2',
+      'mag=ok,mx=NaN,my=2,mz=3',
+      'mag=ok,mx=Infinity,my=2,mz=3',
+      'mx=1,my=2,mz=3',
+      'mag=unavailable,mx=1,my=2,mz=3',
+    ]) {
+      final packet = BlePacket.parse('$base,$extension');
+      expect(packet.isValid, isTrue);
+      expect(packet.hasMagneticData, isFalse);
+      expect([packet.mx, packet.my, packet.mz], [null, null, null]);
+      expect(
+        packet.magneticStatus,
+        extension == 'mag=unavailable' ? 'unavailable' : 'invalid',
+      );
+    }
   });
 
   test('retains malformed raw packets and reports missing fields', () {

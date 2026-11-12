@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../theme/helping_hand_theme.dart';
 import '../../widgets/learning_components.dart';
+import '../../services/word_sequence.dart';
 
 class WordsTab extends StatelessWidget {
-  const WordsTab({super.key, required this.onWordSelected});
+  const WordsTab({
+    super.key,
+    required this.onWordSelected,
+    this.learnedWords = const {},
+  });
   final ValueChanged<String> onWordSelected;
+  final Set<String> learnedWords;
   static const candidateWords = <String>[
     'hello',
     'thank_you',
@@ -68,11 +74,23 @@ class WordsTab extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Builder(
-                            builder: (context) => Text(
-                              label,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                label,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                learnedWords.contains(word)
+                                    ? 'Completed'
+                                    : trainedWords.contains(word)
+                                    ? 'Recognition available'
+                                    : 'Recognition coming later',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: 12),

@@ -10,6 +10,13 @@ consented, real recordings and documented trial-level splits.
 
 ## Before collecting
 
+In the app, enable **Developer Mode** on Home, open **Developer tools →
+Record Signs**, and select **Words**. Enter the agreed word label, vocabulary
+version and signer ID; select the wrist orientation. The existing letters /
+numbers mode remains available. A session uses one mode and vocabulary version;
+export before choosing **New session** to switch. Previous session files remain
+saved locally, but the export button only exports the current session.
+
 1. Obtain the participant's consent under the team's approved process. Use a
    pseudonymous ID such as `signer_01`; do not enter a name or email address.
 2. Flash firmware built with a collection rate from 25–50 Hz. The default is
@@ -50,9 +57,9 @@ after the four-condition pilot is reliable.
    about one second.
 3. Start recording, retain a short still lead-in, perform one complete sign at a
    natural pace, then hold the ending pose still for about one second.
-4. Stop recording. Check elapsed time, packet count, valid count, observed rate,
+4. Tap **Stop** to review without saving. Check elapsed time, packet count, valid count, observed rate,
    and quality warnings.
-5. Save a clean trial. Otherwise discard it with a reason (`bad_sign`,
+5. Tap **Save trial** for a clean trial. Otherwise tap **Discard trial** with a reason (`bad_sign`,
    `BLE_drop`, `wrong_label`, `interrupted`, or `other`) and repeat that trial ID.
 6. Rest briefly before the next repetition to avoid merging gestures.
 
@@ -89,3 +96,22 @@ model readiness.
 - the CSV/manifest pair survives export and validates without hand editing.
 - the exact IMU/module marking and optional diagnostic result are recorded
   separately; no magnetometer capability is assumed.
+
+## Sensor meaning and calibration direction
+
+Current firmware reports accelerometer axes `ax/ay/az` in g and gyroscope
+axes `gx/gy/gz` in degrees per second; flex values are raw finger-sensor readings.
+The model learns the relationship between the complete sequence and its word
+label from repeated real examples. Numbers do not need to be manually assigned
+to words. Training-only standardization is already available in the backend.
+
+A future calibration flow should capture a still reference to estimate gyro
+bias, plus open-hand and comfortably bent-finger references for flex ranges.
+Palm-facing-self/left/forward captures can document placement and relative
+rotation, but do not by themselves establish absolute heading or remove yaw
+drift. Gravity-based tilt sensing cannot detect rotation around the vertical
+axis ([NXP AN5021](https://www.nxp.com/docs/en/application-note/AN5021.pdf)).
+Confirm the physical IMU/module, mounting axes and delivered units before
+implementing fusion. This change adds word collection, not calibration or
+orientation normalization; raw exports are unchanged. Physical-phone collection
+and export validation for this change: **Not run**.

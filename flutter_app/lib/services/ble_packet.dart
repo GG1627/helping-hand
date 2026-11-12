@@ -13,6 +13,11 @@ class BlePacket {
     required this.gx,
     required this.gy,
     required this.gz,
+    required this.magneticStatus,
+    required this.magneticIssues,
+    required this.mx,
+    required this.my,
+    required this.mz,
     required this.flexRaw,
     required this.flexNorm,
     required this.predictedLabel,
@@ -64,6 +69,46 @@ class BlePacket {
     final gx = parseDouble('gx');
     final gy = parseDouble('gy');
     final gz = parseDouble('gz');
+    // Magnetic quality is independent of the existing 11-feature model.
+    final magneticIssues = <String>[];
+    var magneticStatus = fields['mag'] ?? 'not_reported';
+    final hasMagneticAxes = ['mx', 'my', 'mz'].any(fields.containsKey);
+    double? mx;
+    double? my;
+    double? mz;
+    if (magneticStatus == 'ok') {
+      final values = [
+        'mx',
+        'my',
+        'mz',
+      ].map((key) => double.tryParse(fields[key] ?? '')).toList();
+      if (values.every((value) => value != null && value.isFinite)) {
+        mx = values[0];
+        my = values[1];
+        mz = values[2];
+      } else {
+        magneticIssues.add('Invalid or incomplete magnetic vector');
+      }
+    } else if ((magneticStatus != 'unavailable' &&
+            magneticStatus != 'not_reported') ||
+        hasMagneticAxes ||
+        (fields.containsKey('mag') && magneticStatus == 'not_reported')) {
+      magneticIssues.add('Invalid magnetic status or unexpected axes');
+    }
+    if (issues.any(
+      (issue) => [
+        'mag',
+        'mx',
+        'my',
+        'mz',
+      ].any((key) => issue == 'Duplicate field: $key'),
+    )) {
+      magneticIssues.add('Duplicate magnetic field');
+    }
+    if (magneticIssues.isNotEmpty) {
+      magneticStatus = 'invalid';
+      mx = my = mz = null;
+    }
     final flexRaw = List<int?>.generate(5, (index) {
       return parseInt('flex${index}_raw');
     });
@@ -88,6 +133,11 @@ class BlePacket {
       gx: gx,
       gy: gy,
       gz: gz,
+      magneticStatus: magneticStatus,
+      magneticIssues: List.unmodifiable(magneticIssues),
+      mx: mx,
+      my: my,
+      mz: mz,
       flexRaw: List.unmodifiable(flexRaw),
       flexNorm: List.unmodifiable(flexNorm),
       predictedLabel: fields['pred'],
@@ -109,11 +159,50 @@ class BlePacket {
   final double? gx;
   final double? gy;
   final double? gz;
+
+  /// Per-packet availability, not proof of calibrated orientation.
+  final String magneticStatus;
+  final List<String> magneticIssues;
+  final double? mx;
+  final double? my;
+  final double? mz;
+  bool get hasMagneticData => magneticStatus == 'ok';
   final List<int?> flexRaw;
   final List<double?> flexNorm;
   final String? predictedLabel;
   final double? predictedConfidence;
   final String? expectedLabel;
+
+  /// Select the best class in the lesson category, retaining its original
+  /// full-model confidence. Older firmware can supply a same-category global
+  /// prediction; an opposite-category prediction is never shown in practice.
+  (String?, double?) predictionForStaticTarget(String target) {
+    final normalized = target.trim().toUpperCase();
+    final isLetter = RegExp(r'^[A-Z]$').hasMatch(normalized);
+    if (!isLetter && !RegExp(r'^[0-9]$').hasMatch(normalized)) {
+      return (null, null);
+    }
+    final category = isLetter ? 'letter' : 'number';
+    final hasCategory =
+        fields.containsKey('pred_$category') ||
+        fields.containsKey('pred_${category}_conf');
+    final label = (hasCategory ? fields['pred_$category'] : predictedLabel)
+        ?.trim()
+        .toUpperCase();
+    final confidence = hasCategory
+        ? double.tryParse(fields['pred_${category}_conf'] ?? '')
+        : predictedConfidence;
+    final pattern = isLetter ? r'^[A-Z]$' : r'^[0-9]$';
+    if (label == null ||
+        !RegExp(pattern).hasMatch(label) ||
+        confidence == null ||
+        !confidence.isFinite ||
+        confidence < 0 ||
+        confidence > 100) {
+      return (null, null);
+    }
+    return (label, confidence);
+  }
 
   bool get isValid => issues.isEmpty;
 

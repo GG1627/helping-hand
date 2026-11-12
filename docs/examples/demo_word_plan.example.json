@@ -1,0 +1,13 @@
+{
+  "schema_version": "demo-evaluation-plan-v1",
+  "mode": "word",
+  "data_origin": "real",
+  "timing": "recorded_receive",
+  "targets": ["hello", "please", "yes"],
+  "trials": [
+    {"csv": "trials.csv", "manifest": "manifest.json", "session_id": "replace_session_id", "trial_id": "replace_hello_trial", "kind": "sign", "performed_label": "hello"},
+    {"csv": "trials.csv", "manifest": "manifest.json", "session_id": "replace_session_id", "trial_id": "replace_please_trial", "kind": "sign", "performed_label": "please"},
+    {"csv": "trials.csv", "manifest": "manifest.json", "session_id": "replace_session_id", "trial_id": "replace_incomplete_trial", "kind": "incomplete", "performed_label": "hello"},
+    {"csv": "trials.csv", "manifest": "manifest.json", "session_id": "replace_session_id", "trial_id": "replace_idle_trial", "kind": "idle", "performed_label": null}
+  ]
+}

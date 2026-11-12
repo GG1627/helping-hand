@@ -44,6 +44,33 @@ void main() {
       restored.dispose();
     });
 
+    test(
+      'word completion persists with static progress using the existing schema',
+      () async {
+        final store = JsonProgressLocalStore(
+          directoryProvider: () async => temporaryDirectory,
+        );
+        final first = ProgressRepository(localStore: store);
+        await first.initialize();
+        await first.completeStaticTarget('A');
+        await first.completeWord('hello');
+        await first.completeWord('hello');
+        await expectLater(first.completeWord('sorry'), throwsArgumentError);
+        first.dispose();
+        final restored = ProgressRepository(localStore: store);
+        await restored.initialize();
+        expect(restored.state.progress.learnedWords, {'hello'});
+        expect(restored.state.progress.learnedLetters, {'A'});
+        expect(restored.state.progress.completedExercises, {
+          'static_prediction_a',
+          'word_prediction_hello',
+        });
+        await restored.reset();
+        expect(restored.state.progress.learnedWords, isEmpty);
+        restored.dispose();
+      },
+    );
+
     test('progress stays separate when switching between accounts', () async {
       final accountAStore = JsonProgressLocalStore.forUser(
         'account_a',

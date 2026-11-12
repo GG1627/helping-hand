@@ -11,6 +11,11 @@ import json
 from pathlib import Path
 
 try:
+    from .sequence_preprocessing import SequencePreprocessing, FEATURE_SETS, WINDOW_POLICIES
+except ImportError:
+    from sequence_preprocessing import SequencePreprocessing, FEATURE_SETS, WINDOW_POLICIES
+
+try:
     from .word_data import (
         DEFAULT_MIN_PACKET_COUNT,
         DEFAULT_TARGET_RATE_HZ,
@@ -71,6 +76,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Preview resample + center-trim/edge-pad shapes for valid trials",
     )
     parser.add_argument("--report-json", type=Path, help="Also write the report as JSON")
+    parser.add_argument("--feature-set", choices=FEATURE_SETS, default="flex_imu6")
+    parser.add_argument("--window-policy", choices=WINDOW_POLICIES, default="center_trim_edge_pad")
     parser.add_argument(
         "--fail-on-warning",
         action="store_true",
@@ -102,6 +109,13 @@ def main(argv: list[str] | None = None) -> int:
         for csv_path in args.csv
     ]
     reports: list[dict[str, object]] = []
+    preview_failed = False
+    try:
+        config = SequencePreprocessing(96 if args.window_samples is None else args.window_samples, args.target_rate_hz,
+                                       args.feature_set, args.window_policy)
+    except ValueError as exc:
+        print(f"Preprocessing error: {exc}")
+        return 2
     for recording in recordings:
         report = recording.report.to_dict()
         if args.window_samples is not None:
@@ -109,9 +123,12 @@ def main(argv: list[str] | None = None) -> int:
             for (session_id, trial_id), samples in recording.trials().items():
                 try:
                     resampled = resample_trial(
-                        samples, target_rate_hz=args.target_rate_hz
+                        samples, target_rate_hz=args.target_rate_hz,
+                        feature_columns=config.feature_columns,
                     )
-                    window = fixed_window(resampled, window_size=args.window_samples)
+                    config.check_capture_length(len(resampled.values))
+                    window = fixed_window(resampled, window_size=args.window_samples,
+                                          window_policy=config.window_policy)
                     previews.append(
                         {
                             "session_id": session_id,
@@ -124,6 +141,7 @@ def main(argv: list[str] | None = None) -> int:
                         }
                     )
                 except ValueError as exc:
+                    preview_failed = True
                     previews.append(
                         {
                             "session_id": session_id,
@@ -135,7 +153,8 @@ def main(argv: list[str] | None = None) -> int:
         reports.append(report)
 
     output = {
-        "is_valid": all(recording.report.is_valid for recording in recordings),
+        "is_valid": not preview_failed and all(recording.report.is_valid for recording in recordings),
+        "preprocessing": config.to_dict() if args.window_samples is not None else None,
         "recording_count": len(recordings),
         "recordings": reports,
     }
@@ -146,7 +165,7 @@ def main(argv: list[str] | None = None) -> int:
         args.report_json.parent.mkdir(parents=True, exist_ok=True)
         args.report_json.write_text(f"{rendered}\n", encoding="utf-8")
 
-    if not all(recording.report.is_valid for recording in recordings):
+    if preview_failed or not all(recording.report.is_valid for recording in recordings):
         return 1
     if args.fail_on_warning and any(
         recording.report.warning_count for recording in recordings

@@ -1,5 +1,32 @@
 # Haptic Feedback Strips for Hand/Wrist ASL Guidance
 
+## Hardware follow-up - October 28, 2026
+
+The user confirms the piezo parts and new IMU are in hand; the existing glove
+still uses the demo's perfboard assembly. The [purchase listing](https://www.amazon.com/dp/B077YJ3H6R)
+was initially tentative; the user subsequently confirmed it is the correct link.
+Drive specifications, mounting and driver design remain pending.
+See S17 in [the report source notes](R3_REPORT_SOURCE_NOTES.md) for provenance.
+The ten-position feedback layout remains planned, and no new integrated or
+cue-perception result is established by receipt of parts.
+
+## Current team decision - October 27, 2026
+
+The team confirms that **ten piezo buzzers have been acquired**. The planned
+layout is **one per finger (five total), plus five arranged in an X on the
+back of the hand**. Feedback is intended to identify a finger needing
+correction and provide directional guidance. The exact directional cue
+patterns, mapping from sensor error to feedback, driver circuit and part
+numbers remain to be documented. Acquisition and layout decisions are current
+progress; integrated operation and user perception have not been validated.
+
+This update supersedes the nine-piezo layout under "Our Conclusions" below
+as the current team plan. The LRA-first recommendations and other actuator
+comparisons are retained as earlier research, not the selected current hardware.
+The team reports continued PCB design since the October 6 demo while awaiting
+replacement flex sensors. See [the R3 readiness notes](../docs/R3_REPORT_READINESS.md)
+for current dates, dependencies and the product-link reminder.
+
 ## Purpose and current status
 
 This document records the research foundation for Issue #6, **Research On

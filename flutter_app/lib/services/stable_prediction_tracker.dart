@@ -82,8 +82,9 @@ class StablePredictionTracker {
     final target = _target;
     if (target == null) return const StablePredictionResult.idle();
 
-    final predictedLabel = packet.predictedLabel?.trim().toUpperCase();
-    final confidence = packet.predictedConfidence;
+    final (predictedLabel, confidence) = packet.predictionForStaticTarget(
+      target,
+    );
     if (!packet.isValid || predictedLabel == null || confidence == null) {
       _clearMatch();
       return StablePredictionResult(

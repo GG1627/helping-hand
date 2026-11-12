@@ -1,0 +1,12 @@
+{
+  "schema_version": "demo-evaluation-plan-v1",
+  "mode": "static",
+  "data_origin": "real",
+  "timing": "recorded_receive",
+  "targets": ["A", "B", "1", "3"],
+  "trials": [
+    {"csv": "trials.csv", "manifest": "manifest.json", "session_id": "replace_session_id", "trial_id": "replace_a_trial", "kind": "sign", "performed_label": "A"},
+    {"csv": "trials.csv", "manifest": "manifest.json", "session_id": "replace_session_id", "trial_id": "replace_b_trial", "kind": "sign", "performed_label": "B"},
+    {"csv": "trials.csv", "manifest": "manifest.json", "session_id": "replace_session_id", "trial_id": "replace_idle_trial", "kind": "idle", "performed_label": null}
+  ]
+}

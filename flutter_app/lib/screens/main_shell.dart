@@ -9,9 +9,13 @@ import '../services/firebase_progress_remote_store.dart';
 import '../services/json_progress_local_store.dart';
 import '../services/progress_repository.dart';
 import '../services/recording_service.dart';
+import '../services/calibration_service.dart';
+import 'calibration_screen.dart';
 import '../services/stable_prediction_tracker.dart';
 import '../theme/helping_hand_theme.dart';
 import '../widgets/stable_prediction_practice_card.dart';
+import '../widgets/word_practice_card.dart';
+import '../services/word_sequence.dart';
 import 'learning_screen.dart';
 import 'tabs/alphabet_tab.dart';
 import 'tabs/ble_testing_tab.dart';
@@ -44,6 +48,7 @@ class _MainShellState extends State<MainShell> {
   bool _developerMode = false;
   late final BleConnectionService _bleService;
   late final RecordingService _recordingService;
+  late final CalibrationService _calibrationService;
   late final ProgressRepository _progressRepository;
   late final bool _ownsProgressRepository;
   late ProgressRepositoryState _progressState;
@@ -52,7 +57,6 @@ class _MainShellState extends State<MainShell> {
   StreamSubscription<BlePacket>? _recordingPacketSubscription;
   StreamSubscription<ProgressRepositoryState>? _progressSubscription;
   final ValueNotifier<int> _practiceRevision = ValueNotifier(0);
-  String? _selectedPracticeWord;
   String? _selectedPracticeTarget;
   StablePredictionResult _predictionResult =
       const StablePredictionResult.idle();
@@ -63,7 +67,12 @@ class _MainShellState extends State<MainShell> {
   void initState() {
     super.initState();
     _bleService = BleConnectionService();
-    _recordingService = RecordingService();
+    _calibrationService = CalibrationService();
+    _recordingService = RecordingService(
+      calibrationProfileProvider: () => _calibrationService.activeProfile,
+      calibrationReady: () => _calibrationService.initialized,
+    );
+    unawaited(_calibrationService.initialize());
     _ownsProgressRepository = widget.progressRepository == null;
     _progressRepository =
         widget.progressRepository ??
@@ -89,6 +98,7 @@ class _MainShellState extends State<MainShell> {
     unawaited(_progressSubscription?.cancel());
     if (_ownsProgressRepository) _progressRepository.dispose();
     _recordingService.dispose();
+    _calibrationService.dispose();
     _bleService.dispose();
     _practiceRevision.dispose();
     super.dispose();
@@ -96,7 +106,6 @@ class _MainShellState extends State<MainShell> {
 
   void _selectPracticeTarget(String target) {
     setState(() {
-      _selectedPracticeWord = null;
       _selectedPracticeTarget = target.toUpperCase();
       _predictionResult = _predictionTracker.selectTarget(target);
     });
@@ -104,10 +113,6 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _retryPracticeTarget() {
-    if (_selectedPracticeWord != null) {
-      _practiceRevision.value++;
-      return;
-    }
     if (_selectedPracticeTarget == null) return;
     setState(() => _predictionResult = _predictionTracker.reset());
     _practiceRevision.value++;
@@ -154,11 +159,8 @@ class _MainShellState extends State<MainShell> {
     required String title,
   }) {
     if (category == 'words') {
-      // The current recognition baseline only supports A-Z and 0-9.
-      // Word lessons share the live UI without feeding words to that tracker.
       setState(() {
         _selectedPracticeTarget = null;
-        _selectedPracticeWord = title;
         _predictionResult = const StablePredictionResult.idle();
       });
       _practiceRevision.value++;
@@ -170,7 +172,21 @@ class _MainShellState extends State<MainShell> {
       category: category,
       target: target,
       title: title,
-      practice: _practiceCard(),
+      practice: category == 'words'
+          ? WordPracticeCard(
+              target: target,
+              bleService: _bleService,
+              onCompleted: (word) async {
+                await _progressRepository.completeWord(word);
+                if (_progressRepository.state.status ==
+                    ProgressSyncStatus.localSaveFailure) {
+                  throw StateError(
+                    'Word completion could not be saved locally.',
+                  );
+                }
+              },
+            )
+          : _practiceCard(),
     );
   }
 
@@ -178,15 +194,11 @@ class _MainShellState extends State<MainShell> {
     return AnimatedBuilder(
       animation: Listenable.merge([_bleService, _practiceRevision]),
       builder: (context, _) => StablePredictionPracticeCard(
-        target: _selectedPracticeWord ?? _selectedPracticeTarget,
+        target: _selectedPracticeTarget,
         predictedLabel: _predictionResult.predictedLabel,
         predictedConfidence: _predictionResult.predictedConfidence,
         progress: _predictionResult.progress,
-        message: _selectedPracticeWord == null
-            ? _practiceMessage
-            : _bleService.isConnected
-            ? 'Make the sign and hold it steady.'
-            : 'Connect the glove from BLE Testing to practice.',
+        message: _practiceMessage,
         connected: _bleService.isConnected,
         onRetry: _retryPracticeTarget,
       ),
@@ -203,6 +215,8 @@ class _MainShellState extends State<MainShell> {
         totalLetters: letters.length,
         learnedNumbers: progress.learnedNumbers,
         totalNumbers: 10,
+        learnedWords: progress.learnedWords,
+        totalWords: trainedWords.length,
         syncStatus: _progressState.status,
         syncMessage: _progressState.message,
         accountEmail: widget.email,
@@ -238,6 +252,7 @@ class _MainShellState extends State<MainShell> {
         ),
       ),
       WordsTab(
+        learnedWords: progress.learnedWords,
         onWordSelected: (word) => _openPractice(
           category: 'words',
           target: word,
@@ -256,6 +271,22 @@ class _MainShellState extends State<MainShell> {
         ),
         BleTestingTab(bleService: _bleService),
         DeveloperToolsTab(
+          onOpenCalibration: () {
+            setState(() {
+              _selectedPracticeTarget = null;
+              _predictionResult = const StablePredictionResult.idle();
+            });
+            _practiceRevision.value++;
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => CalibrationScreen(
+                  bleService: _bleService,
+                  calibration: _calibrationService,
+                  recording: _recordingService,
+                ),
+              ),
+            );
+          },
           onOpenRecordSigns: () => setState(() => tabIndex = 4),
           onOpenBleTesting: () => setState(() => tabIndex = 5),
         ),

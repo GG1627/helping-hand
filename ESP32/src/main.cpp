@@ -8,6 +8,7 @@
 #include "imu_sensor.h"
 #include "telemetry.h"
 #include "piezo.h"
+#include "serial_startup.h"
 using namespace std;
 
 namespace {
@@ -16,8 +17,9 @@ uint64_t sensorSequence = 0;
 }
 
 void setup() {
+  setupPiezos();
   Serial.begin(115200);
-  while (!Serial) delay(10);
+  waitForSerialStartup(kSerialStartupWaitMs);
   delay(500);
 
   Serial.println("\n=== HelpingHand IMU + BLE Runtime ===");
@@ -52,6 +54,7 @@ void setup() {
 }
 
 void loop() {
+  updatePiezos();
   updateImu();
 
   const uint32_t nowUs = micros();
@@ -67,17 +70,33 @@ void loop() {
 
   FlexReadings flex = readFlexReadings();
   const char* expectedLabel = applyClassifierTestInput(flex);
-  const char* predictedLabel = "NA";
-  float predictedConfidence = 0.0f;
-  const bool predictionOk = classifyFlex(flex, predictedLabel, predictedConfidence);
+  FlexPrediction prediction;
+  const bool predictionOk = classifyFlex(flex, prediction);
 
   ImuSample sample{};
   const bool imuSampleOk = readImuSample(sample);
+  MagneticSample magnetic{};
+  const bool magneticOk = readMagneticSample(magnetic);
 
   char payload[kTelemetryCapacity];
-  formatTelemetry(payload, sizeof(payload), packetSequence, deviceTimestampMs,
+  const bool telemetryOk = formatTelemetry(payload, sizeof(payload), packetSequence, deviceTimestampMs,
                   getImuWhoAmI(), sample, imuSampleOk, flex, expectedLabel,
-                  predictedLabel, predictedConfidence, predictionOk);
-  Serial.println(payload);
-  sendBlePayload(payload);
+                  prediction, predictionOk, magnetic, magneticOk);
+  Serial.print(payload);
+  Serial.printf(
+    ",flex0_ml=%.1f,flex1_ml=%.1f,flex2_ml=%.1f,flex3_ml=%.1f,flex4_ml=%.1f\n",
+    flexModelInput(0, flex.raw[0]), flexModelInput(1, flex.raw[1]),
+    flexModelInput(2, flex.raw[2]), flexModelInput(3, flex.raw[3]),
+    flexModelInput(4, flex.raw[4])
+  );
+  if (telemetryOk) {
+    sendBlePayload(payload);
+  } else {
+    Serial.println("Telemetry overflow: packet dropped.");
+  }
+  // Also available over BLE; magnetic values are not yet model inputs.
+  if (magneticOk) {
+    Serial.printf("mag_uT,mx=%.3f,my=%.3f,mz=%.3f\n",
+                  magnetic.mxUt, magnetic.myUt, magnetic.mzUt);
+  }
 }

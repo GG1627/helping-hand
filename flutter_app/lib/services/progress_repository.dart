@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'word_sequence.dart';
+
 const int progressSchemaVersion = 1;
 
 enum ProgressSyncStatus {
@@ -82,6 +84,27 @@ class ProgressData {
   final Set<int> learnedNumbers;
   final Set<String> completedExercises;
   final DateTime? updatedAt;
+
+  Set<String> get learnedWords => completedExercises
+      .where((id) => id.startsWith('word_prediction_'))
+      .map((id) => id.substring('word_prediction_'.length))
+      .toSet();
+
+  ProgressData completeWord(String word, DateTime completedAt) {
+    if (!trainedWords.contains(word)) {
+      throw ArgumentError.value(
+        word,
+        'word',
+        'Unsupported word recognizer target.',
+      );
+    }
+    return ProgressData(
+      learnedLetters: learnedLetters,
+      learnedNumbers: learnedNumbers,
+      completedExercises: {...completedExercises, 'word_prediction_$word'},
+      updatedAt: completedAt.toUtc(),
+    );
+  }
 
   bool get isEmpty =>
       learnedLetters.isEmpty &&
@@ -242,6 +265,10 @@ class ProgressRepository {
   Future<void> completeStaticTarget(String target) => _enqueue(() async {
     final next = _state.progress.completeStaticTarget(target, _clock());
     await _saveLocallyThenSync(next);
+  });
+
+  Future<void> completeWord(String word) => _enqueue(() async {
+    await _saveLocallyThenSync(_state.progress.completeWord(word, _clock()));
   });
 
   Future<void> reset() => _enqueue(() async {

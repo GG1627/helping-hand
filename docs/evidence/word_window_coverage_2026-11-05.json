@@ -1,0 +1,78 @@
+{
+  "date": "2026-11-05",
+  "scope": "Historical recording window coverage only; no training, accuracy, or live performance result. Longer windows are candidates, not deployed models.",
+  "source": "backend/recorded_data/trials_1.csv",
+  "source_sha256": "bff179bf35705c3863b42d3125bf3709b1a38bf9282cb8656ac62876d206bd3a",
+  "source_lf_normalized_sha256": "00261cb6358a309e762e911c5d6405331994ee74856243c0ee8016efb595b634",
+  "source_hash_note": "Working file uses CRLF. LF-normalized bytes match the historical training source hash; the parsed sensor content was not changed.",
+  "data_origin": "real",
+  "candidates": [
+    {
+      "preprocessing": {
+        "schema_version": "sequence-preprocessing-v1",
+        "window_samples": 96,
+        "target_rate_hz": 40,
+        "feature_set": "flex_imu6",
+        "window_policy": "center_trim_edge_pad"
+      },
+      "trial_count": 15,
+      "trimmed_trials": 7,
+      "trimmed_samples": 400,
+      "padded_samples": 70,
+      "per_word": [
+        {
+          "word": "hello",
+          "trial_count": 5,
+          "max_resampled_samples": 90,
+          "trimmed_samples": 0
+        },
+        {
+          "word": "please",
+          "trial_count": 5,
+          "max_resampled_samples": 128,
+          "trimmed_samples": 36
+        },
+        {
+          "word": "yes",
+          "trial_count": 5,
+          "max_resampled_samples": 212,
+          "trimmed_samples": 364
+        }
+      ]
+    },
+    {
+      "preprocessing": {
+        "schema_version": "sequence-preprocessing-v1",
+        "window_samples": 224,
+        "target_rate_hz": 40,
+        "feature_set": "flex_imu6",
+        "window_policy": "reject_overlength_edge_pad"
+      },
+      "trial_count": 15,
+      "trimmed_trials": 0,
+      "trimmed_samples": 0,
+      "padded_samples": 1590,
+      "per_word": [
+        {
+          "word": "hello",
+          "trial_count": 5,
+          "max_resampled_samples": 90,
+          "trimmed_samples": 0
+        },
+        {
+          "word": "please",
+          "trial_count": 5,
+          "max_resampled_samples": 128,
+          "trimmed_samples": 0
+        },
+        {
+          "word": "yes",
+          "trial_count": 5,
+          "max_resampled_samples": 212,
+          "trimmed_samples": 0
+        }
+      ]
+    }
+  ],
+  "magnetic_experiment_status": "Unavailable: historical recordings have no magnetic channels."
+}
