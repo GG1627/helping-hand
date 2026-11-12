@@ -26,6 +26,7 @@ disclosure requirements.
 - [Report review](R3_REPORT_REVIEW.md): previous coverage assessment and checks.
 - [Evidence/readiness notes](R3_REPORT_READINESS.md).
 - [Research source notes](../research/R3_REPORT_SOURCE_NOTES.md).
+- [Word reference plan and full old-bibliography audit](../research/R3_WORD_REFERENCE_PLAN.md).
 - [Demo observations](R3_DEMO_OBSERVATIONS.md).
 
 Preserve the previous PDF and source as historical artifacts. This handoff is
@@ -33,8 +34,8 @@ preparation for revision, not a rewritten report or a new submission.
 
 ## Scope and dates
 
-The earlier report describes an October 28, 2026 evidence cutoff. Use that
-cutoff for the rewrite unless the user specifies a new reporting period.
+The user confirmed retaining the original **October 28, 2026 evidence cutoff**
+for the rewrite in the November 12 follow-up.
 Later hardware arrivals and November software changes must not be presented
 as completed work at the original cutoff. A revised cutoff would require
 rechecking the affected design, results, and status claims.
@@ -45,8 +46,26 @@ and use the previously confirmed report course unless corrected.
 
 ## Working approach
 
-Work section by section with the user. Start with the introduction or design
-to establish the team's voice; write the abstract after the main text settles.
+Work section by section with the user. Review the reference plan first, then
+start with the introduction or design; write the abstract after the main text
+settles. The user supplied these writing references, both read for style:
+
+- `C:/Users/gael8/OneDrive/Desktop/Release_Candidate_Report.docx`
+- `C:/Users/gael8/OneDrive/Desktop/Alpha_Build_Report.docx`
+
+The examples use direct technical explanations, short paragraphs, concrete
+examples, and first-person plural for team work. No separate voice-establishing
+exercise is needed. These are style references, not permission to move later
+project results into the October report. Ask focused section-specific questions
+when team experience or missing facts would improve the content; flag useful
+photos or diagrams, including readable hand drawings the user can supply.
+
+The user's November 12 priority is to remove unnecessary/repetitive citations
+and maintain a complete working source list before drafting. The reference
+plan audits all 38 earlier entries, proposes 16 starting sources, separates
+conditional sources and internal evidence, and defers final IEEE numbering
+until first-citation order is known. The final source count is not fixed.
+
 Use ordinary paragraphs, simple headings, and Word-compatible tables or
 figures where useful. First-person plural is appropriate for documented team
 decisions and actions, without implying an unrecorded experience.
