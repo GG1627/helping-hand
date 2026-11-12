@@ -9,6 +9,35 @@ evidence, with subagents as useful. Research is complete below. Drafting and
 exporting the updated submission report remain the next stage, awaiting Gael's
 instruction. The October PDFs and their source documents have not been changed.
 
+## Gael's scope and status clarification, November 12
+
+- The report will cover work through **October 28, 2026**, rather than later
+  November improvements.
+- Gael now retrospectively confirms that the replacement flex sensors and
+  upgrade parts had arrived by that deadline. Driver/software support had been
+  added, but the new components had not been soldered into the glove circuit.
+  This resolves the earlier receipt uncertainty as a team-reported clarification;
+  it does not establish installation, calibration, or physical validation.
+- Gael reports PCB design work in KiCad by the deadline; the board had not been
+  printed/fabricated. The team is currently waiting for printing. The committed
+  repository contains a schematic and an empty board file, so describe **KiCad
+  circuit/PCB design work with fabrication and assembly pending**. Do not infer
+  completed routing or a fabrication-ready design from the committed files;
+  a newer off-repo layout has not been inspected.
+- Gael does not recall additional tests or fixes and asked to use the earlier
+  M5 records. No new test outcome or bug resolution was supplied. Use the
+  documented IMU software checks and earlier integration/demo evidence with
+  their dates and limits.
+- Gael recalls mostly software work while waiting for parts, including TCN
+  improvement work. The October records substantiate **review/planning of TCN
+  improvements**, alongside actual IMU drivers and piezo control code. They
+  establish no newly trained TCN, deployed model replacement, or measured accuracy
+  improvement after beta. Do not turn the broad recollection into those claims.
+
+These clarifications are sufficient to proceed with a factual report using the
+existing evidence; no additional general research is needed. Drafting remains
+the next stage, not part of this clarification update.
+
 ## Correct assignment
 
 Use [M5: Release Candidate](../M5-Release-Candidate.md), supplied by Gael on
@@ -205,9 +234,9 @@ still unrun. Exact IMU-arrival statements conflict across October documents;
 avoid unnecessary receipt-date claims. Actual hours, formal external-user
 testing, complete account/recovery checks and stakeholder defense are unproven.
 
-For historical correction, the October artifact cutoff is the available default;
-the research also retains November facts separately if Gael wants an updated
-as-of-now scope. No later work has been silently attributed to October. The
+Gael has confirmed the October deadline scope; the research retains November
+facts separately as background only. No later work has been silently attributed
+to October. The
 prompt's course identifier differs from CEN4908C in the project; R3 review notes
 record CEN4908C as previously confirmed by the user.
 
