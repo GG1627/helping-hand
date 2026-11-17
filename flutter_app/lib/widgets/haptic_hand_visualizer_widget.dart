@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 class HapticHandVisualizerWidget extends StatelessWidget {
   const HapticHandVisualizerWidget({
     super.key,
-    required this.fingerErrors, // Range from -1.0 (too bent) to +1.0 (too straight)
-    required this.motorStates,  // List of length 10: 5 fingers (0-4) + 5 matrix nodes (5-9)
+    required this.fingerErrors, // -1.0 to +1.0
+    required this.motorStates,
     this.imuRoll = 0.0,
   });
 
@@ -29,6 +29,8 @@ class HapticHandVisualizerWidget extends StatelessWidget {
   }
 }
 
+// Update inside haptic_hand_visualizer_widget.dart
+
 class _HapticHandPainter extends CustomPainter {
   const _HapticHandPainter({
     required this.fingerErrors,
@@ -37,14 +39,14 @@ class _HapticHandPainter extends CustomPainter {
   });
 
   final List<double> fingerErrors;
-  final List<double> motorStates;
+  final List<double> motorStates; // Expected length: 10 (0-4 fingers, 5-9 matrix)
   final double imuRoll;
 
   static const Color _fillColor = Color(0xFFF5F5F5);
   static const Color _strokeColor = Color(0xFFBDBDBD);
-  static const Color _bendMoreColor = Color(0xFFD35400); // Red-orange active cue
-  static const Color _relaxColor = Color(0xFF2980B9);    // Blue cue for over-bending
-  static const Color _matrixActiveColor = Color(0xFFE74C3C);
+  static const Color _bendMoreColor = Color(0xFFD35400);
+  static const Color _relaxColor = Color(0xFF2980B9);
+  static const Color _nodeActiveColor = Color(0xFFE74C3C);
   static const double _strokeWidth = 1.5;
 
   double _errorAt(int index) {
@@ -211,41 +213,45 @@ class _HapticHandPainter extends CustomPainter {
     // 3. Draw Fingers (Index = 1, Middle = 2, Ring = 3, Pinky = 4)
     const fingerBaseY = 172.0;
     drawFinger(
-      centerX: 65,
-      baseY: fingerBaseY,
-      totalHeight: 110,
-      baseWidth: 32,
-      tipWidth: 22,
+      centerX: 65, baseY: fingerBaseY, totalHeight: 110, baseWidth: 32, tipWidth: 22,
       fillColor: _fingerColor(1),
     );
     drawFinger(
-      centerX: 96,
-      baseY: fingerBaseY,
-      totalHeight: 132,
-      baseWidth: 30,
-      tipWidth: 20,
+      centerX: 96, baseY: fingerBaseY, totalHeight: 132, baseWidth: 30, tipWidth: 20,
       fillColor: _fingerColor(2),
     );
     drawFinger(
-      centerX: 128,
-      baseY: fingerBaseY,
-      totalHeight: 129,
-      baseWidth: 30,
-      tipWidth: 23,
+      centerX: 128, baseY: fingerBaseY, totalHeight: 129, baseWidth: 30, tipWidth: 23,
       fillColor: _fingerColor(3),
     );
     drawFinger(
-      centerX: 157,
-      baseY: fingerBaseY,
-      totalHeight: 96,
-      baseWidth: 28,
-      tipWidth: 20,
+      centerX: 157, baseY: fingerBaseY, totalHeight: 96, baseWidth: 28, tipWidth: 20,
       fillColor: _fingerColor(4),
     );
 
-    // 4. Draw Back-of-Hand Plus-Formation Matrix Nodes (Indices 5 to 9)
+    // 4. Draw Individual Finger Haptic Nodes (Indices 0 to 4 mapped on physical finger locations)
+    final nodePaint = Paint()..style = PaintingStyle.fill;
+    const double fingerNodeRadius = 4.5;
+
+    final List<Offset> fingerNodeCenters = [
+      rotateAndTranslate([const Offset(0, -20)], thumbJoint, thumbAngleDeg).first, // Thumb Node (0)
+      const Offset(65, 115),  // Index Node (1)
+      const Offset(96, 100),  // Middle Node (2)
+      const Offset(128, 105), // Ring Node (3)
+      const Offset(157, 120), // Pinky Node (4)
+    ];
+
+    for (int i = 0; i < 5; i++) {
+      final intensity = motorStates.length > i ? motorStates[i] : 0.0;
+      nodePaint.color = intensity > 0
+          ? Color.lerp(Colors.grey.shade400, _nodeActiveColor, intensity.clamp(0.0, 1.0))!
+          : Colors.grey.shade300;
+      canvas.drawCircle(fingerNodeCenters[i], fingerNodeRadius, nodePaint);
+    }
+
+    // 5. Draw Back-of-Hand Plus-Formation Matrix Nodes (Indices 5 to 9)
     const palmCenter = Offset(110, 235);
-    const double nodeRadius = 6.0;
+    const double matrixNodeRadius = 6.0;
     
     final matrixOffsets = [
       palmCenter,                        // 5: Center
@@ -255,16 +261,14 @@ class _HapticHandPainter extends CustomPainter {
       palmCenter + const Offset(22, 0),  // 9: Right
     ];
 
-    final nodePaint = Paint()..style = PaintingStyle.fill;
-
     for (int i = 0; i < 5; i++) {
       final motorIdx = i + 5;
       final intensity = motorStates.length > motorIdx ? motorStates[motorIdx] : 0.0;
       nodePaint.color = intensity > 0 
-          ? Color.lerp(Colors.grey.shade400, _matrixActiveColor, intensity.clamp(0.0, 1.0))! 
+          ? Color.lerp(Colors.grey.shade400, _nodeActiveColor, intensity.clamp(0.0, 1.0))! 
           : Colors.grey.shade300;
 
-      canvas.drawCircle(matrixOffsets[i], nodeRadius, nodePaint);
+      canvas.drawCircle(matrixOffsets[i], matrixNodeRadius, nodePaint);
     }
 
     canvas.restore();
