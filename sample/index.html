@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hand Rig Tester - test.glb</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { overflow: hidden; background: #1a1a1a; font-family: system-ui, sans-serif; color: #eee; }
+    canvas { display: block; width: 100vw; height: 100vh; }
+
+    #ui-panel {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      width: 300px;
+      background: rgba(25, 25, 28, 0.88);
+      backdrop-filter: blur(8px);
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px solid #333;
+      max-height: 92vh;
+      overflow-y: auto;
+    }
+    h2 { font-size: 15px; margin-bottom: 12px; color: #7dd3fc; }
+    .control-group { margin-bottom: 12px; }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 4px;
+      color: #ccc;
+    }
+    input[type="range"] { width: 100%; cursor: pointer; }
+    select, button {
+      width: 100%;
+      padding: 6px 8px;
+      margin-top: 4px;
+      background: #2b2b30;
+      color: #fff;
+      border: 1px solid #444;
+      border-radius: 5px;
+      font-size: 12px;
+    }
+    button { margin-top: 10px; background: #0284c7; border: none; font-weight: 600; cursor: pointer; }
+    button:hover { background: #0369a1; }
+    hr { border: 0; border-top: 1px solid #333; margin: 12px 0; }
+  </style>
+
+  <!-- Import Map for Three.js without a bundler -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="ui-panel">
+    <h2>Mock Sensor Sliders (Changed)</h2>
+
+    <!-- Flex Sensor Sliders (0 = straight, 1 = full fist curl) -->
+    <div class="control-group">
+      <label>Thumb Flex <span id="val-thumb">0%</span></label>
+      <input type="range" id="slider-thumb" min="0" max="1" step="0.01" value="0" />
+    </div>
+
+    <div class="control-group">
+      <label>Index Flex <span id="val-index">0%</span></label>
+      <input type="range" id="slider-index" min="0" max="1" step="0.01" value="0" />
+    </div>
+
+    <div class="control-group">
+      <label>Middle Flex <span id="val-middle">0%</span></label>
+      <input type="range" id="slider-middle" min="0" max="1" step="0.01" value="0" />
+    </div>
+
+    <div class="control-group">
+      <label>Ring Flex <span id="val-ring">0%</span></label>
+      <input type="range" id="slider-ring" min="0" max="1" step="0.01" value="0" />
+    </div>
+
+    <div class="control-group">
+      <label>Pinky Flex <span id="val-pinky">0%</span></label>
+      <input type="range" id="slider-pinky" min="0" max="1" step="0.01" value="0" />
+    </div>
+
+    <hr />
+
+    <!-- IMU / Orientation Mock Sliders -->
+    <div class="control-group">
+      <label>Wrist Pitch <span id="val-pitch">0°</span></label>
+      <input type="range" id="slider-pitch" min="-60" max="60" step="1" value="0" />
+    </div>
+
+    <div class="control-group">
+      <label>Wrist Roll <span id="val-roll">0°</span></label>
+      <input type="range" id="slider-roll" min="-90" max="90" step="1" value="0" />
+    </div>
+
+    <button id="reset-btn">Reset Pose</button>
+  </div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
