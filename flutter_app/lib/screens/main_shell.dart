@@ -195,6 +195,7 @@ class _MainShellState extends State<MainShell> {
       animation: Listenable.merge([_bleService, _practiceRevision]),
       builder: (context, _) => StablePredictionPracticeCard(
         target: _selectedPracticeTarget,
+        packet: _bleService.lastPacket,
         predictedLabel: _predictionResult.predictedLabel,
         predictedConfidence: _predictionResult.predictedConfidence,
         progress: _predictionResult.progress,

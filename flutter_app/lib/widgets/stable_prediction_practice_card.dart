@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'hand_3d_viewer.dart';
+import '../services/ble_packet.dart';
+import 'haptic_hand_visualizer_widget.dart';
 import '../theme/helping_hand_theme.dart';
 
 class StablePredictionPracticeCard extends StatelessWidget {
   const StablePredictionPracticeCard({
     super.key,
     required this.target,
+    required this.packet,
     required this.predictedLabel,
     required this.predictedConfidence,
     required this.progress,
@@ -15,6 +18,7 @@ class StablePredictionPracticeCard extends StatelessWidget {
   });
 
   final String? target;
+  final BlePacket? packet;
   final String? predictedLabel;
   final double? predictedConfidence;
   final double progress;
@@ -22,11 +26,78 @@ class StablePredictionPracticeCard extends StatelessWidget {
   final bool connected;
   final VoidCallback onRetry;
 
+  // Constants for calibration thresholds
+  static const List<int> _straightRaw = [550, 550, 550, 550, 560];
+  static const List<int> _bentRaw = [145, 135, 130, 125, 95];
+
+  // Internal helper to fetch target template vector
+  List<double> _getTargetVector(String? targetStr) {
+    if (targetStr == null) return List.filled(5, 0.0);
+    switch (targetStr.toUpperCase()) {
+      case 'L':
+        return [0.9, 0.9, 0.1, 0.1, 0.1];
+      case 'B':
+        return [0.1, 0.0, 0.0, 0.0, 0.0];
+      default:
+        return [0.5, 0.5, 0.5, 0.5, 0.5];
+    }
+  }
+
+  static const bool _forceMockPreview = true;
+
+  // Internal calculation for finger errors (+ means bend more, - means relax)
+  List<double> _calculateFingerErrors() {
+    if ((packet == null || !connected) && _forceMockPreview) {
+      return [0.6, 0.8, 0.0, -0.5, -0.7];
+    }
+
+    if (packet == null || target == null) return List.filled(5, 0.0);
+    final targetVec = _getTargetVector(target);
+    
+    return List.generate(5, (index) {
+      final raw = packet!.flexRaw[index];
+      if (raw == null) return 0.0;
+      
+      final straight = _straightRaw[index].toDouble();
+      final bent = _bentRaw[index].toDouble();
+      final liveNorm = ((straight - raw) / (straight - bent)).clamp(0.0, 1.0);
+      
+      return targetVec[index] - liveNorm;
+    });
+  }
+
+  // Internal calculation for the 10 haptic motors (5 fingers + 5 back-of-hand matrix nodes)
+  List<double> _calculateHapticMotors(List<double> errors) {
+    if ((packet == null || !connected) && _forceMockPreview) {
+      return [0.8, 1.0, 0.0, 0.0, 0.5, 1.0, 0.8, 0.6, 0.4, 0.2];
+    }
+
+    List<double> motors = List.filled(10, 0.0);
+    for (int i = 0; i < 5; i++) {
+      motors[i] = errors[i].abs() > 0.15 ? errors[i].abs() : 0.0;
+    }
+    
+    // Example back-of-hand matrix vibration sequence pattern
+    final avgError = errors.fold(0.0, (sum, e) => sum + e.abs()) / 5.0;
+    if (avgError > 0.3) {
+      motors[5] = 1.0; // Center node
+      motors[6] = 0.8; // Top node
+      motors[7] = 0.6; // Bottom node
+      motors[8] = 0.4; // Left node
+      motors[9] = 0.2; // Right node
+    }
+    return motors;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final complete = target != null && progress >= 1;
     final reducedMotion = MediaQuery.disableAnimationsOf(context);
+
+    final errors = _calculateFingerErrors();
+    final hapticMotorStates = _calculateHapticMotors(errors);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -173,6 +244,15 @@ class StablePredictionPracticeCard extends StatelessWidget {
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded, size: 20),
                 label: const Text('Retry'),
+              ),
+            ),
+          ],
+          if (target != null) ...[
+            const SizedBox(height: 16),
+            Center(
+              child: HapticHandVisualizerWidget(
+                fingerErrors: errors,
+                motorStates: hapticMotorStates,
               ),
             ),
           ],
