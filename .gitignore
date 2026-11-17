@@ -22,3 +22,8 @@ oracleJdk-27
 
 # browser automation snapshots
 .playwright-cli/
+
+# Local dependency installs and disposable diagnostics
+/.work/*-deps/
+/.work/python-packages/
+/tmp/

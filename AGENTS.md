@@ -79,6 +79,14 @@ Word practice pages are accessible UI; dynamic word recognition and word
 completion are not yet integrated. See the handoff for current navigation,
 remaining decisions, and submission requirements.
 
+## Release candidate report revision
+
+Start M5 report sessions with `M5-Release-Candidate.md`, the correct assignment
+provided November 12, 2026, then `docs/RELEASE_CANDIDATE_REPORT_REVIEW.md` for
+the existing report inventory and evidence limits. The required report is an
+approximately 1–2 page PDF. Preserve the October 28 PDFs as historical artifacts;
+later November changes are not evidence of work completed for that snapshot.
+
 ## Beta presentation
 
 Start presentation sessions with `docs/BETA_PRESENTATION_SESSION_HANDOFF.md`

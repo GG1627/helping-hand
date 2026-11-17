@@ -1,0 +1,33 @@
+{
+  "schema_version": "haptic-hardware-inventory-draft-v1",
+  "status": "Not run",
+  "purpose": "Assembly observations only; not consumed by firmware or the simulator",
+  "glove_id": null,
+  "mount_version": null,
+  "handedness": null,
+  "feather_variant_and_revision": null,
+  "firmware_revision": null,
+  "actuator_manufacturer": null,
+  "actuator_part_number": null,
+  "manufacturer_datasheet_reference": null,
+  "recorded_purchase_match": "TIMESETL pickup discs; team-confirmed ASIN B077YJ3H6R",
+  "driver_part_and_schematic_revision": null,
+  "rated_drive_voltage_and_waveform": null,
+  "measured_capacitance_and_resonance": null,
+  "protection_and_discharge_path": null,
+  "power_rail_and_battery_capacity": null,
+  "mounting_and_axis_photo_references": [],
+  "shared_schematic_net_resolved": false,
+  "outputs": [
+    {"slot": 0, "firmware_name": "Thumb", "signal": "A5", "gpio": 8, "actual_connection_verified": false, "physical_position": null},
+    {"slot": 1, "firmware_name": "Index", "signal": "D5", "gpio": 5, "actual_connection_verified": false, "physical_position": null},
+    {"slot": 2, "firmware_name": "Middle", "signal": "D6", "gpio": 6, "actual_connection_verified": false, "physical_position": null},
+    {"slot": 3, "firmware_name": "Ring", "signal": "D9", "gpio": 9, "actual_connection_verified": false, "physical_position": null},
+    {"slot": 4, "firmware_name": "Pinky", "signal": "D10", "gpio": 10, "actual_connection_verified": false, "physical_position": null},
+    {"slot": 5, "firmware_name": "HandLeft", "signal": "SCK", "gpio": 36, "actual_connection_verified": false, "physical_position": null},
+    {"slot": 6, "firmware_name": "HandRight", "signal": "MISO", "gpio": 37, "actual_connection_verified": false, "physical_position": null},
+    {"slot": 7, "firmware_name": "HandCenter", "signal": "D12", "gpio": 12, "actual_connection_verified": false, "physical_position": null},
+    {"slot": 8, "firmware_name": "HandUp", "signal": "D11", "gpio": 11, "actual_connection_verified": false, "physical_position": null},
+    {"slot": 9, "firmware_name": "HandDown", "signal": "MOSI", "gpio": 35, "actual_connection_verified": false, "physical_position": null}
+  ]
+}
