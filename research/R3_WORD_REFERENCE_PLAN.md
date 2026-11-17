@@ -1,8 +1,9 @@
 # R3 Word report reference plan
 
 **Selection settled:** use [R3 Word selected references](R3_WORD_REFERENCES.md)
-as the authoritative drafting list. It selects 21 sources from this audit and
-the follow-up checks, including one repository pointer. This file preserves
+as the authoritative drafting list. It selects 22 sources from this audit and
+the follow-up checks, including the user-confirmed SignAloud inspiration and
+one repository pointer. This file preserves
 the original 38-entry audit and reserve-source decisions; its 16-source
 starting list below is the earlier proposal, not the current selection.
 

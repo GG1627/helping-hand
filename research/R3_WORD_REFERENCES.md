@@ -5,7 +5,7 @@ Source selection settled November 12, 2026. Project evidence cutoff:
 Word rewrite. The [reference audit](R3_WORD_REFERENCE_PLAN.md) retains the
 reasoning, excluded candidates, and internal evidence links.
 
-The selected pool contains **21 sources: 20 external sources and one project
+The selected pool contains **22 sources: 21 external sources and one project
 repository**. Each has an intended use below. This count is not a target to
 fill in the report: remove any unused entry at final reconciliation. Add a
 source only if a new substantive claim, borrowed material, or explicitly
@@ -18,6 +18,21 @@ The IDs below are not final citation numbers. The same paper's DOI, author
 copy, and archive mirror identify one source, not multiple references.
 
 ## Selected bibliography metadata
+
+### SIGNALOUD
+
+University of Washington, "UW undergraduate team wins $10,000 Lemelson-MIT
+Student Prize for gloves that translate sign language," *UW News*, Apr. 12,
+2016. Accessed: Nov. 12, 2026. [Online]. Available:
+https://www.washington.edu/news/2016/04/12/uw-undergraduate-team-wins-10000-lemelson-mit-student-prize-for-gloves-that-translate-sign-language/
+
+Added after the user's Design discussion: the team drew inspiration from
+SignAloud's appearance and compact wearable form. This university account
+identifies developers Navid Azodi and Thomas Pryor as University of Washington
+students, not MIT students; the MIT connection is the Lemelson-MIT prize.
+Use for design inspiration, not peer-reviewed performance or learning evidence.
+The user's account establishes its influence on Helping Hand; the source
+establishes the external project's identity. First citation in Design is [7].
 
 ### ASL-CONTEXT
 
@@ -96,35 +111,35 @@ https://www.nxp.com/docs/en/user-guide/UM10204.pdf
 
 ### FLUTTER
 
-Flutter, "Flutter documentation." Accessed: Nov. 12, 2026. [Online]. Available:
+Flutter, "Flutter documentation." Accessed: Nov. 13, 2026. [Online]. Available:
 https://docs.flutter.dev/
 
 ### PLATFORMIO
 
-PlatformIO, "What is PlatformIO?" Accessed: Nov. 12, 2026. [Online]. Available:
+PlatformIO, "What is PlatformIO?" Accessed: Nov. 13, 2026. [Online]. Available:
 https://docs.platformio.org/en/latest/what-is-platformio.html
 
 ### TENSORFLOW
 
-TensorFlow, "Keras: The high-level API for TensorFlow." Accessed: Nov. 12,
+TensorFlow, "Keras: The high-level API for TensorFlow." Accessed: Nov. 13,
 2026. [Online]. Available: https://www.tensorflow.org/guide/keras
 
 ### TFLITE-MICRO
 
-Google AI Edge, "LiteRT for Microcontrollers." Accessed: Nov. 12, 2026.
+Google AI Edge, "LiteRT for Microcontrollers." Accessed: Nov. 13, 2026.
 [Online]. Available:
 https://developers.google.com/edge/litert/microcontrollers/overview
 
 ### TFLITE-FLUTTER
 
-TensorFlow, "tflite_flutter," ver. 0.12.1, pub.dev. Accessed: Nov. 12, 2026.
+TensorFlow, "tflite_flutter," ver. 0.12.1, pub.dev. Accessed: Nov. 13, 2026.
 [Online]. Available:
 https://pub.dev/packages/tflite_flutter/versions/0.12.1
 
 ### FIREBASE
 
 Firebase, "Get started with Firebase in your Flutter project." Accessed:
-Nov. 12, 2026. [Online]. Available:
+Nov. 13, 2026. [Online]. Available:
 https://firebase.google.com/docs/flutter/setup
 
 ### FIREBASE-PRIVACY
@@ -136,7 +151,7 @@ https://firebase.google.com/support/privacy/
 ### KICAD
 
 The KiCad Documentation Contributors, *Getting Started in KiCad*, ver. 9.0.
-Accessed: Nov. 12, 2026. [Online]. Available:
+Accessed: Nov. 13, 2026. [Online]. Available:
 https://docs.kicad.org/9.0/en/getting_started_in_kicad/getting_started_in_kicad.html
 
 ### FLEX
@@ -164,7 +179,7 @@ https://github.com/GG1627/helping-hand/tree/cf59fd98feed2f5e6b90997c8b5ff4ae2b70
 | Abstract | Make it self-contained; summarize the team's work without introducing literature claims requiring citations. |
 | Introduction | ASL-CONTEXT for language context; ASL-EDUCATORS for the learning/practice motivation if we use that study here. Explain our intended users and purpose in the team's own words. |
 | Background | WEARABLE-ASL for wearable temporal recognition; TCN for sequence-model architecture; ASL-EDUCATORS for educator perspectives; MAGNETIC for the planned upgrade's calibration needs; HAPTIC-STUDY for why moving-hand cue perception needs testing. |
-| Design | BLE, NUS, and I2C for communication; FLEX and IMU for the identified replacement parts. TFLITE-FLUTTER can support the phone inference implementation. Explain the team's architecture directly. Place REPO once where readers are directed to the implementation and recorded artifacts. |
+| Design | SIGNALOUD for the user-confirmed visual inspiration; BLE, NUS, and I2C for communication; FLEX and IMU for the identified replacement parts. TFLITE-FLUTTER can support phone inference where needed. Explain the team's architecture directly. Place REPO once where readers are directed to the implementation and recorded artifacts. |
 | Tools, Design Constraints, and Engineering Standards | FLUTTER, PLATFORMIO, TENSORFLOW, TFLITE-MICRO, TFLITE-FLUTTER, FIREBASE, and KICAD for the principal development tools. Reuse BLE, NUS, and I2C as appropriate. FIREBASE-PRIVACY supports the cloud HTTPS description. |
 | Needs and Impact Analysis | DEAF-LED for stakeholder participation and problem framing; reuse ASL-CONTEXT and ASL-EDUCATORS where needed. Discuss project-specific cost, replacement waste, access, data handling, and limitations without adding unsupported global statistics. |
 | Results | Present our procedures, observations, model splits, counts, and limitations directly. Keep links to the underlying records in the internal evidence notes. Use the existing REPO number where artifact traceability is useful; do not cite tool documentation as proof that a test passed. |
@@ -205,7 +220,9 @@ https://github.com/GG1627/helping-hand/tree/cf59fd98feed2f5e6b90997c8b5ff4ae2b70
 ## Verification and use limits
 
 All selected external entries were checked on November 12 during this
-reference review. Checks used official documentation, publisher text,
+reference review. The seven principal software-tool pages were rechecked on
+November 13 for the Tools section; their access dates above were updated.
+Checks used official documentation, publisher text,
 author-hosted papers, or primary-paper archives. For HAPTIC-STUDY, the
 available publisher abstract supports the intended qualitative claim;
 restricted full-text methods were not inspected, so do not add numerical
@@ -227,7 +244,7 @@ performance. The BLE primer is explanatory; NUS is a custom vendor service;
 I2C UM10204 is a protocol specification. Distinguish these in the report.
 Reference KiCad 9.0 as a documentation edition, not a confirmed team release.
 
-Access dates are November 12 even though project results stop October 28.
+Access dates are November 12 or 13 even though project results stop October 28.
 The final bibliography should contain only sources actually used and should
 have one entry per source, matched to every in-text number. Do not paste
 draft IDs, verification notes, or this planning commentary into the report.
