@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1280" viewBox="0 0 1800 1280"><title>Helping Hand implemented system and planned hardware integration</title><desc>Flex sensors and a six-axis IMU feed ESP32 static recognition. BLE connects the ESP32 to the Flutter app with word inference and local progress. HTTPS connects the phone to Firebase. Dashed elements show a planned nine-axis replacement IMU, piezo drivers, correction-to-cue logic, and an unfabricated custom PCB replacing perfboard.</desc><rect width="1800" height="1280" fill="white"/>
+<text x='45' y='70.4' font-family='Arial,Helvetica,sans-serif' font-size='44' font-weight='700' text-anchor='start' fill='#202020'>Helping Hand system architecture</text>
+<text x='45' y='119.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='start' fill='#202020'>Implemented paths and planned hardware integration</text>
+<polyline points='50,161 135,161' fill='none' stroke='#404040' stroke-width='3' />
+<text x='150' y='170.8' font-family='Arial,Helvetica,sans-serif' font-size='28' font-weight='400' text-anchor='start' fill='#202020'>Implemented</text>
+<polyline points='510,161 595,161' fill='none' stroke='#8c7622' stroke-width='3' stroke-dasharray='12 8'/>
+<text x='610' y='170.8' font-family='Arial,Helvetica,sans-serif' font-size='28' font-weight='400' text-anchor='start' fill='#202020'>Planned / not yet integrated</text>
+<rect x='35' y='205' width='1730' height='465' fill='#fafafa' stroke='#b8b8b8' stroke-width='2.5' />
+<text x='55' y='244.45' font-family='Arial,Helvetica,sans-serif' font-size='27' font-weight='700' text-anchor='start' fill='#202020'>IMPLEMENTED SYSTEM</text>
+<rect x='35' y='735' width='1730' height='430' fill='#fffdf7' stroke='#b8a767' stroke-width='2.5' stroke-dasharray='12 8'/>
+<polyline points='370,345 435,345 435,400 520,400' fill='none' stroke='#404040' stroke-width='3' />
+<polygon points='520,400 504,393 504,407' fill='#404040'/>
+<polyline points='370,535 435,535 435,505 520,505' fill='none' stroke='#404040' stroke-width='3' />
+<polygon points='520,505 504,498 504,512' fill='#404040'/>
+<polyline points='800,450 980,450' fill='none' stroke='#404040' stroke-width='3' />
+<polygon points='980,450 964,443 964,457' fill='#404040'/>
+<polyline points='1340,450 1490,450' fill='none' stroke='#404040' stroke-width='3' />
+<polygon points='1490,450 1474,443 1474,457' fill='#404040'/>
+<polyline points='220,860 220,595' fill='none' stroke='#8c7622' stroke-width='3' stroke-dasharray='12 8'/>
+<polygon points='220,595 213,611 227,611' fill='#8c7622'/>
+<polyline points='660,550 660,860' fill='none' stroke='#8c7622' stroke-width='3' stroke-dasharray='12 8'/>
+<polygon points='660,860 667,844 653,844' fill='#8c7622'/>
+<polyline points='1160,610 1160,860' fill='none' stroke='#8c7622' stroke-width='3' stroke-dasharray='12 8'/>
+<polygon points='1160,860 1167,844 1153,844' fill='#8c7622'/>
+<polyline points='980,940 875,940 875,630 760,630 760,550' fill='none' stroke='#8c7622' stroke-width='3' stroke-dasharray='12 8'/>
+<polygon points='760,550 753,566 767,566' fill='#8c7622'/>
+<rect x='50' y='744' width='440' height='47' fill='#fffdf7' stroke='#fffdf7' stroke-width='2.5' />
+<text x='55' y='776.45' font-family='Arial,Helvetica,sans-serif' font-size='27' font-weight='700' text-anchor='start' fill='#202020'>PLANNED INTEGRATION</text>
+<rect x='70' y='285' width='300' height='120' fill='#dae8fc' stroke='#6c8ebf' stroke-width='2.5' />
+<text x='220' y='336.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='#202020'>5 flex sensors</text>
+<text x='220' y='374.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Finger-bend values</text>
+<rect x='70' y='475' width='300' height='120' fill='#dae8fc' stroke='#6c8ebf' stroke-width='2.5' />
+<text x='220' y='526.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='#202020'>6-axis IMU</text>
+<text x='220' y='564.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Acceleration + gyro</text>
+<rect x='520' y='350' width='280' height='200' fill='#dae8fc' stroke='#6c8ebf' stroke-width='2.5' />
+<text x='660' y='403.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='#202020'>ESP32-S3</text>
+<text x='660' y='441.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Read sensors</text>
+<text x='660' y='479.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Static MLP</text>
+<text x='660' y='517.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>34 classes</text>
+<rect x='980' y='270' width='360' height='340' fill='#d5e8d4' stroke='#82b366' stroke-width='2.5' />
+<text x='1160' y='355.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='#202020'>Flutter Android app</text>
+<text x='1160' y='393.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Practice + feedback</text>
+<text x='1160' y='431.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Word TCN</text>
+<text x='1160' y='469.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Hello / Please / Yes</text>
+<text x='1160' y='507.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Local progress (JSON)</text>
+<text x='1160' y='545.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Recording / export</text>
+<rect x='1490' y='375' width='240' height='150' fill='#dae8fc' stroke='#6c8ebf' stroke-width='2.5' />
+<text x='1610' y='422.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='#202020'>Firebase</text>
+<text x='1610' y='460.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Authentication</text>
+<text x='1610' y='498.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Firestore</text>
+<rect x='70' y='860' width='300' height='160' fill='#fff2cc' stroke='#b5a04c' stroke-width='2.5' stroke-dasharray='12 8'/>
+<text x='220' y='912.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='#202020'>9-axis IMU</text>
+<text x='220' y='950.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>ICM-20948</text>
+<text x='220' y='988.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Calibration pending</text>
+<rect x='500' y='860' width='320' height='160' fill='#fff2cc' stroke='#b5a04c' stroke-width='2.5' stroke-dasharray='12 8'/>
+<text x='660' y='893.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='#202020'>10 piezo elements</text>
+<text x='660' y='931.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>5 finger + 5 hand</text>
+<text x='660' y='969.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Drivers / cues</text>
+<text x='660' y='1007.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>pending</text>
+<rect x='980' y='860' width='360' height='160' fill='#fff2cc' stroke='#b5a04c' stroke-width='2.5' stroke-dasharray='12 8'/>
+<text x='1160' y='912.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='#202020'>Correction logic</text>
+<text x='1160' y='950.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Map errors to cues</text>
+<text x='1160' y='988.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Needs development</text>
+<rect x='1490' y='860' width='240' height='160' fill='#fff2cc' stroke='#b5a04c' stroke-width='2.5' stroke-dasharray='12 8'/>
+<text x='1610' y='893.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='700' text-anchor='middle' fill='#202020'>Custom PCB</text>
+<text x='1610' y='931.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Replaces</text>
+<text x='1610' y='969.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>perfboard</text>
+<text x='1610' y='1007.5' font-family='Arial,Helvetica,sans-serif' font-size='30' font-weight='400' text-anchor='middle' fill='#202020'>Not fabricated</text>
+<text x='440.5' y='328.3' font-family='Arial,Helvetica,sans-serif' font-size='28' font-weight='400' text-anchor='middle' fill='#202020'>ADC</text>
+<text x='440.5' y='582.3' font-family='Arial,Helvetica,sans-serif' font-size='28' font-weight='400' text-anchor='middle' fill='#202020'>I2C</text>
+<text x='890' y='426.8' font-family='Arial,Helvetica,sans-serif' font-size='28' font-weight='400' text-anchor='middle' fill='#202020'>BLE / GATT</text>
+<text x='1415' y='426.8' font-family='Arial,Helvetica,sans-serif' font-size='28' font-weight='400' text-anchor='middle' fill='#202020'>HTTPS</text>
+<text x='1415' y='495.6' font-family='Arial,Helvetica,sans-serif' font-size='26' font-weight='400' text-anchor='middle' fill='#202020'>Wi-Fi /</text>
+<text x='1415' y='527.6' font-family='Arial,Helvetica,sans-serif' font-size='26' font-weight='400' text-anchor='middle' fill='#202020'>cellular</text>
+<text x='236' y='705.45' font-family='Arial,Helvetica,sans-serif' font-size='27' font-weight='400' text-anchor='start' fill='#202020'>Replaces</text>
+<text x='676' y='716.1' font-family='Arial,Helvetica,sans-serif' font-size='26' font-weight='400' text-anchor='start' fill='#202020'>GPIO / driver</text>
+<text x='893' y='664.25' font-family='Arial,Helvetica,sans-serif' font-size='25' font-weight='400' text-anchor='middle' fill='#202020'>Future BLE commands</text>
+<text x='1176' y='716.1' font-family='Arial,Helvetica,sans-serif' font-size='26' font-weight='400' text-anchor='start' fill='#202020'>Planned cue logic</text>
+<text x='65' y='1109.3' font-family='Arial,Helvetica,sans-serif' font-size='28' font-weight='400' text-anchor='start' fill='#202020'>The custom PCB will replace the perfboard wiring and mounting.</text>
+<text x='45' y='1213.45' font-family='Arial,Helvetica,sans-serif' font-size='27' font-weight='400' text-anchor='start' fill='#202020'>Current word inputs: flex + accelerometer / gyroscope. Magnetic features would require model updates.</text>
+<text x='45' y='1251.45' font-family='Arial,Helvetica,sans-serif' font-size='27' font-weight='400' text-anchor='start' fill='#202020'>A word prediction alone does not specify which finger needs correction.</text>
+</svg>
