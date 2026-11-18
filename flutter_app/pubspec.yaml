@@ -44,6 +44,7 @@ dependencies:
   path_provider: ^2.1.6
   share_plus: ^11.1.0
   tflite_flutter: 0.12.1
+  webview_flutter: ^4.8.0
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +83,7 @@ flutter:
     - assets/fonts/
     - assets/models/test.glb
     - assets/models/words_tcn/
+    - assets/three_hand_viewer.html
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

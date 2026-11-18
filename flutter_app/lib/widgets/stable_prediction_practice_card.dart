@@ -4,6 +4,7 @@ import 'hand_3d_viewer.dart';
 import '../services/ble_packet.dart';
 import 'haptic_hand_visualizer_widget.dart';
 import '../theme/helping_hand_theme.dart';
+import 'armature_hand_3d_viewer.dart';
 
 class StablePredictionPracticeCard extends StatefulWidget {
   const StablePredictionPracticeCard({
@@ -296,6 +297,13 @@ class _StablePredictionPracticeCardState
                     icon: const Icon(Icons.refresh_rounded, size: 20),
                     label: const Text('Retry'),
                   ),
+                ),
+              ],
+              if (widget.target != null) ...[
+                const SizedBox(height: 16),
+                ArmatureHand3DViewer(
+                  packet: widget.packet,
+                  imuRoll: 0.0, // Placeholder for IMU roll; replace with actual data if available
                 ),
               ],
               if (widget.target != null) ...[
