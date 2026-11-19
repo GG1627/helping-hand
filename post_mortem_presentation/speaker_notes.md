@@ -20,9 +20,9 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 ## 2. The problem
 
-**0:15–0:35 · 20 seconds.** Give the statistic as context for families who may be learning ASL, then explain the feedback gap.
+**0:15–0:35 · 20 seconds.** Connect the family motivation to the gap in solo practice.
 
-“NIH reports that more than 90 percent of deaf children are born to hearing parents. When a beginner practices ASL alone, a video can show the target sign. They still need feedback on their own handshape and movement. That’s the problem we’re addressing.”
+“In a survey of 100 hearing parents learning ASL for their deaf child, 94 used books, videos, or apps to teach themselves. A recorded example gives you a sign to copy. When you practice alone, you still have to catch mistakes in your handshape or movement.”
 
 ## 3. System architecture
 

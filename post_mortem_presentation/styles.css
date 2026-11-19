@@ -14,6 +14,13 @@
   height: 100%;
   object-fit: cover;
 }
+.cover-visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--canvas) 0 36%, transparent 45%);
+  pointer-events: none;
+}
 .cover-display {
   position: absolute;
   left: 736.172px;
@@ -76,8 +83,8 @@
 .problem h2 { font-size: 78px; }
 .problem-stat {
   margin-top: 25px;
-  max-width: 520px;
-  font-size: 34px;
+  max-width: 620px;
+  font-size: 32px;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -85,15 +92,16 @@
   display: block;
   margin-bottom: 11px;
   color: var(--teal);
-  font-size: 155px;
+  font-size: 136px;
   line-height: .98;
   letter-spacing: -.055em;
 }
+.problem-stat small { font-size: .52em; font-weight: 650; }
 .problem-points {
   max-width: 610px;
   margin: 32px 0 0;
   padding-left: 32px;
-  font-size: 29px;
+  font-size: 28px;
   line-height: 1.35;
 }
 .problem-points li + li { margin-top: 13px; }

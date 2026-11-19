@@ -2,11 +2,9 @@
 
 ## Claims
 
-- Slide 2 uses the [NIDCD hearing statistics](https://www.nidcd.nih.gov/health/statistics/quick-statistics-hearing)
-  for the percentage of deaf children born to hearing parents. NIDCD cites
-  [Mitchell and Karchmer (2004)](https://gallaudetcdn.com/gal-media/Documents/Research-Support-and-International-Affairs/SLS_Paper.pdf).
-  The statistic describes parental hearing status. The feedback gap is the
-  problem Helping Hand addresses.
+- Slide 2 uses [Lieberman, Mitchiner, and Pontecorvo, §3.2.1 and Table 3](https://sites.bu.edu/lavalab/files/2022/06/Lieberman-Mitchiner-Pontecorvo-2022.pdf).
+  Of 100 hearing parents surveyed who had learned ASL, 94 reported using
+  self-teaching resources, including books, videos, and apps.
 
 - [P3 assignment](../P3-Post-Mortem-Presentation.md) and the November 19 rubric
   image supplied by Gael set the presentation and grading requirements.
@@ -33,10 +31,11 @@
 
 ## Visuals
 
-- [Cover product scene](assets/illustrations/cover-product-scene-open.png) is a
+- [Cover product scene](assets/illustrations/cover-product-scene-ivory.png) is a
   built-in ImageGen visualization based on the
   [beta composition](../beta_presentation/assets/illustrations/intro-product-scene.png)
-  and the supplied final glove photo. The phone display uses the original
+  and the supplied final glove photo. The beta scene guides finger spacing,
+  and the background matches the deck's warm ivory. The phone uses the original
   [Home capture](assets/screenshots/home-nov19.png) from November 19, 05:13:01.
   Slide 5 shows the original hardware photo.
 - [Problem illustration](assets/illustrations/learning-problem.png) reuses the
@@ -75,7 +74,15 @@ used this prompt.
 
 ### Open hand and centered cuff edit prompt
 
+This prompt produced the [previous open-hand scene](assets/illustrations/cover-product-scene-open.png).
+
 > Use case: precise object edit. Image 1 is the exact 16:9 slide cover scene to edit. Image 2 is the final prototype hardware reference. Change only two things on the worn glove at the right of Image 1. (1) OPEN AND STRAIGHTEN all five fingers at the knuckles and finger joints, including the thumb. Each should be physically straight rather than curling forward. Preserve the existing diagonal wrist rotation, the angle in the picture of each digit, the spacing/spread between digits, the overall hand position, and a normal right-hand anatomy. The four long digits should angle diagonally toward the upper left as they already do, fanning slightly, not all parallel and vertical. Keep all five fingertips in the frame and let the silver-striped flex strips rest flat along the straight fingers. (2) Move the entire blue perfboard and attached black ESP32 together a short distance to viewer-right, to visibly center the assembly across the black wrist cuff. Center it between the cuff's left and right edges, exactly over the longitudinal centerline of the wrist, while keeping the same size, direction, height along the cuff, and short red/orange/black wires connected. Keep the black knit, five silver flex strips, gold-and-ivory piezo discs, and all other hardware visually the same. Match reference hardware; do not add battery or electronics. Preserve everything outside the glove exactly: phone, position and geometry of all four corners of the blank ivory phone display, plant, desktop, forearm, light, empty ivory copy area, and canvas dimensions. No text, logos, additional fingers, or new objects.
+
+### Beta hand pose and warm-white background prompts
+
+> Use case: precise object edit for Helping Hand's 16:9 slide cover. Image 1 is the current post-mortem cover and the edit target. Image 2 is the beta cover and provides ONLY the hand-pose reference. Image 3 is the photo of the final prototype and provides ONLY the hardware reference. On Image 1, adjust the worn glove's finger positioning and spacing to match the beta hand in Image 2. Copy the beta's natural, open right hand silhouette and knuckle alignment: middle finger tallest, index and ring slightly lower, little finger distinctly shorter, thumb outward and lower, fingers comfortably separated. Match the visible placement, orientation, and gaps from Image 2 without copying its glove hardware. Keep the four fingers extended with natural slight individual angles, not curled, rigidly identical or unnaturally stretched. Maintain the current glove's five striped flex sensors, round piezo discs, wire colors and the blue perfboard with ESP32 centered on the cuff. Keep all of the final version's hardware and expose the cuff. Preserve the adult forearm, blank ivory text area, the phone's exact four screen corners and blank display, its stand, desktop, plant, framing, light, and 16:9 dimensions from Image 1. The real Android Home capture is composited separately over the blank phone screen. Do not change any object other than the hand and fingers of the worn glove. No text, extra fingers, battery, or new objects.
+
+> Precise background color edit for the attached full-bleed 16:9 presentation cover. Keep the exact glove, beta-inspired finger positions and spacing, wrist-mounted hardware, hand and forearm, phone and all four corners of its blank display, phone stand, plant, camera framing, proportions and positions pixel-aligned. Change the room backdrop and desktop color only: make it a bright warm-white studio scene to match a presentation with background color #FFFCF5. The left half should be seamlessly warm white (#FFFCF5) for slide text, with no pink or brown cast. Behind the glove and around the phone, use a soft off-white wall and a nearly white tabletop with faint natural texture and the existing soft shadows. Keep the small green accent soft. Preserve real hardware colors and natural skin tone. No text, graphics or extra objects. Same canvas size and composition.
 
 ### Earlier cover backdrop generation prompt
 
