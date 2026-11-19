@@ -33,7 +33,7 @@
 
 ## Visuals
 
-- [Cover product scene](assets/illustrations/cover-product-scene-relaxed.png) is a
+- [Cover product scene](assets/illustrations/cover-product-scene-open.png) is a
   built-in ImageGen visualization based on the
   [beta composition](../beta_presentation/assets/illustrations/intro-product-scene.png)
   and the supplied final glove photo. The phone display uses the original
@@ -68,7 +68,14 @@ The [first composition](assets/illustrations/cover-product-scene.png) used this 
 
 ### Relaxed hand edit prompt
 
+The [earlier relaxed-hand scene](assets/illustrations/cover-product-scene-relaxed.png)
+used this prompt.
+
 > Use case: precise object edit. Image 1 is the edit target, a 16:9 Helping Hand cover photo. Image 2 is the final hardware reference. Edit only the worn glove and the hand within it on the right of Image 1. Change the existing rigid fingers-up pose to a natural, relaxed adult hand pose, as though the wearer has lifted a resting hand slightly off a desk. Rotate the wrist subtly so the fingers angle gently diagonally rather than pointing straight up. Let the fingers curve forward at their knuckles in a loose, shallow arc, with different amounts of curl and small natural gaps. Give the thumb a relaxed angle toward the palm. Keep the back of the hand broadly facing the viewer, all five fingers anatomically believable with proportional length, and the black knitted fabric resting over each finger instead of appearing flat or stiff. The flex strips should bend around the fingers with the fabric. Preserve the final glove's five striped silver flex strips, positioned piezo discs, red, orange and black wires and blue perfboard at the cuff from Image 2; preserve the same hardware version and realistic proportions. Keep the electronics visible and let the forearm enter from the lower right as in Image 1. The hand is simply relaxed, with no intended ASL sign. Preserve everything outside the hand and glove as closely as possible: the exact 16:9 composition, empty ivory left half, the phone's exact position, angle, blank ivory screen and four screen corners, stand, desktop, background, plant, lighting and scale. The phone screen is overlaid with a separate image afterwards, so do not reframe or redraw it. Photorealistic; no text, extra fingers, or new hardware.
+
+### Open hand and centered cuff edit prompt
+
+> Use case: precise object edit. Image 1 is the exact 16:9 slide cover scene to edit. Image 2 is the final prototype hardware reference. Change only two things on the worn glove at the right of Image 1. (1) OPEN AND STRAIGHTEN all five fingers at the knuckles and finger joints, including the thumb. Each should be physically straight rather than curling forward. Preserve the existing diagonal wrist rotation, the angle in the picture of each digit, the spacing/spread between digits, the overall hand position, and a normal right-hand anatomy. The four long digits should angle diagonally toward the upper left as they already do, fanning slightly, not all parallel and vertical. Keep all five fingertips in the frame and let the silver-striped flex strips rest flat along the straight fingers. (2) Move the entire blue perfboard and attached black ESP32 together a short distance to viewer-right, to visibly center the assembly across the black wrist cuff. Center it between the cuff's left and right edges, exactly over the longitudinal centerline of the wrist, while keeping the same size, direction, height along the cuff, and short red/orange/black wires connected. Keep the black knit, five silver flex strips, gold-and-ivory piezo discs, and all other hardware visually the same. Match reference hardware; do not add battery or electronics. Preserve everything outside the glove exactly: phone, position and geometry of all four corners of the blank ivory phone display, plant, desktop, forearm, light, empty ivory copy area, and canvas dimensions. No text, logos, additional fingers, or new objects.
 
 ### Earlier cover backdrop generation prompt
 
