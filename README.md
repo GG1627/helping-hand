@@ -13,7 +13,7 @@ Bluetooth Low Energy (BLE) to our Android Flutter app, where users can practice
 signs, see live feedback, record gestures, and save their progress.
 
 This repository contains our firmware, app, model-training code, hardware
-documentation, and the KiCad files for our PCB design, which is still in progress.
+documentation, and the KiCad files for the custom PCB we prototyped.
 
 - **Repository:** <https://github.com/GG1627/helping-hand>
 - **Release candidate submission snapshot:** [`ff6a9ab`](https://github.com/GG1627/helping-hand/commit/ff6a9ab763f12f60e3a327d0df4f00a8784894b8)
@@ -24,12 +24,28 @@ documentation, and the KiCad files for our PCB design, which is still in progres
 - **Demo:** <https://www.youtube.com/shorts/qQmO1KYz998>
 - **Team:** Brian, Gael, Kali, and Srinitha
 
-**Current development handoff (November 6):** Software preparation for the
-repaired glove is ready for physical calibration and real data collection. Start
-with [the glove/model session handoff](docs/GLOVE_MODEL_SESSION_HANDOFF.md) for
-completed changes, current model contracts, verification limits, and the next
-steps once assembly is done. The milestone dates and historical evidence below
-remain labeled for their original submissions.
+## Current development and demo · November 19, 2026
+
+The current working build uses the [wired perfboard glove](docs/figures/r4/IMG_9891.jpeg)
+with laptop USB power for the demo. The team built a custom PCB, tried a
+conductive-thread assembly, and moved to discrete wiring after connection
+problems. The glove has five flex sensors, an ICM-20948, and ten piezos.
+
+| Practice | Implementation in the current working build |
+| --- | --- |
+| Held letters and digits | ESP32 MLP for 24 letters and all ten digits. |
+| J and Z | Separate IMU-only phone TCN. Use Start attempt and Finish sign. |
+| Words | The bundled phone TCN recognizes Hello, Please, and Yes. The Words list displays all eight lessons and highlights saved completions in green. |
+| Developer Mode haptics | Number 3 gives an automatic middle or pinky correction. Matching Hello and Please attempts replay preset motion cues on the back of the hand. |
+| Developer recording | Static holds start on tap and save after three seconds. Word recording starts on tap and retains manual stop and review. |
+
+For the demo, prepare BLE and Developer Mode before presenting. Use the
+`piezo_demo` firmware for physical cues and run `flutter run` from `flutter_app`.
+The [live demo run sheet](post_mortem_presentation/demo_checklist.md) covers
+G, Z, 3, Hello, and Please. The [glove/model handoff](docs/GLOVE_MODEL_SESSION_HANDOFF.md)
+and [haptic handoff](docs/HAPTIC_ENGINEERING_HANDOFF.md) identify the evidence
+and remaining checks. The working build includes app changes pending code
+review and commit. The sections below preserve the earlier milestone snapshots.
 
 ## Milestone Overview
 

@@ -1,48 +1,49 @@
-# Live demonstration run sheet · draft
+# Live demonstration run sheet · November 19, 2026
 
-Reserve 90 seconds within the talk. This proposes presentation choreography;
-it does not claim that the final hardware/haptics or targets have been validated.
-Wearer, phone operator, narrator, and slide operator: **TBD**.
+Reserve 90 seconds within the talk for **G → Z → 3 → Hello → Please**. Rehearse
+Z and the two new word cue patterns on the intended glove and phone before
+presenting. Assign the wearer, phone operator, narrator, and slide operator.
 
 | Time | Action | Narration purpose |
 | --- | --- | --- |
-| 0-10 s | Show worn glove and prepared target. | Establish real live use of the artifact. |
-| 10-40 s | Perform two rehearsed letters and one rehearsed digit. Show the feedback and one adjustment if time permits. | Explain the cue and response. |
-| 40-70 s | Perform two rehearsed words. Add a third if it passes rehearsal and fits the timing. | Demonstrate recognition of motion. |
-| 70-90 s | Show saved completion. | Connect practice to visible progress. |
+| 0–8 s | Show the wired glove and open Alphabet. | Establish live use of the actual artifact. |
+| 8–20 s | Open **G**, form it, and hold for the recognition result. | The ESP32 recognizes steady poses. |
+| 20–34 s | Open **Z**, tap **Start attempt**, trace Z, then **Finish sign** within four seconds. | The separate phone model recognizes the motion of J and Z. |
+| 34–55 s | Open **Numbers → 3**, scroll to **Demo**, and hold a deliberately curled middle finger. After five seconds, leave time for the cue, then straighten it and complete 3. | The finger pulse identifies the finger. Bottom → center → top means straighten. The active dots show which buzzers the glove reports. |
+| 55–80 s | Use **Start attempt** and **Finish sign** for **Hello**, then **Please**. Let Hello's left → center → right cue play, then allow time for Please's three left → top → right → bottom laps. | Matching words replay selected, preset motion cues on the back-of-hand plus. |
+| 80–90 s | Return to **Words** and point out the green learned rows and checkmarks. | Saved completion is visible at a glance. |
 
-The current word flow uses Start attempt / Finish sign. Update this run sheet
-if the final interaction changes. Choose targets from fresh rehearsal rather
-than assuming a successful outcome. Haptics must be described by what the wearer
-actually feels and what each cue means; do not substitute an audible tone for
-a demonstrated tactile result. If cues only indicate success/error, say so.
+For Number 3, start with the correction needed so practice does not complete
+during the five-second grace period. A still-needed cue repeats after a
+two-second pause. The demo stops when the app records completion. Show the
+animation as the output location, and describe tactile sensation using the
+wearer's actual experience.
 
-## Static targets to rehearse
+## Evidence for the selected targets
 
-The November 18 offline replay completed **5 of 36** attempts on the intended
-target. The five were **A, G, I, 1, and 3**.
+- Gael reported live recognition for G, I, 1, Hello, Please, and Yes, including
+  3/3 each in one check. I is the rehearsed fallback if Z misses live.
+- J/Z offline replay accepted 4/4 held-out matching recordings and rejected
+  36/36 unrelated recordings. The same small recording set was used in earlier
+  development checks. Verify Z live on the presentation setup.
+- The manual buzzer locations matched the display, and Gael separately
+  reported that the hands-free Number 3 demo worked on the glove. The two new
+  word cue sequences have software checks with simulated glove responses.
+- The bundled word recognizer covers Hello, Please, and Yes. The Words screen
+  lists eight lessons. The other five recognizer labels and expanded haptic
+  coverage remain post-presentation work.
 
-- Start with **G and I** for the two letters, with **A** as the alternate.
-  The recorded matching attempts completed at 94.5%, 100.0%, and 86.9%
-  classifier confidence respectively.
-- Start with **1** for the number. It completed on its recorded attempt and
-  had zero completions across the 35 other recordings. Keep **3** as the
-  alternate.
-- Choose the live targets after repeated attempts on the presentation glove
-  and phone. The replay included one matching attempt per target.
-
-## Word targets to rehearse
-
-Choose the two words with the most consistent live completions on the
-presentation build. The current replay of Hello, Please, and Yes had
-**0 of 9** matching-target completions. Confirm the word targets on the
-glove and phone before adding them to the run sheet.
+See [the evidence checklist](../docs/FINAL_REPORT_EVIDENCE_CHECKLIST.md) for
+LIVE-04, EVAL-05, and HAPT-01 through HAPT-04.
 
 ## Before the presentation
 
 - [ ] Record demonstrated app/firmware/model, glove configuration, phone, and wearer scope.
 - [ ] Select final rehearsed targets and record actual outcomes, including failures.
-- [ ] Prepare account, starting progress, glove power, BLE connection, and phone projection.
+- [ ] Use the active working build and the known `piezo_demo` firmware. Start
+  the app with `flutter run` from `flutter_app` and turn on Developer Mode.
+- [ ] Plug the glove into the laptop for USB power. Sign in, connect through
+  **Developer → BLE Testing**, and verify projection before presenting.
 - [ ] Put needed targets within easy reach; rehearse operator/wearer coordination.
 - [ ] Verify demo cue wording matches the actual implemented behavior.
 - [ ] Rehearse transition from slide 4 to live use, then back to reflection.

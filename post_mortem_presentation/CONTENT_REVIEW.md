@@ -1,28 +1,31 @@
 # Post-mortem content review
 
-Draft 01: November 6, 2026. Presentation: November 19. This is a presentation
-checklist, not an engineering implementation schedule. All owners remain TBD.
+Draft 01 was prepared November 6, 2026. This review was updated November 19.
+The [presentation handoff](../docs/POST_MORTEM_PRESENTATION_PLAN.md#november-19-handoff-for-the-slides)
+and [run sheet](demo_checklist.md) describe the current working app and demo.
+Slide edits and delivery assignments remain open.
 
 ## Confirmed
 
 - Local HTML in the beta style; eight proposed main slides plus two backups.
 - Seven-minute assignment, questions throughout; prepared content targets 6:10.
-- Intended final build includes PCB, new IMU, haptics, A-Z, 0-9, and eight words.
+- Planned live order is G, Z, 3, Hello, and Please. The final glove uses wired
+  perfboard with laptop USB power.
 - App vocabulary: Hello, Thank You, Please, Sorry, Yes, No, Eat, Drink.
-- Original beta deck is preserved. Current photos/screenshots are historical.
+- The original beta deck is preserved. Draft 01 still uses the October assets.
 
 ## Open content slots
 
 | Slide | Item | Current fact / draft treatment | Final update needed | Owner |
 | --- | --- | --- | --- | --- |
-| 1, 3 | Final glove photo | October beta photo, labeled historical. | Final assembled glove; update alt text/caption and asset source. | TBD |
-| 3 | PCB image | October perfboard photo, explicitly not custom PCB. | Final mounted PCB close-up and explanation of actual design benefit. | TBD |
-| 2, 3, 5 | Haptic feedback | Firmware output support; integrated cue behavior pending. Dashed path is conceptual. | Actual trigger source, circuit/placement, sensation, cue meaning, and demo behavior. | TBD |
-| 2, 3 | New IMU | ICM-20948 received; physical assembled-board checks unconfirmed. | Actual final sensor configuration and measured behavior; no assumed fusion benefit. | TBD |
-| 4, backup 1 | Full letters/digits | Recorded static model has 34 classes excluding J/Z; 36-class legacy baseline retained. | Final supported labels, actual J/Z motion path, and coverage evidence. | TBD |
-| 4, backup 1 | Eight words | App lists eight; model currently trains Hello/Please/Yes only. | Evaluated eight-word model and actual app completion behavior. | TBD |
+| 1, 3 | Final glove photo | The [as-built photo](../docs/figures/r4/IMG_9891.jpeg) shows the wired perfboard, five flex strips, and piezos. | Replace the October photo and update its caption and alt text. | TBD |
+| 3 | PCB image | [Prototype PCB photo](../docs/figures/r4/IMG_9894.jpeg). The team returned to perfboard after unreliable connections. | Use the PCB as an iteration comparison. | TBD |
+| 2, 3, 5 | Haptic feedback | Gael reported success with manual mapping and automatic Number 3 cues. Hello and Please replay preset patterns after a match and have software-test evidence. | Show the BLE command/acknowledgment path and current cue meaning. Rehearse both new word patterns live. | TBD |
+| 2, 3 | New IMU | Gael reported the installed ICM-20948 working. The six-face diagnostic flagged two Y captures. | Show the actual sensor and avoid unmeasured fusion or orientation claims. | TBD |
+| 4, backup 1 | Letters and digits | ESP32 MLP covers 24 letters and ten digits. J/Z use a separate IMU TCN with offline results. | Show both paths and label live rehearsal separately from offline results. | TBD |
+| 4, backup 1 | Words | Eight lessons are listed. The bundled recognizer covers Hello, Please, and Yes. Saved completions have a green row and checkmark. | Use current coverage and a current Words screenshot. | TBD |
 | 4 | Current app photos | October Home, disconnected B practice, word picker. | Final connected practice, actual feedback, and completion/progress screens. | TBD |
-| 4, backup 2 | Results | Explicit pending fields; no invented final values. | Fresh trial counts, wearer/configuration, correct/false completion results, size and phone latency where measured. | TBD |
+| 4, backup 2 | Results | LIVE-04 records reported live attempts. EVAL-05 records the small offline J/Z check. HAPT-03 records Number 3 on the glove. | Give the result scope and any new rehearsal observations. | TBD |
 | 6 | Three successes | Two historical/integrated stories plus one conditional final-wearable story. | Three team-confirmed examples with why the approach worked and actual outcomes. | TBD |
 | 7 | Three challenges | Sensor/data examples and a physical/software dependency prompt. | Concrete team experience, why difficult, impact, and future improvement for each. | TBD |
 | 8 | Final takeaway | Proposed integration lesson; final outcome/limit pending. | Strongest supported final outcome and most important remaining limit. | TBD |

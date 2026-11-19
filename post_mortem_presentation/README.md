@@ -32,15 +32,14 @@ line, and keyboard controls. The beta submission is preserved separately.
 
 ## Draft content
 
-The goals are a mounted PCB, new ICM-20948, integrated haptics, A-Z, 0-9, and
-Hello, Thank You, Please, Sorry, Yes, No, Eat, Drink. Current baseline support
-is described separately; those goals are not claimed as completed or validated.
+Start the final slide pass with the [November 19 handoff](../docs/POST_MORTEM_PRESENTATION_PLAN.md#november-19-handoff-for-the-slides),
+then the [live run sheet](demo_checklist.md) and [content review](CONTENT_REVIEW.md).
+The planned sequence is **G → Z → 3 → Hello → Please**.
 
-October hardware photos and app screenshots are historical references. The
-practice screenshot is disconnected. Final assembly photos, PCB close-up,
-screenshots, haptic meaning, recognition coverage, results, team reflection,
-and speaker assignments still need updating. Use
-[CONTENT_REVIEW.md](CONTENT_REVIEW.md) to track the remaining content.
+The HTML and exported PDF still contain the November 6 draft and October
+assets. The handoff links to the current glove photo, prototype PCB photos,
+recognition coverage, and haptic rehearsal evidence. Use the current working
+app to capture new connected practice and progress screenshots.
 
 ## Export
 
