@@ -7,9 +7,9 @@ Wearer, phone operator, narrator, and slide operator: **TBD**.
 | Time | Action | Narration purpose |
 | --- | --- | --- |
 | 0-10 s | Show worn glove and prepared target. | Establish real live use of the artifact. |
-| 10-40 s | Perform one rehearsed letter/digit; demonstrate actual feedback and adjustment. | Explain the real cue and response. |
-| 40-70 s | Perform one complete word; show actual prediction/feedback. | Demonstrate recognition of motion. |
-| 70-90 s | Show saved completion; add an extra target only if rehearsed timing permits. | Connect practice to visible progress. |
+| 10-40 s | Perform two rehearsed letters and one rehearsed digit. Show the feedback and one adjustment if time permits. | Explain the cue and response. |
+| 40-70 s | Perform two rehearsed words. Add a third if it passes rehearsal and fits the timing. | Demonstrate recognition of motion. |
+| 70-90 s | Show saved completion. | Connect practice to visible progress. |
 
 The current word flow uses Start attempt / Finish sign. Update this run sheet
 if the final interaction changes. Choose targets from fresh rehearsal rather
@@ -22,12 +22,21 @@ a demonstrated tactile result. If cues only indicate success/error, say so.
 The November 18 offline replay completed **5 of 36** attempts on the intended
 target. The five were **A, G, I, 1, and 3**.
 
-- Rehearse **1** first. It completed on its recorded attempt and had zero
-  completions across the 35 other recordings.
-- Rehearse **A, G, I, and 3** as alternatives. Each also completed on at least
-  one wrong-target replay.
+- Start with **G and I** for the two letters, with **A** as the alternate.
+  The recorded matching attempts completed at 94.5%, 100.0%, and 86.9%
+  classifier confidence respectively.
+- Start with **1** for the number. It completed on its recorded attempt and
+  had zero completions across the 35 other recordings. Keep **3** as the
+  alternate.
 - Choose the live targets after repeated attempts on the presentation glove
   and phone. The replay included one matching attempt per target.
+
+## Word targets to rehearse
+
+Choose the two words with the most consistent live completions on the
+presentation build. The current replay of Hello, Please, and Yes had
+**0 of 9** matching-target completions. Confirm the word targets on the
+glove and phone before adding them to the run sheet.
 
 ## Before the presentation
 
