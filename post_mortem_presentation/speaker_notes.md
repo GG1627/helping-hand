@@ -38,9 +38,9 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 ## 5. Glove hardware
 
-**1:25–1:50 · 25 seconds.** Point to the actual glove, then the prototype PCB.
+**1:25–1:50 · 25 seconds.** Point to the actual glove, the earlier PCB, and the wiring callout.
 
-“This is the glove we’re using today. At the cuff, the ESP32 and wiring sit on perfboard. The flex strips and the calibrated ICM-20948 are the inputs. Five buzzers sit by the fingers, and five form a plus on the back of the hand. The photo beside it shows our earlier PCB. Today we’re using USB power.”
+“The demo glove has five flex sensors, a motion sensor, ten piezo buzzers, and a cuff-mounted ESP32. We tried a custom PCB and later hid the connections with conductive thread. When sensor readings dropped out, we switched to individual wires on perfboard. We’re powering it over USB today.”
 
 ## 6. App features and live results
 

@@ -140,15 +140,19 @@
             <figure class="board"><img src="assets/hardware/pcb-prototype.jpg" alt="Component side of the custom printed circuit board from an earlier hardware iteration."><figcaption>Earlier custom PCB</figcaption></figure>
           </div>
           <div class="hardware-details">
-            <article><h3>5 flex sensors + ICM-20948</h3><p>Finger bend, acceleration, and rotation feed recognition.</p></article>
-            <article><h3>10 piezoelelctric buzzers</h3><p>Five by the fingers and five in a plus on the back of the hand.</p></article>
-            <article><h3>Cuff-mounted ESP32</h3><p>Discrete wiring on perfboard after PCB and conductive-thread iterations.</p></article>
+            <article><h3>5 flex sensors + 9-axis IMU (ICM-20948)</h3><p>Finger bend, acceleration, and rotation feed recognition.</p></article>
+            <article><h3>10 piezoelectric buzzers</h3><p>Five by the fingers and five in a plus on the back of the hand.</p></article>
+            <article><h3>Cuff-mounted ESP32</h3><p>Perfboard with individual wires.</p></article>
+            <aside class="hardware-revision" aria-labelledby="hardware-revision-title">
+              <h3 id="hardware-revision-title">Why the wiring is visible</h3>
+              <p>An earlier prototype hid the connections with conductive thread. When sensor readings dropped out, we switched to individual wires for today’s demo.</p>
+            </aside>
           </div>
         </div>
         <footer class="slide-footer"><span>Demonstration power · laptop USB</span><b>05 / 10</b></footer>
         <template class="slide-notes">
-          <p>1:25–1:50 · 25 seconds. Point to the actual glove, then the prototype PCB.</p>
-          <p>“This is the glove we’re using today. At the cuff, the ESP32 and wiring sit on perfboard. The flex strips and the calibrated ICM-20948 are the inputs. Five buzzers sit by the fingers, and five form a plus on the back of the hand. The photo beside it shows our earlier PCB. Today we’re using USB power.”</p>
+          <p>1:25–1:50 · 25 seconds. Point to the actual glove, the earlier PCB, and the wiring callout.</p>
+          <p>“The demo glove has five flex sensors, a motion sensor, ten piezo buzzers, and a cuff-mounted ESP32. We tried a custom PCB and later hid the connections with conductive thread. When sensor readings dropped out, we switched to individual wires on perfboard. We’re powering it over USB today.”</p>
         </template>
       </section>
 
