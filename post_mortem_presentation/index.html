@@ -223,13 +223,19 @@
         <div class="challenge-head"><span>What happened</span><span>What we would do next time</span></div>
         <article class="challenge-row"><div><h3>Unreliable connections</h3><p>The PCB broke, and the conductive-thread build lost sensor readings. We switched to individual wires.</p></div><p class="lesson">Test connections while flexing the glove.<span>Add strain relief before final mounting.</span></p></article>
         <article class="challenge-row"><div><h3>Damaged flex sensors</h3><p>The thumb and index sensors barely responded when the fingers bent.</p></div><p class="lesson">Check each sensor reading early.<span>Recheck calibration and known signs after hardware changes.</span></p></article>
-        <article class="challenge-row"><div><h3>Word recognition after the rebuild</h3><p>The earlier model missed all nine matching word attempts in an offline test of rebuilt-glove recordings.</p></div><p class="lesson">Retrain and test after hardware changes.<span>Test with more wearers and include signs the model could confuse.</span></p></article>
+        <article class="challenge-row">
+          <div>
+            <h3>Limits of the glove sensors</h3>
+            <p>The glove can’t tell how fingers are positioned relative to each other or where the hand is relative to the body.</p>
+          </div>
+          <p class="lesson">Test what the sensors can measure before training.<span>Try camera tracking for finger spacing and hand location.</span></p>
+        </article>
         <footer class="slide-footer"><span></span><b>09 / 10</b></footer>
         <template class="slide-notes">
-          <p>5:25–6:30 · 65 seconds. Explain the failure, its impact, and one next step per example.</p>
+          <p>5:25–6:30 · 65 seconds. Explain each problem, its impact, and what we’d do next.</p>
           <p>Unreliable connections. “The custom PCB broke and the conductive-thread assembly lost sensor readings as the glove moved. We suspected shorts and switched to discrete wires. Next time we’d check continuity while flexing the assembly and add strain relief before mounting it.”</p>
           <p>Damaged flex sensors. “The thumb and index readings barely changed when the fingers bent, which made some attempts look wrong. The raw channels exposed the damaged sensors. We’d check each channel early, then recalibrate and repeat a few known signs after every hardware change.”</p>
-          <p>Word recognition after the rebuild. “The earlier model missed all nine matching recordings from the rebuilt glove in offline replay. We retrained, but our tests still covered few wearers and targets. Next time we’d reserve fresh attempts from more wearers and test signs the models could confuse.”</p>
+          <p>Limits of the glove sensors. “The flex strips measure finger bend, and the wrist sensor measures motion and rotation. Two signs can give similar readings even if the fingers cross or the hand starts closer to the face. Next time we’d test those cases before training and try camera tracking for the details the glove misses.”</p>
         </template>
       </section>
 

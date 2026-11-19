@@ -74,13 +74,13 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 ## 9. Challenges and lessons
 
-**5:25–6:30 · 65 seconds.** Explain the failure, its impact, and one next step per example.
+**5:25–6:30 · 65 seconds.** Explain each problem, its impact, and what we’d do next.
 
 **Unreliable connections.** “The custom PCB broke and the conductive-thread assembly lost sensor readings as the glove moved. We suspected shorts and switched to discrete wires. Next time we’d check continuity while flexing the assembly and add strain relief before mounting it.”
 
 **Damaged flex sensors.** “The thumb and index readings barely changed when the fingers bent, which made some attempts look wrong. The raw channels exposed the damaged sensors. We’d check each channel early, then recalibrate and repeat a few known signs after every hardware change.”
 
-**Word recognition after the rebuild.** “The earlier model missed all nine matching recordings from the rebuilt glove in offline replay. We retrained, but our tests still covered few wearers and targets. Next time we’d reserve fresh attempts from more wearers and test signs the models could confuse.”
+**Limits of the glove sensors.** “The flex strips measure finger bend, and the wrist sensor measures motion and rotation. Two signs can give similar readings even if the fingers cross or the hand starts closer to the face. Next time we’d test those cases before training and try camera tracking for the details the glove misses.”
 
 ## 10. Main lesson and next steps
 
