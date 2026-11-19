@@ -74,7 +74,10 @@ does not require an additional ESP32 firmware change; the glove must already
 stream complete raw flex and IMU packets. Use the existing firmware upload
 procedure if its previously prepared static-model update has not been flashed.
 
-Repackage the fixed selected bundle and software replay fixtures with:
+The following archival command rebuilds the October bundle and overwrites the
+default Flutter word assets. Use it only when intentionally restoring that
+snapshot. The November 18 default bundle is described in the
+[glove and model handoff](GLOVE_MODEL_SESSION_HANDOFF.md).
 
 ```powershell
 python backend/export_word_demo_bundle.py

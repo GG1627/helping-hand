@@ -9,11 +9,13 @@ class DeveloperToolsTab extends StatelessWidget {
     required this.onOpenRecordSigns,
     required this.onOpenBleTesting,
     required this.onOpenCalibration,
+    required this.onOpenImuDiagnostics,
   });
 
   final VoidCallback onOpenRecordSigns;
   final VoidCallback onOpenBleTesting;
   final VoidCallback onOpenCalibration;
+  final VoidCallback onOpenImuDiagnostics;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +47,13 @@ class DeveloperToolsTab extends StatelessWidget {
             title: 'Glove calibration',
             description: 'Measure finger ranges and check the mounted IMU.',
             onTap: onOpenCalibration,
+          ),
+          const SizedBox(height: WarmClayTheme.cardGap),
+          _ToolCard(
+            icon: Icons.explore_outlined,
+            title: 'IMU diagnostics',
+            description: 'Capture and export the six board orientations.',
+            onTap: onOpenImuDiagnostics,
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
           _ToolCard(

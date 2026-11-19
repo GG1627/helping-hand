@@ -260,7 +260,226 @@ personal account information or participant identities in report screenshots.
 | BASE-01 | Historical; last handoff Nov. 6 | Baseline and calibration/model workflow | Reference only; not a final acceptance run | [Glove/model handoff](GLOVE_MODEL_SESSION_HANDOFF.md) | Design / Results context |
 | BASE-02 | Historical | Earlier physical demonstrations | Team-reported observations; see source limits | [Demo observations](R3_DEMO_OBSERVATIONS.md) | Alpha/beta Results |
 | BASE-03 | Current report planning | Agreed intended final scope | Goals, not verified outcomes | [Feature inventory](#1-final-build-and-completion-timeline); scope agreed in Gael's report discussion | Timeline / final scope |
+| CAL-01 | November 18, 2026 | Guided glove calibration (HW-1 to HW-3) | Operator reported failed pinky repeatability and ±Y/±Z pose checks | [Calibration session note](#cal-01-guided-glove-calibration) | Results / limitations |
+| CAL-02 | November 18, 2026 | Guided flex calibration after resistor swap (HW-1) | Operator reported index ADC clipping and blocked profile save | [Index clipping note](#cal-02-index-adc-clipping) | Results / limitations |
+| CAL-03 | November 18, 2026 | Six-face accelerometer diagnostic (HW-3) | Four checks passed. Both Y captures had the opposite sign from their pose labels. | [Axis measurements](#cal-03-six-face-accelerometer-diagnostic) | Results / limitations |
+| DATA-01 | November 18, 2026 | Post-swap recording review (HW-1, ML-2) | Verified 57 labeled trials and measured ADC clipping | [Recording review](#data-01-post-swap-recording-review) | Results / limitations |
+| EVAL-01 | November 18, 2026 | Offline app-rule replay of post-swap recordings (ML-4 to ML-8) | Static 5/36 intended completions. Words 0/9 intended completions. | [Replay results](#eval-01-post-swap-offline-replay) | Results / limitations |
+| EVAL-02 | November 18, 2026 | Post-swap augmentation pilot (ML-3, ML-8, ML-9) | Six word candidates tied at 2/3 validation top-1. Both TCNs completed 1/3 in app-rule replay. | [Pilot results](#eval-02-post-swap-augmentation-pilot) | Results / limitations |
+| EVAL-03 | November 18, 2026 | Demo word TCN retraining (ML-3, ML-8, ML-9) | Frozen candidate completed 3/3 matching and 0/18 wrong-target exposures on reserved recordings. | [Demo word candidate](#eval-03-demo-word-tcn-retraining) | Results / limitations |
+| LIVE-01 | November 18, 2026 | Demo wearer rehearsal (ML-4, ML-5) | Operator reported live G, I, and 1 successes and inconsistent word results except Please. | [Rehearsal and follow-up](#live-01-demo-wearer-rehearsal) | Results / limitations |
+| EVAL-04 | November 18, 2026 | Real-only, all-channel word model (ML-3, ML-8, ML-9) | Five matching completions and zero wrong-target completions across 25 exposures on reserved recordings. | [Second word APK](#eval-04-real-only-all-channel-word-model) | Results / limitations |
+| LIVE-02 | November 18, 2026 | Real-only word model live retest (ML-4, ML-5) | Operator reported that Please, Hello, and Yes worked on the phone. | [Live word retest](#live-02-real-only-word-model-live-retest) | Results / limitations |
 | | | | | | |
+
+### CAL-01 guided glove calibration
+
+- **Setup and procedure:** Operator used the app's guided glove calibration.
+  Hardware/mount, firmware and app revisions, and exact pose sequence are not
+  yet documented.
+- **Expected and reported:** Repeated flex readings should agree and steady
+  board orientations should show the expected signed acceleration axes. The
+  operator reported pinky repeatability and ±Y/±Z axis check failures. The app
+  gates profile save on these checks. A save attempt outcome, raw readings,
+  screenshots, and the exact on-screen wording are not yet documented.
+- **Follow-up:** Check live pinky readings across repeated open and bent poses
+  and verify the signed accelerometer axes in BLE Testing before recapturing.
+  No calibration changes were made. Retest is not yet documented.
+
+### CAL-02 index ADC clipping
+
+- **Setup and procedure:** Operator reported a resistor swap and ran guided
+  glove calibration. Resistor values and the exact hardware and build revisions
+  are not yet documented.
+- **Expected and reported:** Index readings should stay inside the 12-bit ADC
+  limits in both open and both index-bent captures. The operator reported
+  `index: ADC clipping at a rail.` and could not save the profile. The index
+  bent reading was reported at the upper 12-bit ADC limit of 4095 counts.
+  Packet-level evidence and repeat-by-repeat values were not supplied.
+- **Reported values:**
+
+  | Channel | Straight (ADC counts) | Bent (ADC counts) |
+  | --- | ---: | ---: |
+  | Thumb | 535 | 397 |
+  | Index | 535 | 4095 (clipped) |
+  | Middle | 541 | 193 |
+  | Ring | 591 | 245 |
+  | Pinky | 548 | 224 |
+
+  Reported gyro bias was X = 0.62, Y = 0.18, Z = 0.13 degrees/s.
+- **Follow-up:** See [CAL-03](#cal-03-six-face-accelerometer-diagnostic) for
+  the separate orientation session and [DATA-01](#data-01-post-swap-recording-review)
+  for rail counts in labeled recordings. A clipped index measurement cannot
+  establish a bent endpoint. A guided flex calibration retest is not yet
+  documented.
+
+### CAL-03 six-face accelerometer diagnostic
+
+The operator supplied `Helping Hand calibration diagnostics.json` from the
+IMU-only workflow. The export reports device identity `0xEA` and has 121 packets
+over 3.000 s per face (726 packets total). Setup revision fields were blank.
+
+| Named pose | Median X (g) | Median Y (g) | Median Z (g) | Check |
+| --- | ---: | ---: | ---: | --- |
+| +X | +0.994 | +0.027 | +0.023 | Pass |
+| −X | −1.000 | −0.004 | +0.135 | Pass |
+| +Y | −0.056 | −1.012 | −0.025 | Fail |
+| −Y | +0.054 | +0.983 | +0.044 | Fail |
+| +Z | +0.006 | +0.055 | +1.026 | Pass |
+| −Z | +0.166 | +0.165 | −0.949 | Pass |
+
+The largest within-pose acceleration standard deviation across axes was
+0.0235 g. The Y pair showed stable opposite signs. Verify which marked
+board face was up during those captures before attributing the sign mismatch
+to the mounting or firmware. This run measured steady acceleration.
+
+### DATA-01 post-swap recording review
+
+- Match `trials (3).csv` with `manifest (4).json` and `trials (4).csv` with
+  `manifest (3).json` by internal session IDs. Trial metadata and row counts
+  match. All 8,133 stored rows carry six IMU values, five flex values, and
+  valid packet flags. Within trials, the device cadence was approximately
+  40 Hz with no device sequence gaps. Both manifests have no active profile.
+- Static data has 6,140 frames from 36 labeled trials (one each for A–Z and
+  0–9). Word data has 1,993 frames from 21 trials (three each for Hello,
+  Thank You, Please, Yes, Sorry, No, and Eat). Drink is absent. All saved trials
+  are labeled neutral. The word exports use three signer IDs, each with one
+  trial per word. Distinct physical wearers are not yet confirmed.
+- The digit 2 trial clipped at 4095 for 129/182 index frames and 127/182 thumb
+  frames. Ring readings reached zero on E, S, and 4 (45 static frames), and on
+  Thank You, Yes, and Eat (95 word frames). Thumb and index were within four
+  counts on 7,651/8,133 sign frames. The reason for this agreement is unknown.
+  An isolated single-finger motion test can check channel independence.
+- Keep the raw values for provenance and flag ADC rail readings before using
+  them as flex measurements. The recordings contain one labeled attempt per
+  static target and three per recorded word. Repeatability and live lesson
+  completion require additional evidence.
+
+### EVAL-01 post-swap offline replay
+
+- Replayed DATA-01 using `backend/evaluate_demo.py` and recorded phone
+  receive timestamps. Static used the original packet predictions and the
+  Flutter stable-hold rule. Words used the bundled 96-sample, three-class TCN
+  and Flutter Start/Finish completion rules. Trial boundaries were constructed
+  around the recorded packets. Operator-provided labels supplied ground truth.
+- Static completed on 5 of 36 matching-target exposures (A, G, I, 1, and 3)
+  and on 29 of 1,260 wrong-target exposures. Digit 1 completed its single
+  positive attempt and had zero completions on the other 35 recordings. The
+  tested alphabet includes J and Z, which the static runtime does not support.
+- Words completed on 0 of 9 matching-target exposures and on 21 of 54
+  wrong-target exposures. Every Hello and Yes attempt completed under Please,
+  and every Please attempt completed under Hello. The remaining four recorded
+  words were evaluated as other signs against the three deployed targets.
+  No replay capture or preparation failures were reported.
+- Detailed plans and results are in local `tmp/sign-review-20261118/`, under
+  `static-replay/report.json` and `word-replay/report.json`. Wrong-target
+  exposures reuse the 57 recorded attempts. Native phone inference, idle
+  rejection, and live completion were not tested by this replay.
+
+### EVAL-02 post-swap augmentation pilot
+
+- Generated three bounded jitter copies per source trial for A, G, I, 1, and
+  3, yielding 15 static training copies from five rail-free source trials.
+  Measured quiet-pose differences supplied the limits for middle, ring, and
+  pinky. Thumb and index were held at their recorded values due to the
+  unresolved channel agreement. The static subset has one original per label.
+  Static MLP training and held-out scoring were not run in this pilot.
+- Compared TCN, CNN–GRU, and CNN–LSTM with and without augmentation for Hello,
+  Please, and Yes. The derivative training dataset omits four isolated ring
+  zero packets in the Yes recordings. Device-time resampling bridges the
+  resulting single-packet gaps. All nine trials fit the 128-sample window.
+  Recorded IDs define three trial groups for training, validation, and reserved
+  test. Each has one real attempt per word. Physical signer independence has
+  not been confirmed. The augmented fit used nine training copies from three
+  originals, jittering only the IMU channels within limits derived from CAL-03.
+- All six fits scored 2/3 top-1 and 0.556 macro F1 on the same three cleaned
+  validation trials. Hello and Please were the two correct top-1 labels.
+  Both TCNs completed only Please when replayed on the original validation
+  packets through the app rules. The real-only TCN had one false completion
+  across 18 wrong-target exposures. The augmented TCN had two.
+- Pilot files, source hashes, dropped-packet identities, lineage, splits,
+  validation reports, TFLite files, and replay details are under local
+  `tmp/post-swap-word-pilot-20261118/`. Reserved test scoring, native phone
+  inference, and live validation were not run. No deployment selection was
+  made from the three-try validation set.
+
+### EVAL-03 demo word TCN retraining
+
+- Compared four TCN variants on the same source groups, using the six IMU
+  channels alone or paired with middle and pinky flex. For each feature set,
+  trained with and without the measured jitter from CAL-03. The selected model
+  uses middle and pinky plus the six IMU channels. Windowing uses 128 samples
+  at 40 Hz. The scaler was fitted on original training trials.
+- Training used seven real attempts (643 sensor frames) and 21 jittered
+  copies, for 28 fixed-length training sequences. The 3,584 window time
+  steps include padding. Hello, Please, and Yes were completion targets.
+  Thank You, Sorry, No, and Eat supplied examples for an internal Other
+  class. Other probability was distributed across the three exposed scores
+  to reduce confidence while preserving the existing app interface and 80%
+  acceptance threshold.
+- The selected model was frozen using the development group before scoring
+  the reserved group. Original packet replay completed Hello, Please, and
+  Yes (3/3) with zero wrong-target completions (0/18) in each of those two
+  groups. The 18 wrong-target exposures reuse the seven recordings in each
+  group. Group IDs do not establish distinct physical wearers. Idle motion
+  and fresh live phone/glove attempts remain not run.
+- Training scripts, counts, candidate metadata, and replay reports are in
+  local `tmp/post-swap-demo-word-20261118/`. The demo app build is separate
+  from the normal bundled model. The static MLP remains the deployed baseline
+  for the G, I, and 1 rehearsal targets.
+
+### LIVE-01 demo wearer rehearsal
+
+- The operator reported live success for G, I, and 1, and described word
+  recognition as inconsistent except for Please. Attempt counts, exact
+  recognition messages, phone details, and direct logs of failed practice
+  attempts were not supplied. The follow-up export is a separate recording
+  session and does not capture the failed live attempts.
+- The new `trials (5).csv` and `manifest (5).json` matched by session and
+  contain 1,250 frames across four Hello, four Yes, and three Thank You
+  attempts. The first demo APK model completed all eight Hello/Yes attempts
+  and zero wrong-target exposures in offline replay on these recordings.
+  The difference between offline and live outcomes remains unresolved.
+- Thumb and index were within four ADC counts on 1,201/1,250 frames. Ring
+  hit zero on 641 frames and pinky on two. The longest ring rail run was
+  121 frames. Channel coupling is suspected from the recorded behavior.
+  The physical cause is not confirmed.
+- The optional flex estimate tables preserve the measured columns. Across
+  both word sessions, 14 isolated rail readings had close, valid neighbors
+  and were interpolated into labeled estimate columns. The other 724 rail
+  values remain marked missing in those tables. Thumb and index were never
+  reconstructed from one another. Details and source hashes are in local
+  `tmp/post-swap-word-followup-20261118/flex-repair-audit.json`.
+
+### EVAL-04 real-only all-channel word model
+
+- Used 12 original training attempts (1,205 sensor frames) from the two
+  post-swap word sessions. This candidate uses all five flex channels and
+  six IMU channels. Near-rail flex values contribute zero after train-only
+  standardization. The scaling statistics exclude these values. The selected
+  fit used zero generated sequences and no estimates from the repair tables.
+- The 160-sample window retains the longer new recordings. The original
+  threshold and class targets remain Hello, Please, and Yes. The selected
+  model completed all five intended exposures and zero of 25 wrong-target
+  exposures in full validation replay. The same outcome held with a simulated
+  200 ms late start and 200 ms early finish, as separate boundary checks on
+  the same recordings.
+- A separate reserved replay produced five matching completions and zero of
+  25 wrong-target exposures on ten original recordings. The five were two
+  Hello, one Please, and two Yes. These are offline results. The new APK and
+  replay evidence are under local `tmp/post-swap-word-followup-20261118/`.
+  See [LIVE-02](#live-02-real-only-word-model-live-retest) for the separate
+  physical check.
+
+### LIVE-02 real-only word model live retest
+
+- The operator reported that Please, Hello, and Yes worked on the demo
+  glove and Android phone using the v2 Flutter test build (1.0.1+2). The
+  report does not include repeat counts, live confidence values, or
+  wrong-target checks, so no live rate is calculated.
+- At the operator's request, the same TFLite and metadata bytes were promoted
+  to the standard Flutter assets. The recorded static MLP remains the
+  deployed baseline for G, I, and 1.
 
 ### Build/test session record - copy for each session
 

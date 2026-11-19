@@ -36,8 +36,12 @@ Each capture needs at least 60 valid packets spanning three seconds of device
 time. Invalid/stale packets, sequence gaps, sensor identity changes, clock
 resets, disconnects, missing streams, backgrounding, or leaving the screen cancel
 the current capture. Completed poses remain available within the app session.
-Repeat previous pose or Start over to replace measurements; starting over
-requires confirmation when measurements would be discarded. Unsaved captures
+In **Review measurements**, tap **Redo a pose** and choose a capture. Poses
+associated with failed checks are listed first. A successful retake replaces
+that pose and reruns the review. **Keep previous capture** returns without
+replacing it. During the guided sequence, **Repeat previous pose** retakes the
+last completed pose. **Start over** requires confirmation before clearing
+the session. Unsaved captures
 do not survive app termination. The prior saved profile stays active until a
 new profile has been saved successfully.
 
@@ -45,6 +49,19 @@ Review shows per-finger median endpoints/span, gyro bias in degrees/s, and
 quality messages. Full statistics and raw evidence are available in the export.
 Saving requires completed poses, no blocking findings, valid equipment IDs,
 settings notes, and the operator gyro-direction check.
+
+## Exporting failed or partial measurements
+
+**Export measurements** shares a diagnostic JSON after any completed pose.
+Failed checks and ADC rail values are kept with the original packets. The
+diagnostic file is separate from a saved calibration profile.
+
+For accelerometer orientation alone, open **Developer → IMU diagnostics**.
+Capture `+X`, `−X`, `+Y`, `−Y`, `+Z`, and `−Z` with the named board axis
+pointing up. The review lists the median acceleration vector in g (X, Y, Z)
+for each capture. You can retake a pose or export `imu-diagnostics.json` even
+when an axis check fails. Setup details are optional. The export contains
+per-pose results and raw packets, including any flex readings in those packets.
 
 ## Initial quality checks
 

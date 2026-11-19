@@ -1,9 +1,15 @@
 # Glove and model development handoff
 
-Last updated: November 6, 2026. Read this first when resuming sensor, calibration,
-ML, or demo-readiness work. This is the current development handoff; earlier
-alpha/beta assignment snapshots and September plan notes retain historical
-behavior and results.
+Last updated: November 18, 2026. Read this first when resuming sensor,
+calibration, ML, or demo-readiness work. The preparation notes below describe
+the November 6 state. Earlier assignments retain their own evidence.
+
+The default Flutter bundle is the v2 word TCN that the operator reported
+working live for Hello, Please, and Yes. The word window is 160 samples at
+40 Hz and uses all five flex channels and six IMU channels with near-rail
+flex masking. The static MLP remains the firmware baseline. See
+[the word retest](FINAL_REPORT_EVIDENCE_CHECKLIST.md#live-02-real-only-word-model-live-retest)
+for evidence limits.
 
 ## Where we stopped
 
@@ -28,11 +34,11 @@ No new real-data recognition result has been established by it.
 | Area | Current state | Important limit |
 | --- | --- | --- |
 | Static recognition | Default ESP32 recorded MLP: five calibrated flex inputs, 34 letter/number classes excluding J/Z | Legacy 36-class baseline is preserved; current endpoints are 425 bent / 625 straight for all five fingers and must be rechecked on replacement sensors |
-| Word recognition | Flutter packages a TCN for `hello, please, yes`; Start/Finish attempts can award saved completion | Deployed input is 96 samples at 40 Hz, 11 raw features; fresh assembled-glove recognition and phone latency are Not run |
+| Word recognition | Flutter packages a TCN for `hello, please, yes`; Start/Finish attempts can award saved completion | Deployed input is 160 samples at 40 Hz and 11 features; the operator reported all three worked live. Repeated live results and phone latency are not yet documented. |
 | Historical word data | 15 real attempts, five per word; original split 9 train / 3 validation / 3 test | Reported signer IDs do not prove independent wearers; historical test attempts are development/regression evidence after further tuning |
 | IMU transport | Six motion axes plus optional magnetic status/vector through firmware, BLE, Flutter, and recording export | Physical new-board bus/axes, magnetic validity, packet integrity, and delivered phone rate need verification |
 | Calibration | Developer-only guided capture, local save/export, raw evidence, and profile-linked recording snapshots | Measurement only: profiles are not automatically applied to firmware readings, model inputs, or magnetic fusion |
-| Candidate preprocessing | Python and Flutter support explicit 11/14 features and configurable windows/policies | The packaged model still expects 96 x 11; a different contract needs newly trained weights and matching metadata |
+| Candidate preprocessing | Python and Flutter support explicit 11/14 features and configurable windows/policies | The packaged model expects 160 x 11; a different contract needs newly trained weights and matching metadata |
 | Training augmentation | Recorded static trainer and generic sequence trainer accept bounded training-only noise/offset copies | Disabled by default; physically justified limits and real validation are still needed |
 | Demo evaluation | Offline replay uses the actual Flutter completion rules, with positive and negative target exposures | Replay does not establish live BLE reliability, body placement, general ASL validity, or native phone latency |
 | Standalone boot | Optional USB Serial wait is bounded to approximately 1,500 ms before continuing setup | Firmware/host checks passed; physical battery-only startup is Not run |
@@ -55,7 +61,7 @@ information cannot be created by augmentation.
 | Training-only augmentation, recorded-static frozen splits/deferred test evaluation, source-origin checks, and this handoff | November 6 follow-up; [training augmentation](TRAINING_AUGMENTATION.md) |
 
 The audit found substantial historical flex clipping under the current static
-endpoints and that 7/15 word attempts are trimmed by the current 96-sample
+endpoints and that 7/15 word attempts are trimmed by the former 96-sample
 window, including every Yes attempt. A 224-sample window retains all resampled
 points in those historical attempts but adds padding and computation. It is an
 **untrained candidate**, not a demonstrated accuracy improvement or a chosen

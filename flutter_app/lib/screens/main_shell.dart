@@ -49,6 +49,7 @@ class _MainShellState extends State<MainShell> {
   late final BleConnectionService _bleService;
   late final RecordingService _recordingService;
   late final CalibrationService _calibrationService;
+  final _imuDiagnosticsService = CalibrationService(imuOnly: true);
   late final ProgressRepository _progressRepository;
   late final bool _ownsProgressRepository;
   late ProgressRepositoryState _progressState;
@@ -99,6 +100,7 @@ class _MainShellState extends State<MainShell> {
     if (_ownsProgressRepository) _progressRepository.dispose();
     _recordingService.dispose();
     _calibrationService.dispose();
+    _imuDiagnosticsService.dispose();
     _bleService.dispose();
     _practiceRevision.dispose();
     super.dispose();
@@ -110,6 +112,23 @@ class _MainShellState extends State<MainShell> {
       _predictionResult = _predictionTracker.selectTarget(target);
     });
     _practiceRevision.value++;
+  }
+
+  void _openCalibration(CalibrationService calibration) {
+    setState(() {
+      _selectedPracticeTarget = null;
+      _predictionResult = const StablePredictionResult.idle();
+    });
+    _practiceRevision.value++;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => CalibrationScreen(
+          bleService: _bleService,
+          calibration: calibration,
+          recording: _recordingService,
+        ),
+      ),
+    );
   }
 
   void _retryPracticeTarget() {
@@ -271,22 +290,8 @@ class _MainShellState extends State<MainShell> {
         ),
         BleTestingTab(bleService: _bleService),
         DeveloperToolsTab(
-          onOpenCalibration: () {
-            setState(() {
-              _selectedPracticeTarget = null;
-              _predictionResult = const StablePredictionResult.idle();
-            });
-            _practiceRevision.value++;
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => CalibrationScreen(
-                  bleService: _bleService,
-                  calibration: _calibrationService,
-                  recording: _recordingService,
-                ),
-              ),
-            );
-          },
+          onOpenCalibration: () => _openCalibration(_calibrationService),
+          onOpenImuDiagnostics: () => _openCalibration(_imuDiagnosticsService),
           onOpenRecordSigns: () => setState(() => tabIndex = 4),
           onOpenBleTesting: () => setState(() => tabIndex = 5),
         ),

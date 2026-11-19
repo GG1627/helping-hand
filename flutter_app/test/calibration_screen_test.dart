@@ -104,6 +104,7 @@ void main() {
       calibration,
       calibration.handlePacket,
       () => now = now.add(const Duration(milliseconds: 25)),
+      clippedPoseId: 'index_bent_2',
     );
     await tester.pump();
     expect(find.text('Review measurements'), findsOneWidget);
@@ -114,6 +115,29 @@ void main() {
         )
         .first;
     expect(tester.widget<FilledButton>(save).onPressed, isNull);
+    final export = find.ancestor(
+      of: find.text('Export measurements'),
+      matching: find.byWidgetPredicate((widget) => widget is OutlinedButton),
+    );
+    expect(tester.widget<OutlinedButton>(export).onPressed, isNotNull);
+    await tester.ensureVisible(find.text('Redo a pose'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Redo a pose'));
+    await tester.pumpAndSettle();
+    expect(find.text('Needs review'), findsOneWidget);
+    await tester.tap(find.text('Bend index · 2 of 2'));
+    await tester.pumpAndSettle();
+    expect(find.text('Redo pose'), findsOneWidget);
+    expect(find.text('Bend index · 2 of 2'), findsOneWidget);
+    await tester.ensureVisible(find.text('Capture steady pose'));
+    await tester.tap(find.text('Capture steady pose'));
+    for (var i = 0; i <= 120; i++) {
+      now = now.add(const Duration(milliseconds: 25));
+      glove.controller.add(calibrationPacket(i + 1, now, pose: 'index_bent_2'));
+    }
+    await tester.pumpAndSettle();
+    expect(find.text('Review measurements'), findsOneWidget);
+    expect(find.textContaining('ADC clipping'), findsNothing);
     await tester.ensureVisible(find.byType(CheckboxListTile));
     await tester.pumpAndSettle();
     await tester.tap(find.byType(CheckboxListTile));
@@ -154,6 +178,85 @@ void main() {
       350,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Redo a pose'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Redo a pose'));
+    await tester.pumpAndSettle();
+    expect(find.text('Open hand · 1 of 2'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Open hand · 1 of 2'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Keep previous capture'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Keep previous capture'));
+    await tester.pumpAndSettle();
+    expect(find.text('Review measurements'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    await tester.binding.setSurfaceSize(null);
+    await glove.controller.close();
+    glove.dispose();
+    calibration.dispose();
+    recorder.dispose();
+  });
+
+  testWidgets('IMU diagnostics offers export after a failed axis check', (
+    tester,
+  ) async {
+    var now = DateTime.utc(2026, 11, 18);
+    final calibration = CalibrationService(imuOnly: true, clock: () => now);
+    final recorder = RecordingService();
+    final glove = TestGlove()..connected = true;
+    await tester.binding.setSurfaceSize(const Size(320, 720));
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(1.6)),
+          child: child!,
+        ),
+        home: CalibrationScreen(
+          bleService: glove,
+          calibration: calibration,
+          recording: recorder,
+        ),
+      ),
+    );
+    expect(find.text('IMU diagnostics'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('+X up'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    completeCalibration(calibration, (packet) {
+      if (calibration.step.id == 'y_1') {
+        glove.controller.add(
+          calibrationPacket(
+            packet.deviceSequence!,
+            now,
+            pose: 'z_1',
+            indexRaw: 4095,
+          ),
+        );
+      } else {
+        glove.controller.add(packet);
+      }
+    }, () => now = now.add(const Duration(milliseconds: 25)));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.textContaining('+Y up · 0.000, 0.000, 1.000 · Check failed'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Save profile for recordings'), findsNothing);
+    final export = find.ancestor(
+      of: find.text('Export measurements'),
+      matching: find.byWidgetPredicate((widget) => widget is OutlinedButton),
+    );
+    expect(tester.widget<OutlinedButton>(export).onPressed, isNotNull);
+    await tester.ensureVisible(export);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
