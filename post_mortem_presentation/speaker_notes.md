@@ -19,9 +19,9 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 ## 2. How the glove and app work
 
-**0:25–1:00 · 35 seconds.** Follow the diagram from the glove to the phone, then point to the return arrows.
+**0:25–1:00 · 35 seconds.** Point to the glove model, the phone models, then the two Bluetooth arrows.
 
-“Five strips measure finger bend, and the motion sensor measures acceleration and rotation. The ESP32 reads the sensors and recognizes held poses on the glove. It sends those predictions and sensor readings over Bluetooth. On the phone, two small models look at whole attempts, one for moving letters J and Z and one for selected words. Flutter compares the prediction with the target and saves a completed lesson. In the feedback demos, the app also requests buzzer pulses over Bluetooth, and the glove reports which output activated. Here’s the hardware that does that.”
+“When you hold a sign steady, the ESP32 runs a multilayer perceptron on the glove. The phone looks at how sensor readings change through an attempt. It runs one temporal convolutional network for J and Z and another for supported words. Bluetooth carries readings and held-pose predictions to the phone, where the app shows the result and saves completions. During the demo, the phone also sends commands back to the glove to play haptic cues.”
 
 ## 3. Glove hardware
 

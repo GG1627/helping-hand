@@ -12,10 +12,9 @@
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
     <symbol id="icon-hand" viewBox="0 0 64 64"><path d="M23 34V13a4 4 0 0 1 8 0v18-22a4 4 0 0 1 8 0v23-18a4 4 0 0 1 8 0v20-13a4 4 0 0 1 8 0v22c0 12-7 19-18 19-7 0-12-3-16-9L10 35a4 4 0 0 1 6-5l7 7"/></symbol>
-    <symbol id="icon-chip" viewBox="0 0 64 64"><rect x="17" y="17" width="30" height="30" rx="4"/><rect x="25" y="25" width="14" height="14" rx="2"/><path d="M24 7v10m16-10v10M24 47v10m16-10v10M7 24h10M7 40h10m30-16h10M47 40h10"/></symbol>
     <symbol id="icon-ble" viewBox="0 0 64 64"><path d="M20 17l27 28-14 12V7l14 12-27 28"/></symbol>
     <symbol id="icon-phone" viewBox="0 0 64 64"><rect x="17" y="5" width="30" height="54" rx="6"/><path d="M28 12h8m-5 39h2M24 32l6 6 12-15"/></symbol>
-    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 400 24"><path d="M3 12h394m-10-9 10 9-10 9"/></symbol>
   </defs></svg>
   <main id="stage" aria-label="Helping Hand post-mortem presentation">
     <div id="deck">
@@ -42,25 +41,42 @@
       </section>
 
       <section class="slide system" id="slide-2" aria-labelledby="title-2" data-title="How the glove and app work" data-seconds="35">
-        <header><p class="eyebrow">System overview</p><h2 id="title-2">How the glove and app work</h2></header>
-        <div class="pipeline">
-          <div class="pipeline-step"><svg aria-hidden="true"><use href="#icon-hand"/></svg><h3>Sensor glove</h3><p>Five flex strips<br>+ motion sensor</p></div>
-          <svg class="arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
-          <div class="pipeline-step"><svg aria-hidden="true"><use href="#icon-chip"/></svg><h3>ESP32</h3><p>Reads sensors<br>+ classifies held poses</p></div>
-          <svg class="arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
-          <div class="pipeline-step"><svg aria-hidden="true"><use href="#icon-ble"/></svg><h3>Bluetooth LE</h3><p>Readings, predictions<br>+ pulse acknowledgments</p></div>
-          <svg class="arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
-          <div class="pipeline-step"><svg aria-hidden="true"><use href="#icon-phone"/></svg><h3>Flutter app</h3><p>Recognizes motion<br>+ saves completion</p></div>
+        <h2 id="title-2">How the glove and app work</h2>
+        <div class="system-flow">
+          <article class="system-device system-glove">
+            <p class="system-device-label"><svg aria-hidden="true"><use href="#icon-hand"/></svg> On the glove · ESP32</p>
+            <h3>Static signs</h3>
+            <p class="system-explanation">Hold the handshape steady.</p>
+            <div class="system-model">
+              <strong>24 letters and 10 digits</strong>
+              <p>Multilayer perceptron (MLP)</p>
+            </div>
+          </article>
+          <div class="system-connection">
+            <p class="system-connection-label"><svg aria-hidden="true"><use href="#icon-ble"/></svg> Bluetooth LE</p>
+            <div class="system-transfer">
+              <p><span class="sr-only">Glove to phone: </span>Sensor readings and<br>held-pose predictions</p>
+              <svg aria-hidden="true" viewBox="0 0 400 24"><use href="#icon-arrow"/></svg>
+            </div>
+            <div class="system-transfer system-transfer-return">
+              <svg aria-hidden="true" viewBox="0 0 400 24"><use href="#icon-arrow"/></svg>
+              <p><span class="sr-only">Phone to glove: </span>Haptic commands<br>during the demo</p>
+            </div>
+          </div>
+          <article class="system-device system-phone">
+            <p class="system-device-label"><svg aria-hidden="true"><use href="#icon-phone"/></svg> On the phone · Android app</p>
+            <h3>Motion over time</h3>
+            <p class="system-explanation">Analyze sensor readings in sequence.</p>
+            <div class="system-model">
+              <strong>J, Z, and supported words</strong>
+              <p>Two temporal convolutional networks (TCNs)</p>
+            </div>
+          </article>
         </div>
-        <div class="return-path" aria-label="The phone sends pulse requests back to the glove over Bluetooth during the haptic demos."><span>App → glove over BLE · haptic pulse requests</span></div>
-        <div class="system-bottom">
-          <div><strong>Held letters and digits</strong><p>One pose model (MLP) on the ESP32.</p></div>
-          <div><strong>Moving letters and words</strong><p>Separate J/Z and word sequence models (TCNs) on the phone.</p></div>
-        </div>
-        <footer class="slide-footer"><span>Recognition and feedback paths in the presentation build</span><b>02 / 08</b></footer>
+        <footer class="slide-footer"><b>02 / 08</b></footer>
         <template class="slide-notes">
-          <p>0:25–1:00 · 35 seconds. Follow the diagram from the glove to the phone, then point to the return arrows.</p>
-          <p>“Five strips measure finger bend, and the motion sensor measures acceleration and rotation. The ESP32 reads the sensors and recognizes held poses on the glove. It sends those predictions and sensor readings over Bluetooth. On the phone, two small models look at whole attempts, one for moving letters J and Z and one for selected words. Flutter compares the prediction with the target and saves a completed lesson. In the feedback demos, the app also requests buzzer pulses over Bluetooth, and the glove reports which output activated. Here’s the hardware that does that.”</p>
+          <p>0:25–1:00 · 35 seconds. Point to the glove model, the phone models, then the two Bluetooth arrows.</p>
+          <p>“When you hold a sign steady, the ESP32 runs a multilayer perceptron on the glove. The phone looks at how sensor readings change through an attempt. It runs one temporal convolutional network for J and Z and another for supported words. Bluetooth carries readings and held-pose predictions to the phone, where the app shows the result and saves completions. During the demo, the phone also sends commands back to the glove to play haptic cues.”</p>
         </template>
       </section>
 
