@@ -21,7 +21,7 @@
     <div id="deck">
       <section class="slide cover is-active" id="slide-1" aria-labelledby="title-1" data-title="Helping Hand" data-seconds="15">
         <figure class="cover-visual">
-          <img class="cover-scene" src="assets/illustrations/cover-product-scene.png" alt="Product visualization of the final Helping Hand glove worn on a hand next to an Android phone.">
+          <img class="cover-scene" src="assets/illustrations/cover-product-scene-relaxed.png" alt="Product visualization of the final Helping Hand glove worn on a relaxed hand next to an Android phone.">
           <div class="cover-display"><img src="assets/screenshots/home-nov19.png" alt="Helping Hand Home screen showing Alphabet practice and saved progress."></div>
           <figcaption>Product visualization</figcaption>
         </figure>
@@ -43,13 +43,16 @@
         <img class="problem-art" src="assets/illustrations/learning-problem.png" alt="Conceptual illustration of a learner comparing their hand position with a printed reference.">
         <div class="problem-copy">
           <h2 id="title-2">The problem</h2>
-          <p class="problem-statement">Beginners practicing ASL alone need feedback on the signs they make.</p>
-          <p class="problem-detail">A video can show the target sign. The learner still has to judge their own handshape and movement.</p>
+          <p class="problem-stat"><strong>&gt;90%</strong> of deaf children are born to hearing parents.</p>
+          <ul class="problem-points">
+            <li>Videos show the target sign.</li>
+            <li>Beginners practicing alone need feedback on their own signs.</li>
+          </ul>
         </div>
-        <footer class="slide-footer"><b>02 / 10</b></footer>
+        <footer class="slide-footer"><b>02 / 10</b><a href="https://www.nidcd.nih.gov/health/statistics/quick-statistics-hearing" target="_blank" rel="noopener">NIDCD · Mitchell &amp; Karchmer (2004)</a></footer>
         <template class="slide-notes">
-          <p>0:15–0:35 · 20 seconds. Point to the learner comparing their hand to the reference.</p>
-          <p>“Beginners can learn what a sign looks like from a video or a printed reference. When they practice alone, they still have to judge their own handshape and movement. We built Helping Hand to give feedback on the attempt they actually make.”</p>
+          <p>0:15–0:35 · 20 seconds. Give the statistic as context for families who may be learning ASL, then explain the feedback gap.</p>
+          <p>“NIH reports that more than 90 percent of deaf children are born to hearing parents. When a beginner practices ASL alone, a video can show the target sign. They still need feedback on their own handshape and movement. That’s the problem we’re addressing.”</p>
         </template>
       </section>
 
@@ -133,12 +136,12 @@
         <header><p class="eyebrow">Final build</p><h2 id="title-5">Glove hardware</h2></header>
         <div class="hardware-layout">
           <div class="hardware-images">
-            <figure class="glove"><img src="assets/hardware/glove-final.jpg" alt="The final glove, with all five flex strips, the piezo discs, wires, and cuff-mounted perfboard visible."><figcaption>Wired perfboard glove</figcaption></figure>
+            <figure class="glove"><img src="assets/hardware/glove-final.jpg" alt="The final glove, with all five flex sensors, the piezo discs, wires, and cuff-mounted perfboard visible."><figcaption>Wired perfboard glove</figcaption></figure>
             <figure class="board"><img src="assets/hardware/pcb-prototype.jpg" alt="Component side of the custom printed circuit board from an earlier hardware iteration."><figcaption>Earlier custom PCB</figcaption></figure>
           </div>
           <div class="hardware-details">
-            <article><h3>Five flex strips + ICM-20948</h3><p>Finger bend, acceleration, and rotation feed recognition.</p></article>
-            <article><h3>Ten piezo buzzers</h3><p>Five by the fingers and five in a plus on the back of the hand.</p></article>
+            <article><h3>5 flex sensors + ICM-20948</h3><p>Finger bend, acceleration, and rotation feed recognition.</p></article>
+            <article><h3>10 piezoelelctric buzzers</h3><p>Five by the fingers and five in a plus on the back of the hand.</p></article>
             <article><h3>Cuff-mounted ESP32</h3><p>Discrete wiring on perfboard after PCB and conductive-thread iterations.</p></article>
           </div>
         </div>

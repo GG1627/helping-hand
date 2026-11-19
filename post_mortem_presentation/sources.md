@@ -2,6 +2,12 @@
 
 ## Claims
 
+- Slide 2 uses the [NIDCD hearing statistics](https://www.nidcd.nih.gov/health/statistics/quick-statistics-hearing)
+  for the percentage of deaf children born to hearing parents. NIDCD cites
+  [Mitchell and Karchmer (2004)](https://gallaudetcdn.com/gal-media/Documents/Research-Support-and-International-Affairs/SLS_Paper.pdf).
+  The statistic describes parental hearing status. The feedback gap is the
+  problem Helping Hand addresses.
+
 - [P3 assignment](../P3-Post-Mortem-Presentation.md) and the November 19 rubric
   image supplied by Gael set the presentation and grading requirements.
 - [November 19 presentation handoff](../docs/POST_MORTEM_PRESENTATION_PLAN.md#november-19-handoff-for-the-slides)
@@ -27,7 +33,7 @@
 
 ## Visuals
 
-- [Cover product scene](assets/illustrations/cover-product-scene.png) is a
+- [Cover product scene](assets/illustrations/cover-product-scene-relaxed.png) is a
   built-in ImageGen visualization based on the
   [beta composition](../beta_presentation/assets/illustrations/intro-product-scene.png)
   and the supplied final glove photo. The phone display uses the original
@@ -56,7 +62,13 @@
 
 ### Cover product scene generation prompt
 
+The [first composition](assets/illustrations/cover-product-scene.png) used this prompt.
+
 > Use case: compositing for a full-bleed 16:9 technical presentation cover. Image 1 is the beta composition reference; recreate its ivory desktop scene, negative space, lighting, and left-to-right staging, while updating the wearable. Image 2 shows the real final prototype; it is the hardware reference and takes precedence over the beta version. Image 3 is the actual Android Home capture and is the placement and aspect-ratio reference for the phone display, which will be composited separately. Keep the left 44 percent of the landscape frame nearly empty, evenly lit warm ivory all the way down, for editable text later. In the right foreground show an adult wearing the exact black knitted glove from Image 2, seen straight-on from the back of the hand with the thumb on the left, fingers relaxed and open, and the wrist extending off the lower-right edge. Keep all five long silver striped flex strips, ten small round golden/ivory piezo discs in the photographed layout, the loose red, orange and black wires, and the blue perfboard and black ESP32 mounted at the cuff. Match the shape, component placements and colors of Image 2 as faithfully as possible. Keep the fingers and cuff in frame. Do not bring back the older green circuit board or silver battery. Behind and just to the left of the glove at roughly 57% of the image width, place one upright modern slim black Android phone resting on a small stand on the desk. Its whole screen is visible and unobscured, facing the camera straight-on with edges nearly vertical, portrait screen with interior aspect ratio approximately 0.45, and a uniform solid pale ivory display that I can replace with Image 3. Keep the phone a little smaller than the glove and keep the background soft. Warm natural desk lighting, restrained muted green plant or accents on the far right. Photorealistic product staging, authentic engineering prototype, no extra electronics, no extra phones, no generated text or logo.
+
+### Relaxed hand edit prompt
+
+> Use case: precise object edit. Image 1 is the edit target, a 16:9 Helping Hand cover photo. Image 2 is the final hardware reference. Edit only the worn glove and the hand within it on the right of Image 1. Change the existing rigid fingers-up pose to a natural, relaxed adult hand pose, as though the wearer has lifted a resting hand slightly off a desk. Rotate the wrist subtly so the fingers angle gently diagonally rather than pointing straight up. Let the fingers curve forward at their knuckles in a loose, shallow arc, with different amounts of curl and small natural gaps. Give the thumb a relaxed angle toward the palm. Keep the back of the hand broadly facing the viewer, all five fingers anatomically believable with proportional length, and the black knitted fabric resting over each finger instead of appearing flat or stiff. The flex strips should bend around the fingers with the fabric. Preserve the final glove's five striped silver flex strips, positioned piezo discs, red, orange and black wires and blue perfboard at the cuff from Image 2; preserve the same hardware version and realistic proportions. Keep the electronics visible and let the forearm enter from the lower right as in Image 1. The hand is simply relaxed, with no intended ASL sign. Preserve everything outside the hand and glove as closely as possible: the exact 16:9 composition, empty ivory left half, the phone's exact position, angle, blank ivory screen and four screen corners, stand, desktop, background, plant, lighting and scale. The phone screen is overlaid with a separate image afterwards, so do not reframe or redraw it. Photorealistic; no text, extra fingers, or new hardware.
 
 ### Earlier cover backdrop generation prompt
 

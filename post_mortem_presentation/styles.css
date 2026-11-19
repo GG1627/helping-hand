@@ -70,26 +70,37 @@
 }
 .problem-copy {
   position: relative;
-  margin-top: 108px;
+  margin-top: 47px;
   max-width: 640px;
 }
 .problem h2 { font-size: 78px; }
-.problem-statement {
-  margin-top: 34px;
-  max-width: 620px;
-  font-size: 47px;
+.problem-stat {
+  margin-top: 25px;
+  max-width: 520px;
+  font-size: 34px;
   font-weight: 600;
-  line-height: 1.16;
-  letter-spacing: -.032em;
+  line-height: 1.2;
 }
-.problem-detail {
-  margin-top: 29px;
-  max-width: 565px;
-  color: var(--muted);
-  font-size: 28px;
-  line-height: 1.42;
+.problem-stat strong {
+  display: block;
+  margin-bottom: 11px;
+  color: var(--teal);
+  font-size: 155px;
+  line-height: .98;
+  letter-spacing: -.055em;
 }
+.problem-points {
+  max-width: 610px;
+  margin: 32px 0 0;
+  padding-left: 32px;
+  font-size: 29px;
+  line-height: 1.35;
+}
+.problem-points li + li { margin-top: 13px; }
+.problem-points li::marker { color: var(--teal); }
+.problem .slide-footer { right: auto; align-items: center; gap: 30px; }
 .problem .slide-footer b { margin-left: 0; }
+.problem .slide-footer a { color: inherit; text-underline-offset: .18em; }
 .recognition-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;

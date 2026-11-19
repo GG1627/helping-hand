@@ -20,9 +20,9 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 ## 2. The problem
 
-**0:15–0:35 · 20 seconds.** Point to the learner comparing their hand to the reference.
+**0:15–0:35 · 20 seconds.** Give the statistic as context for families who may be learning ASL, then explain the feedback gap.
 
-“Beginners can learn what a sign looks like from a video or a printed reference. When they practice alone, they still have to judge their own handshape and movement. We built Helping Hand to give feedback on the attempt they actually make.”
+“NIH reports that more than 90 percent of deaf children are born to hearing parents. When a beginner practices ASL alone, a video can show the target sign. They still need feedback on their own handshape and movement. That’s the problem we’re addressing.”
 
 ## 3. System architecture
 
