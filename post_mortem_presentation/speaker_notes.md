@@ -42,11 +42,11 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 “The demo glove has five flex sensors, a motion sensor, ten piezo buzzers, and a cuff-mounted ESP32. We tried a custom PCB and later hid the connections with conductive thread. When sensor readings dropped out, we switched to individual wires on perfboard. We’re powering it over USB today.”
 
-## 6. Android app and live results
+## 6. Android app
 
-**1:50–2:15 · 25 seconds.** Move across the screenshots from sign-in to saved lessons, then point to the live test counts.
+**1:50–2:15 · 25 seconds.** Move across the screenshots from sign-in to saved lessons.
 
-“Users sign in and see their progress on Home. They can pick a letter, number, or word lesson, view the target sign, and see which lessons they completed. The app lists eight words and recognizes three. In one live test, six targets passed all three attempts. K and X passed once each. Let’s try it live.”
+“After signing in, Home shows your progress. Pick a letter, number, or word. The lesson shows the target sign, and the app saves your completed lessons. Eight word lessons are listed, and the recognizer supports three. Let’s try it with the glove.”
 
 ## 7. Live ASL practice demo
 
@@ -70,7 +70,7 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 **Recognition for moving signs.** “We recorded whole attempts so the model could use the order of the motion. After rebuilding the glove, we collected more recordings and extended the input window. The updated word model accepted five of five matching recordings in offline replay. Hello, Please, and Yes also completed in the live check.”
 
-**Haptic correction for 3.** “We could trigger individual buzzers, but the cue needed to respond to the learner. We used measured bend ranges for the middle and pinky. The app chooses a pulse pattern and highlights the outputs the glove confirms. That automatic cue worked during an on-glove rehearsal.”
+**Haptic feedback.** “We wanted each buzz to tell the learner what to do. We used the flex readings to choose a bend or straighten cue and tested it on the glove with the number 3. For word practice, we built preset motion cues that play after a match on Hello or Please.”
 
 ## 9. Challenges and lessons
 

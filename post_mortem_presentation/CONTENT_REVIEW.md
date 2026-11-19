@@ -15,12 +15,12 @@ an optional demo cut if an interruption takes time.
 | Flow | 2.5 | Speaker notes link the need, build, live practice, and reflection. Confirm speaker handoffs. |
 | Pacing | 2.5 | 4:45 of narration and 2:00 of demo leave 0:15 for transitions. Please is optional. |
 | Media Integration | 2.5 | Use the current photos and screenshots as narration cues. Rehearse phone projection and the return to slides. |
-| Final Features | 10 | Slides 3–6 explain sensing, the MLP and both TCNs, the hardware, app lessons, and live results. Slide 7 shows feedback and saved progress. |
-| Features in Practice or Prior Work | 5 | Slide 6 shows the sign reference, completed lessons, and rehearsal results. Slide 7 runs the workflow on the glove. |
+| Final Features | 10 | Slides 3–6 explain sensing, the MLP and both TCNs, the hardware, and app lessons. Slide 7 shows feedback and saved progress. Backup 2 presents the test results. |
+| Features in Practice or Prior Work | 5 | Slide 6 shows the sign reference and completed lessons. Slide 7 runs the workflow on the glove. |
 | Live Demo / Methods | 5 | Slide 7 and the two-minute run sheet cover the live learner scenario, with recovery and timing. |
 | Current Merged Version or Initial Findings | 5 | Show the integrated presentation build live. The notes identify the locally reviewed app and firmware. Confirm the exact running revision during rehearsal. |
 | Demo Narration | 5 | Slide 7 notes call out the action, screen response, cue behavior, and saved state. |
-| Successes | 16 | Slide 8 and notes give three distinct challenges, approaches, and outcomes. |
+| Successes | 16 | Slide 8 summarizes saved progress, motion recognition, and haptic cues. The notes explain the challenge, approach, and outcome for each. |
 | Challenges | 16 | Slide 9 and notes give three difficulties, their impact, and specific process changes. |
 | Showcase | 10 | Separate course event. |
 | **Total** | **100** | |
