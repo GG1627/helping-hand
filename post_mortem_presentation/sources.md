@@ -31,11 +31,11 @@
 
 ## Visuals
 
-- [Cover product scene](assets/illustrations/cover-product-scene-ivory.png) is a
-  built-in ImageGen visualization based on the
-  [beta composition](../beta_presentation/assets/illustrations/intro-product-scene.png)
-  and the supplied final glove photo. The beta scene guides finger spacing,
-  and the background matches the deck's warm ivory. The phone uses the original
+- [Cover product scene](assets/illustrations/cover-product-scene-knit.png) is a
+  built-in ImageGen edit of the [ivory cover](assets/illustrations/cover-product-scene-ivory.png).
+  Gael's supplied `Smart Glove Hand Tracking Demo.png` guides hand pose and
+  hardware placement. The [final prototype photo](../docs/figures/r4/IMG_9891.jpeg)
+  guides the knit texture. The phone uses the original
   [Home capture](assets/screenshots/home-nov19.png) from November 19, 05:13:01.
   Slide 5 shows the original hardware photo.
 - [Problem illustration](assets/illustrations/learning-problem.png) reuses the
@@ -90,6 +90,10 @@ This prompt produced the [previous open-hand scene](assets/illustrations/cover-p
 > Use case: precise object edit for Helping Hand's 16:9 slide cover. Image 1 is the current post-mortem cover and the edit target. Image 2 is the beta cover and provides ONLY the hand-pose reference. Image 3 is the photo of the final prototype and provides ONLY the hardware reference. On Image 1, adjust the worn glove's finger positioning and spacing to match the beta hand in Image 2. Copy the beta's natural, open right hand silhouette and knuckle alignment: middle finger tallest, index and ring slightly lower, little finger distinctly shorter, thumb outward and lower, fingers comfortably separated. Match the visible placement, orientation, and gaps from Image 2 without copying its glove hardware. Keep the four fingers extended with natural slight individual angles, not curled, rigidly identical or unnaturally stretched. Maintain the current glove's five striped flex sensors, round piezo discs, wire colors and the blue perfboard with ESP32 centered on the cuff. Keep all of the final version's hardware and expose the cuff. Preserve the adult forearm, blank ivory text area, the phone's exact four screen corners and blank display, its stand, desktop, plant, framing, light, and 16:9 dimensions from Image 1. The real Android Home capture is composited separately over the blank phone screen. Do not change any object other than the hand and fingers of the worn glove. No text, extra fingers, battery, or new objects.
 
 > Precise background color edit for the attached full-bleed 16:9 presentation cover. Keep the exact glove, beta-inspired finger positions and spacing, wrist-mounted hardware, hand and forearm, phone and all four corners of its blank display, phone stand, plant, camera framing, proportions and positions pixel-aligned. Change the room backdrop and desktop color only: make it a bright warm-white studio scene to match a presentation with background color #FFFCF5. The left half should be seamlessly warm white (#FFFCF5) for slide text, with no pink or brown cast. Behind the glove and around the phone, use a soft off-white wall and a nearly white tabletop with faint natural texture and the existing soft shadows. Keep the small green accent soft. Preserve real hardware colors and natural skin tone. No text, graphics or extra objects. Same canvas size and composition.
+
+### Knit fabric edit prompt
+
+> Precise product-photo edit for slide 1. Image 1 is the full 16:9 slide background and the edit target. Image 2 is the user's close-up reference for the glove, natural straight open fingers and centered wrist-mounted board. Image 3 is the real glove photograph, the material and hardware reference. Update ONLY the black glove cloth in Image 1: make it look like the real, inexpensive soft black knitted fabric from Image 3, with tiny interlocking yarn loops visible on fingers, fine woven/matte soft fabric on the back of the hand, some soft lint, and an actual rib-knit cuff. Subtle, irregular thread highlights in charcoal, slight fuzzy textile silhouette, and smooth tension over the back of the hand. Remove the molded glossy rubber texture, fine etched lines, and deep wrinkled ripples. Keep the five naturally open extended fingers and all five sensor strips. Follow the close-up for the visible gold piezo disks, red, orange and black wires, and blue perfboard centered on the wrist. Hold the exact camera and composition of Image 1, including the exact phone bezel position, empty ivory phone display for a later overlay, blank warm-white left space, tabletop, soft background and overall hand outline. No added text, don't crop. Full-width 16:9 background. Photorealistic soft indoor light.
 
 ### Earlier cover backdrop generation prompt
 
