@@ -19,6 +19,9 @@
 - [Word model metadata](../flutter_app/assets/models/words_tcn/model_metadata.json)
   lists Hello, Please, and Yes. The
   [Words tab](../flutter_app/lib/screens/tabs/words_tab.dart) lists eight lessons.
+- The [ESP32 classifier](../ESP32/src/classifier.cpp) uses finger-bend readings.
+  The [J/Z bundle](../flutter_app/assets/models/motion_letters_tcn/model_metadata.json)
+  uses an IMU sequence. The word bundle uses a sequence of flex and IMU readings.
 - [Original design draft](../design_draft/Helping_Hand_Design_Draft.pdf) and the
   project plan provide the original prototype and feature goals used in backup 1.
 
@@ -27,6 +30,10 @@
 - [Cover backdrop](assets/illustrations/cover-backdrop.png) was generated with
   the built-in ImageGen tool. The cover layers the original glove photograph
   and the actual Words screenshot over it.
+- [Problem illustration](assets/illustrations/learning-problem.png) reuses the
+  generated artwork from the [beta presentation](../beta_presentation/assets/prompts.md#learning-problem).
+  The slide uses it to illustrate practice alone.
+- The bars and trace on slide 4 are schematic input illustrations.
 
 - `assets/hardware/glove-final.jpg` matches the supplied `IMG_9891.jpeg`
   and the [repository original](../docs/figures/r4/IMG_9891.jpeg).

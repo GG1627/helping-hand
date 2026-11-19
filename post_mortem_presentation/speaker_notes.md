@@ -1,79 +1,92 @@
 # Helping Hand post-mortem speaker notes
 
-November 19, 2026. **7:00 presentation, then 2:00 for questions.** The written P3 prompt also calls for questions throughout. Take questions if they come up and use the optional demo cut in the run sheet to stay on time.
+November 19, 2026. **6:45 planned within seven minutes**, then two minutes for questions. That leaves 15 seconds for handoffs or interruptions. The written P3 prompt also anticipates questions throughout.
 
 | Time | Slides | Suggested roles |
 | --- | --- | --- |
-| 0:00–1:00 | 1–2 · problem and system | Introduction and system speaker |
-| 1:00–2:25 | 3–4 · glove and app | Hardware and app speaker |
-| 2:25–4:05 | 5 · live practice | Narrator, wearer, and phone operator |
-| 4:05–7:00 | 6–8 · reflection and close | Reflection and closing speakers |
+| 0:00–1:00 | 1–3 · introduction, problem, system | Introduction and system speaker |
+| 1:00–2:15 | 4–6 · models, hardware, app | Technical and app speakers |
+| 2:15–4:15 | 7 · live practice | Narrator, wearer, and phone operator |
+| 4:15–6:45 | 8–10 · successes, challenges, close | Reflection and closing speakers |
+| 6:45–7:00 | Handoff or question buffer | Closing speaker |
 
 Confirm names and who advances the slides during rehearsal. Use these notes on a separate device during projection. The HTML notes contain the same slide narration.
 
 ## 1. Helping Hand
 
-**0:00–0:25 · 25 seconds.** Point to the finished glove and introduce the team.
+**0:00–0:15 · 15 seconds.** Introduce the team and point to the glove and phone.
 
-“Helping Hand is a glove and mobile app for practicing American Sign Language with haptic feedback. If you practice between lessons, a reference can show you the sign. Our glove and app let you check your own attempt and save completed lessons.”
+“Helping Hand is a glove and Android app for practicing American Sign Language with haptic feedback. We’ll show you what we built, how someone uses it, and what we learned.”
 
-## 2. How the glove and app work
+## 2. The problem
 
-**0:25–1:00 · 35 seconds.** Point to the glove model, the phone models, then the two Bluetooth arrows.
+**0:15–0:35 · 20 seconds.** Point to the learner comparing their hand to the reference.
 
-“When you hold a sign steady, the ESP32 runs a multilayer perceptron on the glove. The phone looks at how sensor readings change through an attempt. It runs one temporal convolutional network for J and Z and another for supported words. Bluetooth carries readings and held-pose predictions to the phone, where the app shows the result and saves completions. During the demo, the phone also sends commands back to the glove to play haptic cues.”
+“Beginners can learn what a sign looks like from a video or a printed reference. When they practice alone, they still have to judge their own handshape and movement. We built Helping Hand to give feedback on the attempt they actually make.”
 
-## 3. Glove hardware
+## 3. How the system works
 
-**1:00–1:40 · 40 seconds.** Point to the strips, cuff electronics, and piezos. Indicate the smaller PCB photo when explaining the build change.
+**0:35–1:00 · 25 seconds.** Follow the diagram from sensors to the app, then point to the return arrow.
 
-“This is the glove we’re using today. The flex strips run along the fingers, and the ESP32 sits on perfboard at the cuff. We installed and calibrated the new ICM-20948 motion sensor. Five piezo buzzers sit near the fingers and five form a plus on the back of the hand. That gives us a way to identify a finger and show a direction in the feedback demo. The smaller photo is our custom PCB prototype. We finished on perfboard with individual wires after problems with the board and conductive thread. We’ll power the glove over USB today after problems with battery operation.”
+“Five flex strips measure finger bend, and an IMU measures motion. The ESP32 reads both and recognizes held signs using the flex readings. Bluetooth sends the readings and predictions to the Android app, which recognizes moving signs and saves completed lessons. During the demo, the app also sends haptic commands back to the glove.”
 
-## 4. App features and recognition results
+## 4. How we recognize signs
 
-**1:40–2:25 · 45 seconds.** Point across the lesson picker, A reference, and learned Words rows.
+**1:00–1:25 · 25 seconds.** Point to the five bars, then follow the trace on the right.
 
-“The learner chooses a lesson in Alphabet, Numbers, or Words. The A screen shows the 3D reference and the hold-progress area. In a connected lesson, the app checks that a held sign stays matched. For motion, the learner starts and finishes an attempt. The glove model covers 24 letters and all ten digits. The presentation build adds J and Z on the phone. The app offers eight word lessons and the bundled model covers Hello, Please, and Yes. Accepted lessons save to the app’s progress, shown here on the green rows. In a live check with one wearer, six targets passed all three attempts each. K and X passed one of three each. Let’s try the same practice flow with the connected glove.”
+“For G, we can look at one set of finger-bend readings. The glove’s multilayer perceptron classifies that handshape. For Z, the order of the motion matters. A temporal convolutional network looks for patterns across successive readings. The phone runs one for J and Z and another for Hello, Please, and Yes.”
 
-## 5. Live ASL practice demo
+## 5. Glove hardware
 
-**2:25–4:05 · 100 seconds.** Switch to the projected phone or keep it visible alongside the cue slide. Start signed in, connected, and in Developer Mode.
+**1:25–1:50 · 25 seconds.** Point to the actual glove, then the prototype PCB.
 
-**G.** “I’ll choose G and hold it steady. Watch the match and hold indicator. This prediction comes from the glove.”
+“This is the glove we’re using today. At the cuff, the ESP32 and wiring sit on perfboard. The flex strips and the calibrated ICM-20948 are the inputs. Five buzzers sit by the fingers, and five form a plus on the back of the hand. The photo beside it shows our earlier PCB. Today we’re using USB power.”
 
-**Z.** “Now I’ll start an attempt, trace Z, and finish it. The phone uses the motion readings over that attempt.” Use the actual outcome. If needed, make one brief recovery or move on. I is the rehearsed spare held pose.
+## 6. App features and live results
 
-**3.** “I’ll keep my middle finger curled so you can see what happens when I need to straighten it. First look for the finger pulse, then watch the dots move from bottom to center to top. I’ll straighten the finger and the app can finish the lesson.”
+**1:50–2:15 · 25 seconds.** Point to the sign reference, saved Words rows, and live test counts.
 
-**Hello and Please.** “I’ll start and finish Hello. After a match, the glove can replay a preset sequence, left, center, right. Please uses a loop around the back of the hand.” Show Please if there is time. Narrate physical activation and wearer sensation as observed.
+“The app offers letter, number, and word lessons, with on-screen feedback and saved progress. Eight word lessons are listed, and the model recognizes three. In one live check, six signs passed three of three attempts each. K and X passed one of three each. Now we’ll show what that practice looks like.”
 
-**Progress.** “Back on Words, a green row and a checkmark mark a saved lesson.” If the row was green at the start, describe its saved state. If a new row turns green, call out the change. Return to slide 6. Follow the timed run sheet for the sequence and recovery.
+## 7. Live ASL practice demo
 
-## 6. Project successes
+**2:15–4:15 · 120 seconds.** Use the projected phone. Start signed in, connected, and in Developer Mode. The run sheet gives the individual time limits and recovery actions.
 
-**4:05–5:25 · 80 seconds.** Tell each story in about 25 seconds and hand off to the lessons.
+**G.** “I’ll hold G steady. Watch for the match and hold indicator. This prediction comes from the glove.”
 
-**Saved practice progress.** “We wanted learners to see which signs they had completed. We tied it to the selected lesson and only saved completion after the app accepted a match. That made the result visible as a completed lesson and gave the learner something to come back to. During rehearsal, we closed and reopened the app and could still see the completed signs.”
+**Z.** “I’ll start an attempt, trace Z, and finish it. The phone recognizes the sequence.” Describe the actual outcome. Try one quick recovery if useful, then move on. I is the rehearsed spare held pose.
 
-**Recognition for moving signs.** “To recognize a moving sign, we needed to use readings from the entire attempt. We recorded complete attempts and chose a compact temporal model to run on the phone. After the rebuild, we collected more recordings and extended the input window so it could keep more of the motion. The updated word model completed all five matching attempts in offline replay, and Hello, Please, and Yes completed in our live practice check. We used the same start-and-finish controls for J and Z.”
+**3.** “I’m curling the middle finger on purpose. Watch which finger lights up, then the dots move from bottom to center to top. That means straighten. I’ll correct the finger and show what the app does.”
 
-**Haptic correction for 3.** “We could already activate individual buzzers, but we wanted the cue to depend on the learner’s attempt. For Number 3, we used measured bend ranges for the middle and pinky fingers. The app sends one pulse at a time and highlights the locations confirmed by the glove. The timed correction demo worked in one on-glove rehearsal. The cue showed which finger to move and in which direction.”
+**Hello and Please.** “For Hello I tap Start and Finish. After a match, the glove can replay a preset cue from left to center to right. Please uses a loop around the back of the hand.” Show Please if time permits and describe any output as observed.
 
-## 7. Challenges and lessons
+**Progress.** “A green row and checkmark mean that lesson was saved.” Call out a change only if a new row turns green during the demo. Finish on Words and return to slide 8.
 
-**5:25–6:40 · 75 seconds.** Spend about 25 seconds per example.
+## 8. Project successes
 
-**Unreliable connections.** “Our custom PCB broke and its engraved traces gave us unreliable connections. The conductive-thread version also lost readings during use. We suspected shorts and switched to individual wires. Next time we’d check continuity while flexing the assembly and add strain relief before mounting a board on the glove.”
+**4:15–5:25 · 70 seconds.** Give each story about 20–23 seconds.
 
-**Damaged flex sensors.** “The thumb and index channels sometimes stayed near their unbent readings even when the fingers moved. An informal tryout helped send us back to the raw channels, where we found damaged sensors and replaced them. Next time we’d check every channel independently, record calibration after every rebuild, and rerun a few known signs before trying to tune the model.”
+**Saved practice progress.** “A prediction by itself gave the learner no record of their practice. We tied a match to the lesson they picked, so completion was visible and saved to the right place. During rehearsal we closed and reopened the app and could still see the completed signs.”
 
-**Word recognition after the rebuild.** “Movement speed and the rebuilt sensors changed what the model saw. We found nine correct word attempts that the earlier model failed to complete in offline replay. We retrained, but our tests still covered few wearers and targets, and K and X were inconsistent live. Next time we’d reserve fresh attempts from additional wearers, include similar and unrelated signs, and record misses as well as matches.”
+**Recognition for moving signs.** “We recorded whole attempts so the model could use the order of the motion. After rebuilding the glove, we collected more recordings and extended the input window. The updated word model accepted five of five matching recordings in offline replay. Hello, Please, and Yes also completed in the live check.”
 
-## 8. Main lesson and next steps
+**Haptic correction for 3.** “We could trigger individual buzzers, but the cue needed to respond to the learner. We used measured bend ranges for the middle and pinky. The app chooses a pulse pattern and highlights the outputs the glove confirms. That automatic cue worked during an on-glove rehearsal.”
 
-**6:40–7:00 · 20 seconds.** Leave this slide up for the two-minute question period.
+## 9. Challenges and lessons
 
-“We built a glove and app that let beginners get feedback on selected ASL signs and return to saved lessons. Our main lesson was to test recognition, feedback, and saved progress in the same practice session. The next step is to check recognition across more wearers and find out whether people can reliably feel and interpret the cues.”
+**5:25–6:30 · 65 seconds.** Explain the failure, its impact, and one next step per example.
+
+**Unreliable connections.** “The custom PCB broke and the conductive-thread assembly lost sensor readings as the glove moved. We suspected shorts and switched to discrete wires. Next time we’d check continuity while flexing the assembly and add strain relief before mounting it.”
+
+**Damaged flex sensors.** “The thumb and index readings barely changed when the fingers bent, which made some attempts look wrong. The raw channels exposed the damaged sensors. We’d check each channel early, then recalibrate and repeat a few known signs after every hardware change.”
+
+**Word recognition after the rebuild.** “The earlier model missed all nine matching recordings from the rebuilt glove in offline replay. We retrained, but our tests still covered few wearers and targets. Next time we’d reserve fresh attempts from more wearers and test signs the models could confuse.”
+
+## 10. Main lesson and next steps
+
+**6:30–6:45 · 15 seconds.** Leave this slide up for the question period.
+
+“Our main lesson was to test the glove and app together, through recognition, feedback, and saved progress. Next we’d test with more wearers to see which signs work consistently and whether users can interpret the cues.”
 
 ## Backup 1. Original goals and final features
 

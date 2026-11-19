@@ -8,8 +8,8 @@ The [P3 assignment](../P3-Post-Mortem-Presentation.md) governs requirements.
 ## November 19 handoff for the slides
 
 - **Delivery:** Gael confirmed seven minutes for the presentation, then two
-  minutes for questions. The eight-slide deck includes a 100-second demo and
-  has two backups for questions. See the
+  minutes for questions. The ten-slide deck schedules 4:45 of narration and a
+  2:00 demo, with a 0:15 buffer and two question backups. See the
   [updated HTML deck](../post_mortem_presentation/index.html),
   [speaker notes](../post_mortem_presentation/speaker_notes.md), and
   [Canvas PDF](../post_mortem_presentation/exports/helping-hand-post-mortem.pdf).

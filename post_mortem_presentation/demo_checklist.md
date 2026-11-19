@@ -1,17 +1,17 @@
 # Live demonstration run sheet · November 19, 2026
 
-Slide 5 runs from **2:25 to 4:05** in the seven-minute talk. The planned order
+Slide 7 runs from **2:15 to 4:15** in the seven-minute talk. The planned order
 is **G → Z → 3 → Hello → Please → Words progress**. Rehearse on the intended
 glove and phone. Assign the wearer, phone operator, narrator, and slide operator.
 
 | Time | Action | Narration purpose |
 | --- | --- | --- |
-| 0–8 s | Show the wired glove and open Alphabet. | Establish live use of the actual artifact. |
-| 8–20 s | Open **G**, form it, and hold for the recognition result. | The ESP32 recognizes steady poses. |
-| 20–34 s | Open **Z**, tap **Start attempt**, trace Z, then **Finish sign** within four seconds. | The separate phone model recognizes the motion of J and Z. |
-| 34–55 s | Open **Numbers → 3**, scroll to **Demo**, and hold a deliberately curled middle finger. After five seconds, leave time for the cue, then straighten it and complete 3. | The finger pulse identifies the finger. Bottom → center → top means straighten. The active dots show which buzzers the glove reports. |
-| 55–90 s | Use **Start attempt** and **Finish sign** for **Hello**, then **Please** if time permits. Let Hello's left → center → right cue play, then allow time for Please's three left → top → right → bottom laps. | Matching words replay preset motion cues on the back-of-hand plus. Describe output and wearer sensation as observed. |
-| 90–100 s | Return to **Words**, point out the green learned rows and checkmarks, and return to the presentation. | Show saved completion. Call out a newly completed row only if it changes during the attempt. |
+| 0–10 s | Show the worn glove and open Alphabet on the projected phone. | Establish the learner’s task. |
+| 10–25 s | Open **G**, form it, and hold for the recognition result. | Point to the match and hold indicator. |
+| 25–43 s | Open **Z**, tap **Start attempt**, trace Z, then **Finish sign** within four seconds. | Contrast a moving attempt with the held G. |
+| 43–72 s | Open **Numbers → 3**, scroll to **Demo**, and hold a deliberately curled middle finger. After five seconds, leave time for the cue, then straighten it. | The finger pulse identifies the finger. Bottom → center → top means straighten. Show what the app reports after the correction. |
+| 72–108 s | Use **Start attempt** and **Finish sign** for **Hello**, then **Please** if time permits. Let Hello's left → center → right cue play, then allow time for Please's three left → top → right → bottom laps. | Matching words replay preset cues. Describe the physical output and wearer sensation as observed. |
+| 108–120 s | Return to **Words**, point to the green rows and checkmarks, then return to slide 8. | Show saved completion. Call out a newly completed row only if it changes during the attempt. |
 
 If the previous steps or audience questions use up the buffer, go from Hello
 directly to Words. Protect the saved progress reveal and the reflection time.
@@ -51,8 +51,8 @@ LIVE-04, EVAL-05, and HAPT-01 through HAPT-04.
   **Developer → BLE Testing**, and verify projection before presenting.
 - [ ] Put needed targets within easy reach; rehearse operator/wearer coordination.
 - [ ] Verify demo cue wording matches the actual implemented behavior.
-- [ ] Rehearse transition from slide 4 to projected live use, then back to
-  reflection. Assign speaker handoffs and rehearse the seven-minute run.
+- [ ] Rehearse the transition from slide 6 to projected live use, then back to
+  slide 8. Assign speaker handoffs and time the 4:45 talk and 2:00 demo.
 - [ ] Keep notes and overview closed on the projected screen.
 - [ ] Have a short retry/reconnect route, charged devices, and necessary cables ready.
 

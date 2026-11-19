@@ -1,5 +1,21 @@
 # Post-mortem presentation verification
 
+## Rubric-aligned ten-slide revision
+
+- Checked all ten main slides and two backups in Playwright Chromium at
+  1660 × 1000. Images loaded, key content fit above the slide footers, and
+  every inline note matched the standalone notes. The deck fit a 390 × 844
+  viewport in scaled mode.
+- Checked keyboard progression, overview, backup entry and return, and the
+  default and backup print modes. The slide timings total 405 seconds,
+  including the 120-second demo. The remaining 285 seconds leave a 15-second
+  buffer within the seven-minute delivery.
+- Exported and visually checked the ten-page
+  [Canvas PDF](exports/helping-hand-post-mortem.pdf). Pages retain searchable
+  text. The browser's optional print mode includes 12 slides.
+
+The physical demo, speaker handoffs, and full-run pacing require rehearsal.
+
 ## November 19 presentation build
 
 - Opened the local HTML in Playwright Chromium on Windows. All five visual
