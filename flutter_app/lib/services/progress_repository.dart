@@ -91,7 +91,7 @@ class ProgressData {
       .toSet();
 
   ProgressData completeWord(String word, DateTime completedAt) {
-    if (!trainedWords.contains(word)) {
+    if (!wordPracticeTargets.contains(word)) {
       throw ArgumentError.value(
         word,
         'word',

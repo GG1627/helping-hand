@@ -25,7 +25,7 @@ service cloud.firestore {
         && data.learned_numbers.size() <= 10
         && data.learned_numbers.hasOnly([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
         && data.completed_exercises is list
-        && data.completed_exercises.size() <= 36
+        && data.completed_exercises.size() <= 44
         && data.completed_exercises.hasOnly([
           'static_prediction_a', 'static_prediction_b', 'static_prediction_c',
           'static_prediction_d', 'static_prediction_e', 'static_prediction_f',
@@ -39,7 +39,11 @@ service cloud.firestore {
           'static_prediction_0', 'static_prediction_1', 'static_prediction_2',
           'static_prediction_3', 'static_prediction_4', 'static_prediction_5',
           'static_prediction_6', 'static_prediction_7', 'static_prediction_8',
-          'static_prediction_9'
+          'static_prediction_9',
+          'word_prediction_hello', 'word_prediction_thank_you',
+          'word_prediction_please', 'word_prediction_sorry',
+          'word_prediction_yes', 'word_prediction_no',
+          'word_prediction_eat', 'word_prediction_drink'
         ])
         && data.updated_at is timestamp
         && data.updated_at == request.time;

@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import '../services/ble_connection_service.dart';
 import '../services/ble_packet.dart';
 import '../services/tflite_word_classifier.dart';
+import '../services/word_haptic_demo.dart';
 import '../services/word_practice_controller.dart';
 import '../services/word_sequence.dart';
 import '../theme/helping_hand_theme.dart';
+import 'haptic_hand_visualizer_widget.dart';
 
 class WordPracticeCard extends StatefulWidget {
   const WordPracticeCard({
@@ -17,12 +19,16 @@ class WordPracticeCard extends StatefulWidget {
     required this.onCompleted,
     this.classifier,
     this.clock,
+    this.showHapticDemo = false,
+    this.motionLetter = false,
   });
   final String target;
   final BleConnectionService bleService;
   final Future<void> Function(String word) onCompleted;
   final WordClassifier? classifier;
   final DateTime Function()? clock;
+  final bool showHapticDemo;
+  final bool motionLetter;
 
   @override
   State<WordPracticeCard> createState() => _WordPracticeCardState();
@@ -30,22 +36,47 @@ class WordPracticeCard extends StatefulWidget {
 
 class _WordPracticeCardState extends State<WordPracticeCard>
     with WidgetsBindingObserver {
+  static const _firstCueDelay = Duration(seconds: 3);
+  static const _repeatCueDelay = Duration(seconds: 2);
+
   late final WordPracticeController _controller;
   StreamSubscription<BlePacket>? _packets;
   Timer? _timer;
+  Timer? _guidanceTimer;
+  WordHapticDemo? _haptics;
   String? _saveMessage;
   bool _saving = false;
+  bool _startingAttempt = false;
+  bool _foreground = true;
+  bool _leaving = false;
+  bool _guidanceSuspended = false;
+  bool _cueTransportReady = false;
+  int _foregroundRevision = 0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    _foreground = lifecycle == null || lifecycle == AppLifecycleState.resumed;
+    final pattern = WordHapticDemo.patterns[widget.target];
+    if (widget.showHapticDemo && pattern != null) {
+      _haptics = WordHapticDemo(widget.bleService, pattern)
+        ..addListener(_refresh);
+      _cueTransportReady = widget.bleService.piezoDemoTransportReady;
+      _scheduleGuidance(_firstCueDelay);
+    }
     _controller = WordPracticeController(
       target: widget.target,
-      classifier: widget.classifier ?? TfliteWordClassifier(),
+      classifier:
+          widget.classifier ??
+          (widget.motionLetter
+              ? TfliteWordClassifier.motionLetters()
+              : TfliteWordClassifier(target: widget.target)),
+      motionLetter: widget.motionLetter,
       clock: widget.clock,
     );
-    _controller.addListener(_refresh);
+    _controller.addListener(_practiceChanged);
     widget.bleService.addListener(_connectionChanged);
     _packets = widget.bleService.packets.listen(_controller.add);
     _timer = Timer.periodic(
@@ -59,18 +90,105 @@ class _WordPracticeCardState extends State<WordPracticeCard>
     if (mounted) setState(() {});
   }
 
+  void _scheduleGuidance(Duration delay) {
+    if (_haptics == null ||
+        !_foreground ||
+        _leaving ||
+        _guidanceSuspended ||
+        _guidanceTimer != null) {
+      return;
+    }
+    _guidanceTimer = Timer(delay, () {
+      _guidanceTimer = null;
+      unawaited(_playGuidance());
+    });
+  }
+
+  bool get _canPlayGuidance =>
+      mounted &&
+      _foreground &&
+      !_leaving &&
+      !_guidanceSuspended &&
+      !_startingAttempt &&
+      ModalRoute.of(context)?.isCurrent != false &&
+      switch (_controller.phase) {
+        WordPracticePhase.recording ||
+        WordPracticePhase.evaluating ||
+        WordPracticePhase.matched => false,
+        _ => true,
+      };
+
+  Future<void> _playGuidance() async {
+    if (_canPlayGuidance && await _haptics!.play() && _canPlayGuidance) {
+      _scheduleGuidance(_repeatCueDelay);
+    }
+    _refresh();
+  }
+
+  void _cancelGuidanceTimer() {
+    _guidanceTimer?.cancel();
+    _guidanceTimer = null;
+  }
+
+  void _practiceChanged() {
+    if (_controller.phase == WordPracticePhase.matched) {
+      _guidanceSuspended = true;
+      _cancelGuidanceTimer();
+    } else if (_controller.phase == WordPracticePhase.retry) {
+      _scheduleGuidance(_repeatCueDelay);
+    }
+    _refresh();
+  }
+
   void _connectionChanged() {
+    if (_haptics != null) {
+      final ready = widget.bleService.piezoDemoTransportReady;
+      if (_cueTransportReady && !ready) {
+        _guidanceSuspended = true;
+        _cancelGuidanceTimer();
+      }
+      _cueTransportReady = ready;
+    }
     _controller.tick(connected: widget.bleService.isConnected);
     _refresh();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed &&
+    _foreground = state == AppLifecycleState.resumed;
+    if (!_foreground &&
         (_controller.phase == WordPracticePhase.recording ||
             _controller.phase == WordPracticePhase.evaluating)) {
       _controller.cancel('Attempt paused. Start again when you are ready.');
     }
+    if (!_foreground) {
+      _foregroundRevision++;
+      _guidanceSuspended = true;
+      _cancelGuidanceTimer();
+      unawaited(_haptics?.stop());
+    }
+  }
+
+  Future<void> _startAttempt() async {
+    if (_startingAttempt) return;
+    final foregroundRevision = _foregroundRevision;
+    _cancelGuidanceTimer();
+    final haptics = _haptics;
+    if (haptics != null) {
+      setState(() => _startingAttempt = true);
+      final stopped = await haptics.stop();
+      if (!mounted) return;
+      setState(() => _startingAttempt = false);
+      if (!stopped || foregroundRevision != _foregroundRevision) return;
+    }
+    if (!_foreground || _leaving) return;
+    setState(() => _saveMessage = null);
+    _controller.start(
+      connected: widget.bleService.isConnected,
+      freshSensors: widget.bleService.hasFreshValidPacket(
+        maximumAge: const Duration(milliseconds: 250),
+      ),
+    );
   }
 
   Future<void> _finish() async {
@@ -102,9 +220,12 @@ class _WordPracticeCardState extends State<WordPracticeCard>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _cancelGuidanceTimer();
+    _haptics?.removeListener(_refresh);
+    _haptics?.dispose();
     unawaited(_packets?.cancel());
     widget.bleService.removeListener(_connectionChanged);
-    _controller.removeListener(_refresh);
+    _controller.removeListener(_practiceChanged);
     _controller.dispose();
     super.dispose();
   }
@@ -123,7 +244,11 @@ class _WordPracticeCardState extends State<WordPracticeCard>
       maximumAge: const Duration(milliseconds: 250),
     );
     final prediction = _controller.prediction;
-    return Container(
+    final haptics = _haptics;
+    final guidanceStatus = _guidanceTimer?.isActive == true
+        ? 'Guidance plays shortly.'
+        : haptics?.status;
+    final card = Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: HelpingHandColors.secondary,
@@ -138,7 +263,9 @@ class _WordPracticeCardState extends State<WordPracticeCard>
             alignment: WrapAlignment.spaceBetween,
             children: [
               Text(
-                'Word practice',
+                widget.motionLetter
+                    ? 'Letter motion practice'
+                    : 'Word practice',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: HelpingHandColors.primary,
                   fontWeight: FontWeight.w600,
@@ -160,9 +287,25 @@ class _WordPracticeCardState extends State<WordPracticeCard>
           ),
           const SizedBox(height: 12),
           Text(
-            'Perform the whole sign at your usual pace.',
+            widget.motionLetter
+                ? 'Start the attempt, trace the full letter motion, then finish within 4 seconds.'
+                : 'Perform the whole sign at your usual pace.',
             style: theme.textTheme.bodyMedium,
           ),
+          if (haptics != null) ...[
+            const SizedBox(height: 16),
+            Text('Haptic guidance', style: theme.textTheme.titleSmall),
+            if (guidanceStatus != null)
+              Semantics(
+                liveRegion: true,
+                child: Text(guidanceStatus, style: theme.textTheme.bodySmall),
+              ),
+            PiezoOutputHand(
+              activeOutput: haptics.activeOutput,
+              height: 176,
+              animatePulse: true,
+            ),
+          ],
           const SizedBox(height: 24),
           if (loading || evaluating) ...[
             LinearProgressIndicator(
@@ -191,7 +334,9 @@ class _WordPracticeCardState extends State<WordPracticeCard>
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(
-                  displayWord(prediction.label),
+                  prediction.label == 'other'
+                      ? 'Other motion'
+                      : displayWord(prediction.label),
                   style: theme.textTheme.titleLarge,
                 ),
                 if (matched)
@@ -203,17 +348,20 @@ class _WordPracticeCardState extends State<WordPracticeCard>
             ),
             const SizedBox(height: 16),
           ],
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              _controller.message,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: matched
-                    ? HelpingHandColors.success
-                    : HelpingHandColors.textSecondary,
+          if (!unavailable ||
+              widget.motionLetter ||
+              wordPracticeTargets.contains(widget.target))
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                _controller.message,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: matched
+                      ? HelpingHandColors.success
+                      : HelpingHandColors.textSecondary,
+                ),
               ),
             ),
-          ),
           if (_saveMessage != null) ...[
             const SizedBox(height: 8),
             Semantics(
@@ -229,23 +377,20 @@ class _WordPracticeCardState extends State<WordPracticeCard>
                   loading ||
                       evaluating ||
                       _saving ||
+                      _startingAttempt ||
                       !connected ||
                       (!recording && !fresh)
                   ? null
                   : recording
                   ? _finish
-                  : () {
-                      setState(() => _saveMessage = null);
-                      _controller.start(
-                        connected: connected,
-                        freshSensors: fresh,
-                      );
-                    },
+                  : _startAttempt,
               icon: Icon(
                 recording ? Icons.stop_rounded : Icons.play_arrow_rounded,
               ),
               label: Text(
-                recording
+                _startingAttempt
+                    ? 'Stopping guidance…'
+                    : recording
                     ? 'Finish sign'
                     : matched || phase == WordPracticePhase.retry
                     ? 'Try again'
@@ -270,5 +415,17 @@ class _WordPracticeCardState extends State<WordPracticeCard>
         ],
       ),
     );
+    return haptics == null
+        ? card
+        : PopScope<void>(
+            onPopInvokedWithResult: (didPop, _) {
+              if (didPop) {
+                _leaving = true;
+                _cancelGuidanceTimer();
+                unawaited(haptics.stop());
+              }
+            },
+            child: card,
+          );
   }
 }

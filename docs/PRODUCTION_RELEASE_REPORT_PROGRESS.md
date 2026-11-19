@@ -44,27 +44,42 @@ These are targets, not confirmed completed work:
 - Working app instructions, visual feedback, account access, and saved progress.
 - Battery-powered operation is the goal; USB is an acknowledged fallback.
 
-## Haptic decisions and open questions
+## Hardware and feedback status through November 19
 
-- Placement: one element per finger and five in an X on the back of the hand.
-- Intended static feedback: identify a finger and use a directional X sequence
-  to communicate bend more versus straighten more.
-- Word-motion feedback remains undecided. Directional guidance and a short
-  demonstration pattern are candidate ideas, not implemented/validated claims.
-- Gael has started a separate session for haptic research and implementation.
-  Obtain its actual findings and test results before updating report claims.
-- Distinguish actuator activation, automatic correction selection, and user
-  understanding of cues; each needs its own evidence.
+- The team fabricated a PCB and built around it, then returned to perfboard
+  after breakage, unreliable connections, and poor engraved copper quality.
+  A conductive-thread version used multiple fabric layers for insulation.
+  Performance remained unreliable and the team suspected shorts. The pictured
+  assembly uses perfboard with discrete wiring and will use laptop USB power
+  for the demo. The final assembly and prototype PCB photos are on file.
+  [Assembly history](FINAL_REPORT_EVIDENCE_CHECKLIST.md#build-01-pcb-and-glove-assembly-history)
+- The actual piezo layout is five finger elements and a five-position plus
+  on the back of the hand. Serial testing produced audible output across all
+  ten positions and very faint tactile sensation, as reported by the wearer.
+  [Piezo output check](FINAL_REPORT_EVIDENCE_CHECKLIST.md#hapt-01-piezo-output-check)
+- Gael confirmed manual output mapping and the automatic Number 3 cue on the
+  glove. The latter starts after five seconds, uses middle or pinky, repeats
+  after a two-second pause if needed, and stops at recognition completion.
+  [Number 3 rehearsal](FINAL_REPORT_EVIDENCE_CHECKLIST.md#hapt-03-automatic-number-3-demo-rehearsal)
+- In the current Developer Mode build, Hello and Please play preset word
+  cues three seconds after opening the lesson and replay after two-second
+  pauses. Starting an attempt pauses guidance before recording and a
+  successful match ends it. Live word guidance remains unverified.
+  [Word guidance evidence](FINAL_REPORT_EVIDENCE_CHECKLIST.md#hapt-05-word-guidance-before-practice)
 
 ## Evidence boundaries
 
-- Current reference handoff: [glove/model handoff](GLOVE_MODEL_SESSION_HANDOFF.md).
-  Its earlier selected-sign demo goal is distinct from the broader final scope
-  agreed above. Recheck implementation as other sessions make changes.
-- Last inspected baseline: recorded 34-class static model excluding J/Z,
-  preserved original 36-class baseline, and phone recognition for Hello/Please/Yes.
-- Physical assembly, expanded coverage, new hardware performance, and final
-  haptic behavior have not been established in this report discussion.
+- Current implementation and limits are in the
+  [glove/model handoff](GLOVE_MODEL_SESSION_HANDOFF.md). The 34-class held-pose
+  MLP runs on the ESP32. J/Z use a separate phone TCN with offline results.
+  Hello, Please, and Yes use the rehearsal word model. The expanded TCN adds
+  scored practice for Sorry and No, with offline evidence and live testing
+  pending. The app renders all eight lesson rows and highlights saved word
+  completions in green. [Expanded word evidence](FINAL_REPORT_EVIDENCE_CHECKLIST.md#eval-06-expanded-word-tcn)
+- The team reports a wired-perfboard final assembly and successful live
+  practice for G, I, 1, Hello, Please, and Yes on the rehearsal builds.
+  The completion counts and configuration limits are in LIVE-04. The full
+  timed demo and live tests of Z and the word cues remain open.
 - Orientation/motion information does not establish reliable hand location
   relative to the body. Flex sensors do not directly measure finger spread.
 - Magnetic telemetry alone does not establish calibrated orientation.
@@ -80,10 +95,14 @@ These are targets, not confirmed completed work:
   unfinished work in future tense and bracketed result placeholders.
 - Planned sections: overview; work since release candidate; usability/build
   quality; integrated learning flow and storage; testing; limitations.
-- Next: review Gael's wording preferences, then incorporate actual assembly,
-  firmware/app/model revisions, final vocabulary, calibration, power, recognition,
-  haptic, and saved-progress results as available.
-- Record non-team-member testing rounds, feedback, changes, and retest outcomes.
+- Final glove and PCB photos are on file. Record the exact demonstrated
+  firmware, app, models, phone, and any new measured outcomes. Check that the
+  report diagram includes the separate J/Z TCN and app-to-glove cue path.
+- The README has a current working-build summary. Run the
+  [current demo](../post_mortem_presentation/demo_checklist.md), confirm the
+  new word cues, and preserve saved-progress and reconnect observations.
+- Two lab tryouts and their hardware fixes are in USER-01. A further outside
+  tryout on the wired build and timestamped third-party evidence are pending.
 - Recheck known bugs, especially static completion after leaving practice.
 - Before submission: replace placeholders, revise tense only for confirmed work,
   retain unresolved issues, keep accurate AI disclosure, and review the final

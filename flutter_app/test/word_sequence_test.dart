@@ -5,13 +5,9 @@ import 'package:flutter_app/services/ble_packet.dart';
 import 'package:flutter_app/services/word_sequence.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Map<String, dynamic> metadata() =>
-    jsonDecode(
-          File(
-            'assets/models/words_tcn/model_metadata.json',
-          ).readAsStringSync(),
-        )
-        as Map<String, dynamic>;
+Map<String, dynamic> metadata([
+  String path = 'assets/models/words_tcn/model_metadata.json',
+]) => jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>;
 
 void main() {
   final references =
@@ -24,13 +20,15 @@ void main() {
           as List;
   for (final trial in references) {
     test('BLE to float32 input matches Python for ${trial['label']}', () {
-      final spec = WordModelSpec.fromJson(metadata());
+      final spec = WordModelSpec.fromJson(
+        metadata('test/fixtures/word_preprocessing_metadata.json'),
+      );
       final packets = (trial['raw_packets'] as List).cast<String>();
       final frames = packets
           .map((raw) => WordFrame.fromPacket(BlePacket.parse(raw)))
           .toList();
       final actual = spec.prepare(frames);
-      // New magnetic fields must not change the deployed model's tensor.
+      // Magnetic fields do not participate in this six-axis fixture.
       for (final extension in [
         ',mag=ok,mx=0,my=-12.5,mz=31.2',
         ',mag=unavailable',
@@ -44,9 +42,10 @@ void main() {
         expect(spec.prepare(extended), equals(actual));
       }
       final expected = trial['expected_input'] as List;
-      expect(actual.length, 96);
-      for (var t = 0; t < 96; t++) {
-        for (var f = 0; f < 11; f++) {
+      expect(actual.length, spec.windowSamples);
+      expect(actual.length, expected.length);
+      for (var t = 0; t < expected.length; t++) {
+        for (var f = 0; f < spec.featureCount; f++) {
           expect(
             actual[t][f],
             closeTo((expected[t][f] as num).toDouble(), 1e-6),
@@ -68,6 +67,8 @@ void main() {
       json['standardizer']['mean'] = List.filled(11, 0);
       json['standardizer']['scale'] = List.filled(11, 1);
       final spec = WordModelSpec.fromJson(json);
+      const interpolated = [0, 25, 50, 75, 100];
+      final leftPad = (spec.windowSamples - interpolated.length) ~/ 2;
       final result = spec.prepare(
         [0, 40, 100].indexed
             .map(
@@ -79,17 +80,22 @@ void main() {
             )
             .toList(),
       );
-      expect(result[44][0], 0);
-      expect(result.sublist(45, 50).map((row) => row[0]), [0, 25, 50, 75, 100]);
-      expect(result[95][0], 100);
+      expect(result[leftPad - 1][0], interpolated.first);
+      expect(
+        result
+            .sublist(leftPad, leftPad + interpolated.length)
+            .map((row) => row[0]),
+        interpolated,
+      );
+      expect(result.last[0], interpolated.last);
       final longer = spec.prepare(
         List.generate(
-          97,
+          spec.windowSamples + 1,
           (i) => WordFrame(i * 25, i, List.filled(11, i.toDouble())),
         ),
       );
       expect(longer.first.first, 0);
-      expect(longer.last.first, 95);
+      expect(longer.last.first, spec.windowSamples - 1);
     },
   );
 
@@ -100,6 +106,24 @@ void main() {
     final invalid = metadata();
     invalid['standardizer']['scale'][0] = 0;
     expect(() => WordModelSpec.fromJson(invalid), throwsFormatException);
+  });
+
+  test('motion-letter bundle uses IMU readings independently of flex', () {
+    final json = metadata(
+      'assets/models/motion_letters_tcn/model_metadata.json',
+    );
+    expect(() => WordModelSpec.fromJson(json), throwsFormatException);
+    final spec = WordModelSpec.fromJson(json, motionLetters: true);
+    List<WordFrame> frames(double flex) => [
+      WordFrame(0, 1, [flex, flex, flex, flex, flex, 0, 0, 1, 1, 2, 3]),
+      WordFrame(25, 2, [flex, flex, flex, flex, flex, 0, 0, 1, 4, 5, 6]),
+    ];
+    final input = spec.prepare(frames(0));
+    expect(spec.vocabulary, ['j', 'z', 'other']);
+    expect(input.length, 160);
+    expect(input.first.length, 6);
+    expect(spec.prepare(frames(4095)), input);
+    expect(input.first, isNot(input.last));
   });
 
   test('reversed clock and non-finite frames cannot reach inference', () {

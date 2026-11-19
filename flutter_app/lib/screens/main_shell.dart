@@ -14,9 +14,11 @@ import 'calibration_screen.dart';
 import '../services/stable_prediction_tracker.dart';
 import '../theme/helping_hand_theme.dart';
 import '../widgets/stable_prediction_practice_card.dart';
+import '../widgets/static_haptic_demo_card.dart';
 import '../widgets/word_practice_card.dart';
 import '../services/word_sequence.dart';
 import 'learning_screen.dart';
+import 'piezo_outputs_screen.dart';
 import 'tabs/alphabet_tab.dart';
 import 'tabs/ble_testing_tab.dart';
 import 'tabs/dashboard_tab.dart';
@@ -49,6 +51,7 @@ class _MainShellState extends State<MainShell> {
   late final BleConnectionService _bleService;
   late final RecordingService _recordingService;
   late final CalibrationService _calibrationService;
+  final _imuDiagnosticsService = CalibrationService(imuOnly: true);
   late final ProgressRepository _progressRepository;
   late final bool _ownsProgressRepository;
   late ProgressRepositoryState _progressState;
@@ -99,6 +102,7 @@ class _MainShellState extends State<MainShell> {
     if (_ownsProgressRepository) _progressRepository.dispose();
     _recordingService.dispose();
     _calibrationService.dispose();
+    _imuDiagnosticsService.dispose();
     _bleService.dispose();
     _practiceRevision.dispose();
     super.dispose();
@@ -110,6 +114,44 @@ class _MainShellState extends State<MainShell> {
       _predictionResult = _predictionTracker.selectTarget(target);
     });
     _practiceRevision.value++;
+  }
+
+  void _clearStaticPractice() {
+    setState(() {
+      _selectedPracticeTarget = null;
+      _predictionResult = const StablePredictionResult.idle();
+    });
+    _practiceRevision.value++;
+  }
+
+  void _openCalibration(CalibrationService calibration) {
+    _clearStaticPractice();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => CalibrationScreen(
+          bleService: _bleService,
+          calibration: calibration,
+          recording: _recordingService,
+        ),
+      ),
+    );
+  }
+
+  void _openPiezoOutputs() {
+    if (_recordingService.state != TrialRecordingState.idle) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Finish or discard the current trial first.'),
+        ),
+      );
+      return;
+    }
+    _clearStaticPractice();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PiezoOutputsScreen(bleService: _bleService),
+      ),
+    );
   }
 
   void _retryPracticeTarget() {
@@ -158,12 +200,11 @@ class _MainShellState extends State<MainShell> {
     required String target,
     required String title,
   }) {
-    if (category == 'words') {
-      setState(() {
-        _selectedPracticeTarget = null;
-        _predictionResult = const StablePredictionResult.idle();
-      });
-      _practiceRevision.value++;
+    final motionLetter =
+        category == 'alphabet' &&
+        trainedMotionLetters.contains(target.toLowerCase());
+    if (category == 'words' || motionLetter) {
+      _clearStaticPractice();
     } else {
       _selectPracticeTarget(target);
     }
@@ -172,37 +213,55 @@ class _MainShellState extends State<MainShell> {
       category: category,
       target: target,
       title: title,
-      practice: category == 'words'
+      practice: category == 'words' || motionLetter
           ? WordPracticeCard(
-              target: target,
+              target: motionLetter ? target.toLowerCase() : target,
               bleService: _bleService,
-              onCompleted: (word) async {
-                await _progressRepository.completeWord(word);
+              showHapticDemo: _developerMode && !motionLetter,
+              motionLetter: motionLetter,
+              onCompleted: (sign) async {
+                if (motionLetter) {
+                  await _progressRepository.completeStaticTarget(sign);
+                } else {
+                  await _progressRepository.completeWord(sign);
+                }
                 if (_progressRepository.state.status ==
                     ProgressSyncStatus.localSaveFailure) {
-                  throw StateError(
-                    'Word completion could not be saved locally.',
-                  );
+                  throw StateError('Completion could not be saved locally.');
                 }
               },
             )
-          : _practiceCard(),
+          : _practiceCard(showDemo: _developerMode && target == '3'),
     );
   }
 
-  Widget _practiceCard() {
-    return AnimatedBuilder(
-      animation: Listenable.merge([_bleService, _practiceRevision]),
-      builder: (context, _) => StablePredictionPracticeCard(
-        target: _selectedPracticeTarget,
-        packet: _bleService.lastPacket,
-        predictedLabel: _predictionResult.predictedLabel,
-        predictedConfidence: _predictionResult.predictedConfidence,
-        progress: _predictionResult.progress,
-        message: _practiceMessage,
-        connected: _bleService.isConnected,
-        onRetry: _retryPracticeTarget,
-      ),
+  Widget _practiceCard({required bool showDemo}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AnimatedBuilder(
+          animation: Listenable.merge([_bleService, _practiceRevision]),
+          builder: (context, _) => StablePredictionPracticeCard(
+            target: _selectedPracticeTarget,
+            predictedLabel: _predictionResult.predictedLabel,
+            predictedConfidence: _predictionResult.predictedConfidence,
+            progress: _predictionResult.progress,
+            message: _practiceMessage,
+            connected: _bleService.isConnected,
+            onRetry: _retryPracticeTarget,
+          ),
+        ),
+        if (showDemo) ...[
+          const SizedBox(height: 16),
+          ValueListenableBuilder(
+            valueListenable: _practiceRevision,
+            builder: (context, _, _) => StaticHapticDemoCard(
+              bleService: _bleService,
+              completed: _predictionTracker.isCompleted,
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -217,7 +276,7 @@ class _MainShellState extends State<MainShell> {
         learnedNumbers: progress.learnedNumbers,
         totalNumbers: 10,
         learnedWords: progress.learnedWords,
-        totalWords: trainedWords.length,
+        totalWords: wordPracticeTargets.length,
         syncStatus: _progressState.status,
         syncMessage: _progressState.message,
         accountEmail: widget.email,
@@ -269,25 +328,13 @@ class _MainShellState extends State<MainShell> {
         RecordSignsTab(
           bleService: _bleService,
           recordingService: _recordingService,
+          isActive: tabIndex == 4,
         ),
         BleTestingTab(bleService: _bleService),
         DeveloperToolsTab(
-          onOpenCalibration: () {
-            setState(() {
-              _selectedPracticeTarget = null;
-              _predictionResult = const StablePredictionResult.idle();
-            });
-            _practiceRevision.value++;
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => CalibrationScreen(
-                  bleService: _bleService,
-                  calibration: _calibrationService,
-                  recording: _recordingService,
-                ),
-              ),
-            );
-          },
+          onOpenCalibration: () => _openCalibration(_calibrationService),
+          onOpenImuDiagnostics: () => _openCalibration(_imuDiagnosticsService),
+          onOpenPiezoOutputs: _openPiezoOutputs,
           onOpenRecordSigns: () => setState(() => tabIndex = 4),
           onOpenBleTesting: () => setState(() => tabIndex = 5),
         ),

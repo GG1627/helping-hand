@@ -1,73 +1,41 @@
-# Helping Hand post-mortem · first draft
+# Helping Hand post-mortem
 
-Presentation: **November 19, 2026**. Draft prepared November 6 while project
-development continues. Open [index.html](index.html) directly in Chrome or Edge.
-No build, package installation, web server, or internet connection is required
-for the slides. Keep this folder and its local assets together.
+**November 19, 2026 · 7-minute presentation, then 2 minutes for questions.**
 
-Eight main slides target **6:10 including a 90-second live demo**, leaving
-approximately 50 seconds within the seven-minute assignment for interruptions
-and transitions. Two backup slides are outside the normal forward sequence.
-
-This draft follows the beta deck's ivory/teal identity, typography, thin progress
-line, and keyboard controls. The beta submission is preserved separately.
+Open [index.html](index.html) in Chrome or Edge. Keep the deck and its local
+assets together. The ten main slides schedule **4:45 of narration and 2:00
+of live demo**, leaving a **0:15 buffer**. Two backup slides are available for
+questions. The HTML deck runs offline.
 
 ## Controls
 
 | Key | Action |
 | --- | --- |
-| Left / Right, Page Up / Down | Previous / next slide within the main or backup group |
+| Left / Right, Page Up / Down | Previous / next slide |
 | Space / Shift+Space | Next / previous slide |
 | Home / End | First / last main slide |
-| O | Overview with separate main and backup groups |
-| B | Open backups / return to the last main slide |
+| O | Overview |
+| B | Open backups or return to the previous main slide |
 | N | Notes for the current slide |
 | F | Toggle fullscreen |
 | ? | Help and backup-print option |
 | P | Print / save PDF |
 | Escape | Close a dialog or exit fullscreen |
 
-**Notes open on the same screen.** Keep them closed when projecting; use
-[speaker_notes.md](speaker_notes.md) on another device for rehearsal/presentation.
+Deck notes open on the projection screen. Use the [speaker notes](speaker_notes.md)
+on another device. Rehearse the glove and phone from the [run sheet](demo_checklist.md).
 
-## Draft content
+## Canvas export
 
-The goals are a mounted PCB, new ICM-20948, integrated haptics, A-Z, 0-9, and
-Hello, Thank You, Please, Sorry, Yes, No, Eat, Drink. Current baseline support
-is described separately; those goals are not claimed as completed or validated.
+The [presentation PDF](exports/helping-hand-post-mortem.pdf) contains all ten
+main slides. To print backups too, open `?` and select **Include backup slides
+when printing**. Use the CSS page size (16:9), background graphics on, and browser
+headers/footers off.
 
-October hardware photos and app screenshots are historical references. The
-practice screenshot is disconnected. Final assembly photos, PCB close-up,
-screenshots, haptic meaning, recognition coverage, results, team reflection,
-and speaker assignments still need updating. Use
-[CONTENT_REVIEW.md](CONTENT_REVIEW.md) to track the remaining content.
+The cover uses a [2× artwork capture](assets/illustrations/cover-art-print.png)
+in print to avoid artifacts from the phone's perspective transform. If the
+cover artwork changes, refresh that capture at 3200 × 1800 with the slide copy
+and footer hidden. The title and other slide text are printed directly from HTML.
 
-## Export
-
-The default print/PDF includes **eight main slides**, regardless of which slide
-is active. To include the two backup slides, open `?` and select **Include backup
-slides when printing** before exporting. Draft labels and pending-content fields
-remain visible in both exports. Print does not imply final-submission readiness.
-
-Use Save as PDF, background graphics on, headers/footers off, and the CSS page
-size (16:9). The exports folder contains a main-deck draft PDF and contact sheet.
-Regenerate exports after any content/layout changes. Check every exported page.
-
-## Files and references
-
-- [Speaker notes](speaker_notes.md): narration, timing, and draft content boundaries.
-- [Demo checklist](demo_checklist.md): proposed live scenario and presentation setup.
-- [Content review](CONTENT_REVIEW.md): remaining decisions and content slots.
-- [Sources](sources.md): implementation/evidence references and asset provenance.
-- [Presentation plan](../docs/POST_MORTEM_PRESENTATION_PLAN.md): creative brief and preparation schedule.
-- [P3 assignment](../P3-Post-Mortem-Presentation.md): course requirements.
-- [Style guide](../docs/BETA_PRESENTATION_STYLE_GUIDE.md): palette/type reference.
-
-Local fonts are DM Sans and Fraunces Italic; SIL Open Font License texts are
-included in `assets/fonts/`. No new AI-generated images are used in this draft.
-
-## Verification
-
-See [verification.md](verification.md) for the recorded browser and PDF checks.
-These checks validate presentation behavior/layout, not the glove, model,
-haptics, learning effectiveness, or final product readiness.
+Review the [rubric and delivery checks](CONTENT_REVIEW.md),
+[claim and asset sources](sources.md), and [verification](verification.md).

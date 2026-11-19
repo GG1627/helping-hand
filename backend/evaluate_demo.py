@@ -22,6 +22,7 @@ except ImportError:
     from word_dataset import SequenceStandardizer
 
 ROOT = Path(__file__).resolve().parents[1]
+WORD_PRACTICE_TARGETS = ("hello", "please", "yes", "sorry", "no")
 
 
 def read_json(path):
@@ -120,13 +121,21 @@ def prepare_plan(plan_path: Path, *, static_bundle=None, word_bundle=None):
         raise ValueError('Unsupported timing policy')
     if not isinstance(targets, list) or not targets or len(set(targets)) != len(targets):
         raise ValueError('Declare unique target labels')
-    allowed = lambda target: isinstance(target, str) and ((len(target) == 1 and target in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') if mode == 'static' else target in ('hello', 'please', 'yes'))
+    def allowed(target):
+        if not isinstance(target, str):
+            return False
+        if mode == 'static':
+            return len(target) == 1 and target in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        return target in WORD_PRACTICE_TARGETS
+
     if not all(allowed(t) for t in targets):
         raise ValueError('Unsupported practice target')
     if not isinstance(plan.get('trials'), list) or not plan['trials']:
         raise ValueError('List independent recording trials to replay')
     model = ModelRuntime(static_bundle, mode) if mode == 'static' and static_bundle else (
         ModelRuntime(word_bundle or ROOT / 'flutter_app/assets/models/words_tcn', mode) if mode == 'word' else None)
+    if mode == 'word' and any(target not in model.labels for target in targets):
+        raise ValueError('Practice target is missing from the selected word bundle')
     prepared, sources, seen = [], {}, set()
     for item in plan['trials']:
         source = (plan_path.parent / item['csv']).resolve()

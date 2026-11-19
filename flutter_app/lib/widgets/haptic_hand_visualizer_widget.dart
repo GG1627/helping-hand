@@ -1,17 +1,21 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
+import '../services/piezo_demo_protocol.dart';
+
 class HapticHandVisualizerWidget extends StatelessWidget {
   const HapticHandVisualizerWidget({
     super.key,
     required this.fingerErrors, // -1.0 to +1.0
     required this.motorStates,
     this.imuRoll = 0.0,
+    this.emphasizeOutputs = false,
   });
 
   final List<double> fingerErrors; 
   final List<double> motorStates; 
   final double imuRoll;
+  final bool emphasizeOutputs;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +27,7 @@ class HapticHandVisualizerWidget extends StatelessWidget {
           fingerErrors: fingerErrors,
           motorStates: motorStates,
           imuRoll: imuRoll,
+          emphasizeOutputs: emphasizeOutputs,
         ),
       ),
     );
@@ -36,11 +41,13 @@ class _HapticHandPainter extends CustomPainter {
     required this.fingerErrors,
     required this.motorStates,
     required this.imuRoll,
+    required this.emphasizeOutputs,
   });
 
   final List<double> fingerErrors;
   final List<double> motorStates; // Expected length: 10 (0-4 fingers, 5-9 matrix)
   final double imuRoll;
+  final bool emphasizeOutputs;
 
   static const Color _fillColor = Color(0xFFF5F5F5);
   static const Color _strokeColor = Color(0xFFBDBDBD);
@@ -231,6 +238,28 @@ class _HapticHandPainter extends CustomPainter {
 
     // 4. Draw Individual Finger Haptic Nodes (Indices 0 to 4 mapped on physical finger locations)
     final nodePaint = Paint()..style = PaintingStyle.fill;
+    void drawOutput(Offset center, double radius, double intensity) {
+      nodePaint.color = intensity > 0
+          ? Color.lerp(
+              Colors.grey.shade400,
+              _nodeActiveColor,
+              intensity.clamp(0.0, 1.0),
+            )!
+          : emphasizeOutputs
+          ? Colors.grey.shade600
+          : Colors.grey.shade300;
+      canvas.drawCircle(center, radius, nodePaint);
+      if (emphasizeOutputs && intensity > 0) {
+        canvas.drawCircle(
+          center,
+          radius + 5,
+          Paint()
+            ..color = _nodeActiveColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.5,
+        );
+      }
+    }
     const double fingerNodeRadius = 4.5;
 
     final List<Offset> fingerNodeCenters = [
@@ -243,10 +272,7 @@ class _HapticHandPainter extends CustomPainter {
 
     for (int i = 0; i < 5; i++) {
       final intensity = motorStates.length > i ? motorStates[i] : 0.0;
-      nodePaint.color = intensity > 0
-          ? Color.lerp(Colors.grey.shade400, _nodeActiveColor, intensity.clamp(0.0, 1.0))!
-          : Colors.grey.shade300;
-      canvas.drawCircle(fingerNodeCenters[i], fingerNodeRadius, nodePaint);
+      drawOutput(fingerNodeCenters[i], fingerNodeRadius, intensity);
     }
 
     // 5. Draw Back-of-Hand Plus-Formation Matrix Nodes (Indices 5 to 9)
@@ -264,11 +290,7 @@ class _HapticHandPainter extends CustomPainter {
     for (int i = 0; i < 5; i++) {
       final motorIdx = i + 5;
       final intensity = motorStates.length > motorIdx ? motorStates[motorIdx] : 0.0;
-      nodePaint.color = intensity > 0 
-          ? Color.lerp(Colors.grey.shade400, _nodeActiveColor, intensity.clamp(0.0, 1.0))! 
-          : Colors.grey.shade300;
-
-      canvas.drawCircle(matrixOffsets[i], matrixNodeRadius, nodePaint);
+      drawOutput(matrixOffsets[i], matrixNodeRadius, intensity);
     }
 
     canvas.restore();
@@ -276,4 +298,49 @@ class _HapticHandPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _HapticHandPainter oldDelegate) => true;
+}
+
+class PiezoOutputHand extends StatelessWidget {
+  const PiezoOutputHand({
+    super.key,
+    this.activeOutput,
+    this.height = 300,
+    this.animatePulse = false,
+  });
+
+  final PiezoOutput? activeOutput;
+  final double height;
+  final bool animatePulse;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!animatePulse ||
+        activeOutput == null ||
+        MediaQuery.disableAnimationsOf(context)) {
+      return _hand(1);
+    }
+    return TweenAnimationBuilder<double>(
+      key: ValueKey(activeOutput),
+      tween: Tween(begin: 0.28, end: 1),
+      duration: const Duration(milliseconds: 140),
+      curve: Curves.easeOut,
+      builder: (context, intensity, _) => _hand(intensity),
+    );
+  }
+
+  Widget _hand(double intensity) {
+    final states = List<double>.filled(PiezoOutput.values.length, 0);
+    final output = activeOutput;
+    if (output != null) states[output.marker] = intensity;
+    return SizedBox(
+      height: height,
+      child: FittedBox(
+        child: HapticHandVisualizerWidget(
+          fingerErrors: const [0, 0, 0, 0, 0],
+          motorStates: states,
+          emphasizeOutputs: true,
+        ),
+      ),
+    );
+  }
 }

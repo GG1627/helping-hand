@@ -1,5 +1,38 @@
 # Haptic engineering handoff
 
+## November 19 practice cues
+
+The current working build uses the existing `piezo_demo` ESP32 firmware with
+the Flutter app in Developer Mode. The glove has five finger piezos and five
+back-of-hand piezos arranged in a plus. Each Flutter dot lights when the ESP32
+reports that output active. The current app changes are pending code review
+and commit.
+
+| Entry point | Behavior | Evidence |
+| --- | --- | --- |
+| Developer → Piezo Outputs | Manually enable and pulse one location. | Gael confirmed the physical buzzers matched the highlighted dots. HAPT-01. |
+| Numbers → 3 → Demo | Wait five seconds. Cue the middle or pinky first, then play top → center → bottom to bend or bottom → center → top to straighten. A still-needed cue repeats after two seconds. Practice completion cuts off the cue. | Gael reported that the hands-free version worked on the glove. Per-cue timing and tactile discrimination are unmeasured. HAPT-02 and HAPT-03. |
+| Words → Hello → Haptic guidance | Left → center → right on the back of the hand. | Software check with simulated glove responses. Live playback is Not run. HAPT-05. |
+| Words → Please → Haptic guidance | Left → top → right → bottom for three laps per cue. | Software check with simulated glove responses. Live playback is Not run. HAPT-05. |
+
+Number 3 evaluates two fingers against the measured raw bands. The recordings
+show thumb/index agreement and ring clipping, so the cue uses middle and pinky.
+Hello and Please begin three seconds after opening the lesson and replay two
+seconds after the glove confirms the end of each cue. Starting an attempt
+pauses guidance until a retry. A successful match ends guidance for the open
+lesson. The directions refer to the glove's plus positions and illustrate the
+motion selected by the team.
+
+The analyzer, 77 Flutter tests, and Android debug build passed for the word cue
+update. The tests exercised both word sequences and cancellation, with the
+static cues and manual tester also passing. Rehearse both word cues on the
+actual phone and glove. After the presentation, add further word patterns as
+the team chooses them and record wearer interpretation if evaluating feedback.
+See the [evidence checklist](FINAL_REPORT_EVIDENCE_CHECKLIST.md) and
+[presentation run sheet](../post_mortem_presentation/demo_checklist.md).
+
+## November 16 research and offline prototype
+
 Prepared November 16, 2026 with Codex assistance. This session adds isolated
 offline design tooling and tests. It does not establish electrical suitability,
 useful tactile output, recognition accuracy, or learning outcomes. No production
@@ -7,7 +40,51 @@ report, presentation, firmware, Flutter implementation, model, inference
 preprocessing, or completion threshold was changed. Do not commit or push this
 session's work until the user explicitly requests it.
 
-## Scope and current state
+## November 18 demonstration controls
+
+This section records the initial implementation. See the November 19 status
+above for current practice behavior.
+
+Flutter **Developer → Piezo Outputs** has a white 2D hand with five finger
+markers and a five-position plus on the back of the hand. Its live highlight
+uses the ESP32's reported output state. The painter order is intentionally
+mapped from the firmware slot names. The last confirmed output remains
+visible as text after the active highlight clears.
+
+The `piezo_demo` PlatformIO environment keeps the normal glove runtime and
+opts into the manual BLE preset shared with the serial `piezo_test` default.
+Use this environment only on the reviewed demo setup with the corresponding
+bench settings checked. The normal build keeps BLE output disabled.
+
+```powershell
+pio run --project-dir ESP32 -e piezo_demo -t upload
+cd flutter_app
+flutter run
+```
+
+In the app, connect in **BLE Testing**, open **Piezo Outputs**, enable
+outputs, select a location, and tap **Pulse output**. Verify the highlighted
+point matches the output on the glove. Check **Stop outputs** and disconnect.
+The firmware permits one short pulse at a time. The phone disables outputs
+when leaving the page or backgrounding. Reconnection requires enabling again.
+
+The manual path uses a short `HP1` message family on the existing RX/TX
+characteristics. The Flutter receiver routes these responses outside the
+sensor packet stream. The BLE callback queues at most one command. The main
+Arduino loop drives the output and reports start/end. The configured limits
+are the preset settings, not measurement results on a connected phone.
+
+Word practice in Developer Mode shows a **Haptic demo preview**. The center
+dot briefly highlights after a matching word, with no BLE output request.
+The preview and the live test page demonstrate separate behavior.
+
+All 68 Flutter tests, the Android debug build, and the standard,
+`piezo_demo`, and `piezo_test` firmware builds passed. The Flutter tests
+used simulated output responses.
+Physical BLE output, precise marker placement, and wearer perception on
+the new demo path still require a glove rehearsal.
+
+## Scope and current state at the November 16 baseline
 
 Read [the glove/model handoff](GLOVE_MODEL_SESSION_HANDOFF.md),
 [developer calibration](DEVELOPER_CALIBRATION.md), and
@@ -226,7 +303,7 @@ correction. That coordinator is not implemented. There is no mapping from these
 semantic directions to unverified X positions, and no automatic pose learning,
 signal smoothing, or diagnosis of every possible damaged/stuck sensor.
 
-## Integration work still required
+## Integration work identified in the November 16 baseline
 
 1. Keep real output disabled until the circuit, actuator ratings, physical map,
    and mounting have been reviewed. Use validated profiles rather than arbitrary

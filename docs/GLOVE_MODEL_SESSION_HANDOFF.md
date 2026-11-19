@@ -1,50 +1,55 @@
 # Glove and model development handoff
 
-Last updated: November 6, 2026. Read this first when resuming sensor, calibration,
-ML, or demo-readiness work. This is the current development handoff; earlier
-alpha/beta assignment snapshots and September plan notes retain historical
-behavior and results.
+Last updated: November 19, 2026. Read this first when resuming sensor,
+calibration, ML, or demo-readiness work. The current working build includes
+app changes pending code review and commit. The November 6 preparation
+and verification notes remain below as historical records.
 
 ## Where we stopped
 
-The user chose **a reliable demo for the main glove wearer and selected signs**
-as the model-development goal. All required parts have arrived, including the
-replacement flex sensors, Adafruit ICM-20948 #4554, and piezo elements. Someone
-else is handling glove assembly. Final installation, calibration, and live
-testing of that assembly are unconfirmed.
+The planned demo is **G → Z → 3 → Hello → Please** on the wired perfboard glove
+with laptop USB power. Gael reported repeated live G and word recognition and
+confirmed the automatic Number 3 haptic demo worked on the glove. The J/Z
+recognizer and the new word cue sequences have software results. Rehearse Z
+and the Hello/Please playback on the presentation phone and glove before
+making live performance claims. See the [run sheet](../post_mortem_presentation/demo_checklist.md).
 
-The planned software preparation is ready for physical measurements. The next
-useful model work starts with checking and calibrating the assembled glove,
-then collecting repeated real attempts. Further tuning or guessing synthetic
-signs from flex minimum/maximum values alone would not establish an improvement.
-This stopping point does not mean every product feature or known bug is finished.
-
-No deployed model weights, class lists, confidence thresholds, or inference
-calibration were changed by the November 5-6 preparation work described below.
-No new real-data recognition result has been established by it.
+The November 19 export has 123 real trials and 14,824 frames. It includes five
+J and six Z attempts. Thumb and index tracked together, and ring reached the
+ADC rail in 3,655 frames. The number 3 cue uses measured middle and pinky bands.
+The later seven-word export adds 53 attempts. The selected expanded TCN uses
+middle, pinky, and the six inertial axes. Sorry and No use this bundle in
+practice. Thank You and Eat need fresh trials together to check their
+separation before either is enabled. See the
+[word experiment](FINAL_REPORT_EVIDENCE_CHECKLIST.md#eval-06-expanded-word-tcn)
+and [recording details](FINAL_REPORT_EVIDENCE_CHECKLIST.md#data-03-additional-word-recordings).
 
 ## Current runtime and evidence
 
 | Area | Current state | Important limit |
 | --- | --- | --- |
 | Static recognition | Default ESP32 recorded MLP: five calibrated flex inputs, 34 letter/number classes excluding J/Z | Legacy 36-class baseline is preserved; current endpoints are 425 bent / 625 straight for all five fingers and must be rechecked on replacement sensors |
-| Word recognition | Flutter packages a TCN for `hello, please, yes`; Start/Finish attempts can award saved completion | Deployed input is 96 samples at 40 Hz, 11 raw features; fresh assembled-glove recognition and phone latency are Not run |
+| J/Z recognition | A separate phone TCN uses six IMU axes and a 160-sample, 40 Hz window. It accepts J or Z through a Start/Finish attempt and has an `other` class. | Offline replay accepted 4/4 matching held-out attempts and 0/36 unrelated attempts. Some of those attempts were examined during development. Live J/Z use and signer independence are unverified. |
+| Word recognition | Hello, Please, and Yes use the rehearsal TCN. Sorry and No use the expanded TCN. Start/Finish attempts award saved completion. All eight lesson rows appear in Words. | Both models accept 160 samples at 40 Hz and 11 input features. Sorry and No have offline results; live tests are Not run. Thank You, Eat, and Drink are practice lessons without scored recognition. |
 | Historical word data | 15 real attempts, five per word; original split 9 train / 3 validation / 3 test | Reported signer IDs do not prove independent wearers; historical test attempts are development/regression evidence after further tuning |
-| IMU transport | Six motion axes plus optional magnetic status/vector through firmware, BLE, Flutter, and recording export | Physical new-board bus/axes, magnetic validity, packet integrity, and delivered phone rate need verification |
+| IMU transport | Six motion axes plus optional magnetic status/vector through firmware, BLE, Flutter, and recording export. Gael reported the installed ICM-20948 working. | The six-face diagnostic flagged two Y captures. The cause and magnetic fusion behavior need verification. |
 | Calibration | Developer-only guided capture, local save/export, raw evidence, and profile-linked recording snapshots | Measurement only: profiles are not automatically applied to firmware readings, model inputs, or magnetic fusion |
-| Candidate preprocessing | Python and Flutter support explicit 11/14 features and configurable windows/policies | The packaged model still expects 96 x 11; a different contract needs newly trained weights and matching metadata |
-| Training augmentation | Recorded static trainer and generic sequence trainer accept bounded training-only noise/offset copies | Disabled by default; physically justified limits and real validation are still needed |
+| Candidate preprocessing | Python and Flutter use explicit feature order and configurable windows. The J/Z and word bundles have respective 160 × 6 and 160 × 11 contracts. | A different contract needs newly trained weights and matching metadata. Dart and Python J/Z input tensors matched on the 40 held-out recordings. |
+| Training augmentation | Recorded static and generic sequence trainers accept bounded training-only copies. The J/Z trainer uses training-only timing offsets. | Fit transformations on training trials and keep whole attempts separate during evaluation. |
 | Demo evaluation | Offline replay uses the actual Flutter completion rules, with positive and negative target exposures | Replay does not establish live BLE reliability, body placement, general ASL validity, or native phone latency |
 | Standalone boot | Optional USB Serial wait is bounded to approximately 1,500 ms before continuing setup | Firmware/host checks passed; physical battery-only startup is Not run |
-| Haptics | Ten piezo outputs have timed single-output firmware support | Circuit review, cue design, on-glove tests, and app/classifier triggering remain pending |
+| Haptics | Manual BLE output testing, automatic Number 3 cues, and preset Hello/Please playback use the same bounded pulses. | Gael confirmed manual mapping and Number 3 playback. The word cues have simulated results. See the [haptic handoff](HAPTIC_ENGINEERING_HANDOFF.md). |
 
-The current TCN uses raw five-flex plus `ax, ay, az, gx, gy, gz`; it does not use
-magnetic values, the developer gyro-bias estimate, or quaternion fusion. A wrist
-IMU can help with motion/orientation but does not reliably locate a hand at the
-head versus chest. Missing finger spread/contact, body location, or other-hand
-information cannot be created by augmentation.
+The rehearsal word TCN uses five raw flex readings plus
+`ax, ay, az, gx, gy, gz`. The expanded TCN selects middle, pinky, and those six
+motion axes. J/Z use those motion axes alone. A wrist IMU measures motion and
+orientation, while body-relative position, finger spread/contact, and other-hand
+activity require separate evidence.
 
 ## Completed preparation and references
+
+The following sections retain the November 6 preparation and its planned tests.
+Use the November 19 status above for the active demo and resume point.
 
 | Change | Commit / documentation |
 | --- | --- |
@@ -55,7 +60,7 @@ information cannot be created by augmentation.
 | Training-only augmentation, recorded-static frozen splits/deferred test evaluation, source-origin checks, and this handoff | November 6 follow-up; [training augmentation](TRAINING_AUGMENTATION.md) |
 
 The audit found substantial historical flex clipping under the current static
-endpoints and that 7/15 word attempts are trimmed by the current 96-sample
+endpoints and that 7/15 word attempts are trimmed by the former 96-sample
 window, including every Yes attempt. A 224-sample window retains all resampled
 points in those historical attempts but adds padding and computation. It is an
 **untrained candidate**, not a demonstrated accuracy improvement or a chosen
@@ -190,10 +195,8 @@ product as hardware-validated or feature-complete.
 
 ## Suggested prompt for a new session
 
-> Read AGENTS.md and docs/GLOVE_MODEL_SESSION_HANDOFF.md, then the linked
-> calibration, IMU, preprocessing, augmentation, and replay guides. We paused
-> after software preparation pending the assembled glove. Keep the deployed
-> models as baselines. Start by confirming actual hardware, telemetry, and
-> calibration evidence; then help us collect real main-wearer signs/negatives
-> and compare candidates on frozen splits without using final-test results to
-> tune. Mark physical checks Not run until we actually perform them.
+> Read AGENTS.md, the current status above, and docs/HAPTIC_ENGINEERING_HANDOFF.md.
+> Rehearse Sorry and No with the connected glove. Collect a fresh session with
+> alternating Thank You and Eat attempts to check confusion, plus idle and
+> unrelated movements for rejection checks. Drink is pending collection. Record
+> live outcomes and confirm additional cue patterns before extending playback.

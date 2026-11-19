@@ -1,0 +1,108 @@
+{
+  "schema_version": "word-model-bundle-v1",
+  "architecture": "tcn",
+  "trained": true,
+  "data_origin": "real",
+  "vocabulary": [
+    "hello",
+    "thank_you",
+    "please",
+    "sorry",
+    "yes",
+    "no",
+    "eat",
+    "other"
+  ],
+  "window_samples": 160,
+  "target_rate_hz": 40,
+  "feature_columns": [
+    "flex_thumb_raw",
+    "flex_index_raw",
+    "flex_middle_raw",
+    "flex_ring_raw",
+    "flex_pinky_raw",
+    "ax",
+    "ay",
+    "az",
+    "gx",
+    "gy",
+    "gz"
+  ],
+  "preprocessing": {
+    "schema_version": "sequence-preprocessing-v1",
+    "window_samples": 160,
+    "target_rate_hz": 40,
+    "feature_set": "flex_imu6",
+    "window_policy": "center_trim_edge_pad"
+  },
+  "standardizer": {
+    "method": "per_feature_standardization",
+    "fitted_split": "train",
+    "feature_columns": [
+      "flex_thumb_raw",
+      "flex_index_raw",
+      "flex_middle_raw",
+      "flex_ring_raw",
+      "flex_pinky_raw",
+      "ax",
+      "ay",
+      "az",
+      "gx",
+      "gy",
+      "gz"
+    ],
+    "mean": [
+      428.24878914976773,
+      427.5115598783101,
+      364.7431455063493,
+      437.2465832596089,
+      416.35306739317144,
+      -0.0798530921623751,
+      0.29433284608187693,
+      0.6231453742009014,
+      0.26852799633737934,
+      1.8021945700080646,
+      -0.003678967245840085
+    ],
+    "scale": [
+      102.25496121931177,
+      102.1758409375262,
+      149.0217289526986,
+      117.7805307933858,
+      114.95923513083227,
+      0.5491189835348658,
+      0.3129894035889225,
+      0.42257887451949533,
+      56.65453049969911,
+      25.9706885874921,
+      31.44310889397051
+    ]
+  },
+  "threshold": 0.8,
+  "training_examples": 73,
+  "real_word_training_examples": 37,
+  "synthetic_training_examples": 0,
+  "training_epochs": 76,
+  "features_used": [
+    "flex_middle_raw",
+    "flex_pinky_raw",
+    "ax",
+    "ay",
+    "az",
+    "gx",
+    "gy",
+    "gz"
+  ],
+  "flex_rail_policy": "ADC rails contribute zero after standardization.",
+  "source_sha256": {
+    "trials (4).csv": "dd6a34a38f46d35fd0158f2222a5969985e71daf83fadcbd83effe8d807a43f9",
+    "manifest (3).json": "f482e533bd0e40c8c705f153bbb01c8f59e7e9bfe413d9c42aa10cf866732ded",
+    "trials (5).csv": "440cfe1ba68a88468d275a0ff0a113083cebed032118586c5bf7848f818f9cca",
+    "manifest (5).json": "252e2f9f5fa9e520738583231535360ab23bf28c718f5c64cce21130f8d0ec5e",
+    "trials (7).csv": "236466e78301484dd076a73d6aa9b0679758b037e6c7ca9108859782f9381f6a",
+    "manifest (7).json": "bd3d358eafcab52f66cbbe99e8de23712ad2124cf39456b197ff94755c353993",
+    "trials (6).csv": "b17678c6895b050a684aee4e33dc71b87c607aed61f084b08c293c3ce561027c",
+    "manifest (6).json": "101bd629b36c3bec8d47e550e889105e8b2f5b6141135416643bda5bb631a09b"
+  },
+  "tflite_sha256": "f58c229e5e1fd725f3015ac0b1a20001c90ae38cd8782ddfecabaaf6cf2c0bb9"
+}

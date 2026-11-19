@@ -19,6 +19,16 @@ class CalibrationStep {
   final String instruction;
 }
 
+final imuCalibrationSteps = <CalibrationStep>[
+  for (final axis in ['x', 'y', 'z'])
+    for (final sign in [1, -1])
+      CalibrationStep(
+        '${axis}_$sign',
+        '${sign == 1 ? '+' : '−'}${axis.toUpperCase()} up',
+        'Point the board’s ${sign == 1 ? '+' : '−'}${axis.toUpperCase()} axis upward. Support it and hold still.',
+      ),
+];
+
 final calibrationSteps = <CalibrationStep>[
   for (var repeat = 1; repeat <= 2; repeat++)
     CalibrationStep(
@@ -38,13 +48,7 @@ final calibrationSteps = <CalibrationStep>[
     'Rest the glove',
     'Rest the glove on a stable surface. Do not touch it during capture.',
   ),
-  for (final axis in ['x', 'y', 'z'])
-    for (final sign in [1, -1])
-      CalibrationStep(
-        '${axis}_$sign',
-        '${sign == 1 ? '+' : '−'}${axis.toUpperCase()} up',
-        'Point the board’s ${sign == 1 ? '+' : '−'}${axis.toUpperCase()} axis upward. Support it and hold still.',
-      ),
+  ...imuCalibrationSteps,
 ];
 
 class CalibrationProfile {
@@ -85,10 +89,15 @@ class CalibrationProfile {
 /// Measures and exports calibration evidence; never changes live inference.
 class CalibrationService extends ChangeNotifier {
   CalibrationService({
+    this.imuOnly = false,
     Future<Directory> Function()? storageDirectoryProvider,
     DateTime Function()? clock,
   }) : _storage = storageDirectoryProvider ?? getApplicationDocumentsDirectory,
-       _clock = clock ?? DateTime.now;
+       _clock = clock ?? DateTime.now,
+       initialized = imuOnly;
+  final bool imuOnly;
+  List<CalibrationStep> get steps =>
+      imuOnly ? imuCalibrationSteps : calibrationSteps;
   final Future<Directory> Function() _storage;
   final DateTime Function() _clock;
   bool _disposed = false;
@@ -105,18 +114,22 @@ class CalibrationService extends ChangeNotifier {
 
   final Map<String, List<BlePacket>> _captures = {};
   final List<BlePacket> _current = [];
-  int stepIndex = 0;
+  int? _retakeIndex;
   bool capturing = false;
   bool saving = false;
-  bool initialized = false;
+  bool initialized;
+  bool exportingDiagnostics = false;
   DateTime? _captureStartedAt;
   bool axisCheckConfirmed = false;
   String message = 'Connect the glove to start.';
   CalibrationProfile? activeProfile;
   Directory? _activeDirectory;
   String? _who;
-  bool get complete => stepIndex == calibrationSteps.length;
-  CalibrationStep get step => calibrationSteps[stepIndex];
+  int get capturedPoseCount => _captures.length;
+  bool get retaking => _retakeIndex != null;
+  int get stepIndex => _retakeIndex ?? capturedPoseCount;
+  bool get complete => !retaking && capturedPoseCount == steps.length;
+  CalibrationStep get step => steps[stepIndex];
   int get packetCount => _current.length;
   double get captureSeconds => _current.length < 2
       ? 0
@@ -124,6 +137,7 @@ class CalibrationService extends ChangeNotifier {
             1000;
 
   Future<void> initialize() async {
+    if (imuOnly) return;
     try {
       final root = await _storage();
       final pointer = File('${root.path}/calibration/active.json');
@@ -152,7 +166,7 @@ class CalibrationService extends ChangeNotifier {
     _captures.clear();
     _current.clear();
     _who = null;
-    stepIndex = 0;
+    _retakeIndex = null;
     axisCheckConfirmed = false;
     message =
         'Prepare the first pose. The previous saved profile stays active.';
@@ -235,7 +249,7 @@ class CalibrationService extends ChangeNotifier {
         message = 'Too few packets. Check the stream and retry.';
       } else {
         _captures[step.id] = List.of(_current);
-        stepIndex++;
+        _retakeIndex = null;
         message = complete
             ? 'Review the measurements before saving.'
             : 'Pose captured. Prepare the next pose.';
@@ -246,10 +260,26 @@ class CalibrationService extends ChangeNotifier {
 
   void retryPrevious() {
     if (capturing || saving || stepIndex == 0) return;
-    stepIndex--;
-    _captures.remove(step.id);
+    retakePose(steps[stepIndex - 1]);
+  }
+
+  void retakePose(CalibrationStep pose) {
+    if (capturing || saving || retaking || !_captures.containsKey(pose.id)) {
+      return;
+    }
+    _retakeIndex = steps.indexWhere((step) => step.id == pose.id);
     _current.clear();
     message = 'Prepare this pose again.';
+    notifyListeners();
+  }
+
+  void keepPreviousCapture() {
+    if (capturing || saving || !retaking) return;
+    _retakeIndex = null;
+    _current.clear();
+    message = complete
+        ? 'Review the measurements before saving.'
+        : 'Prepare the next pose.';
     notifyListeners();
   }
 
@@ -276,37 +306,75 @@ class CalibrationService extends ChangeNotifier {
     };
   }
 
-  Map<String, dynamic> measurements() {
-    if (!complete) throw StateError('Complete every pose first.');
+  Map<String, dynamic> measurements() => review().measurements;
+
+  List<({CalibrationStep pose, List<double> medianG, bool passed})>
+  accelerationChecks() {
+    final checks =
+        <({CalibrationStep pose, List<double> medianG, bool passed})>[];
+    for (final (index, pose) in imuCalibrationSteps.indexed) {
+      final packets = _captures[pose.id];
+      if (packets == null) continue;
+      final axes = [
+        _stats(packets.map((p) => p.ax!)),
+        _stats(packets.map((p) => p.ay!)),
+        _stats(packets.map((p) => p.az!)),
+      ];
+      final vector = axes.map((stats) => stats['median']!).toList();
+      final expectedAxis = index ~/ 2;
+      final sign = index.isEven ? 1 : -1;
+      final passed = axes.indexed.every((entry) {
+        final (axis, stats) = entry;
+        final expected = axis == expectedAxis ? sign : 0;
+        return stats['std']! <= .05 && (vector[axis] - expected).abs() <= .25;
+      });
+      checks.add((pose: pose, medianG: vector, passed: passed));
+    }
+    return checks;
+  }
+
+  ({Map<String, dynamic> measurements, Set<String> failedPoseIds}) review() {
+    if (imuOnly || !complete) {
+      throw StateError('Complete full calibration first.');
+    }
     final blockers = <String>[];
     final warnings = <String>[];
     final flex = <Map<String, dynamic>>[];
+    final failedPoseIds = <String>{};
+    final openIds = ['open_1', 'open_2'];
     for (var i = 0; i < 5; i++) {
       final finger = calibrationFingers[i];
+      final bentIds = ['${finger}_bent_1', '${finger}_bent_2'];
       final open = [
-        for (var r = 1; r <= 2; r++)
-          _stats(_captures['open_$r']!.map((p) => p.flexRaw[i]!)),
+        for (final id in openIds)
+          _stats(_captures[id]!.map((p) => p.flexRaw[i]!)),
       ];
       final bent = [
-        for (var r = 1; r <= 2; r++)
-          _stats(_captures['${finger}_bent_$r']!.map((p) => p.flexRaw[i]!)),
+        for (final id in bentIds)
+          _stats(_captures[id]!.map((p) => p.flexRaw[i]!)),
       ];
       final straight = (open[0]['median']! + open[1]['median']!) / 2;
       final bentValue = (bent[0]['median']! + bent[1]['median']!) / 2;
       final span = (straight - bentValue).abs();
       if (span < 30) {
         blockers.add('$finger: insufficient bend response (<30 ADC counts).');
+        failedPoseIds.addAll([...openIds, ...bentIds]);
       }
-      for (final repeats in [open, bent]) {
+      for (final (repeats, ids) in [(open, openIds), (bent, bentIds)]) {
         if ((repeats[0]['median']! - repeats[1]['median']!).abs() >
             math.max(30, span * .25)) {
           blockers.add('$finger: repeated poses disagree.');
+          failedPoseIds.addAll(ids);
         }
         if (repeats.any((s) => s['std']! > math.max(10, span * .1))) {
           warnings.add('$finger: noisy hold; check mounting and repeat.');
         }
-        if (repeats.any((s) => s['min']! <= 0 || s['max']! >= 4095)) {
-          blockers.add('$finger: ADC clipping at a rail.');
+        for (var r = 0; r < repeats.length; r++) {
+          final stats = repeats[r];
+          if (stats['min']! <= 0 || stats['max']! >= 4095) {
+            blockers.add('$finger: ADC clipping at a rail.');
+            failedPoseIds.add(ids[r]);
+          }
         }
       }
       if (straight < bentValue) {
@@ -337,6 +405,7 @@ class CalibrationService extends ChangeNotifier {
     if (gyro.any((s) => s['std']! > 3) ||
         acceleration.any((s) => s['std']! > .05)) {
       blockers.add('Stationary capture shows movement or excess noise.');
+      failedPoseIds.add('stationary');
     }
     final gravity = math.sqrt(
       acceleration.map((s) => math.pow(s['mean']!, 2)).reduce((a, b) => a + b),
@@ -345,6 +414,7 @@ class CalibrationService extends ChangeNotifier {
       blockers.add(
         'Stationary acceleration is not near 1 g. Verify units and sensor health.',
       );
+      failedPoseIds.add('stationary');
     }
     if (gyro.any((s) => s['mean']!.abs() > 5)) {
       warnings.add(
@@ -352,41 +422,27 @@ class CalibrationService extends ChangeNotifier {
       );
     }
     final axisChecks = <Map<String, dynamic>>[];
-    for (var i = 0; i < 3; i++) {
-      for (final sign in [1, -1]) {
-        final id = '${['x', 'y', 'z'][i]}_$sign';
-        final packets = _captures[id]!;
-        final vector = [
-          _median(packets.map((p) => p.ax!)),
-          _median(packets.map((p) => p.ay!)),
-          _median(packets.map((p) => p.az!)),
-        ];
-        final stable = [
-          _stats(packets.map((p) => p.ax!)),
-          _stats(packets.map((p) => p.ay!)),
-          _stats(packets.map((p) => p.az!)),
-        ].every((s) => s['std']! <= .05);
-        final passed =
-            stable &&
-            List.generate(
-              3,
-              (axis) => (vector[axis] - (axis == i ? sign : 0)).abs() <= .25,
-            ).every((v) => v);
-        axisChecks.add({'pose': id, 'median_g': vector, 'passed': passed});
-        if (!passed) {
-          blockers.add('$id: pose/axis check failed; verify board directions.');
-        }
+    for (final (:pose, :medianG, :passed) in accelerationChecks()) {
+      axisChecks.add({'pose': pose.id, 'median_g': medianG, 'passed': passed});
+      if (!passed) {
+        blockers.add(
+          '${pose.id}: pose/axis check failed; verify board directions.',
+        );
+        failedPoseIds.add(pose.id);
       }
     }
-    return {
-      'flex': flex,
-      'gyro_bias_dps': gyro.map((s) => s['mean']).toList(),
-      'stationary_gyro': gyro,
-      'stationary_acceleration': acceleration,
-      'acceleration_axis_checks': axisChecks,
-      'blockers': blockers.toSet().toList(),
-      'warnings': warnings.toSet().toList(),
-    };
+    return (
+      measurements: {
+        'flex': flex,
+        'gyro_bias_dps': gyro.map((s) => s['mean']).toList(),
+        'stationary_gyro': gyro,
+        'stationary_acceleration': acceleration,
+        'acceleration_axis_checks': axisChecks,
+        'blockers': blockers.toSet().toList(),
+        'warnings': warnings.toSet().toList(),
+      },
+      failedPoseIds: failedPoseIds,
+    );
   }
 
   Future<bool> save({
@@ -395,7 +451,7 @@ class CalibrationService extends ChangeNotifier {
     required String firmwareRevision,
     required String settingsNotes,
   }) async {
-    if (saving || !complete) return false;
+    if (imuOnly || saving || !complete) return false;
     final identity = RegExp(r'^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$');
     if (![
           gloveId,
@@ -453,16 +509,7 @@ class CalibrationService extends ChangeNotifier {
         jsonEncode({
           'profile_id': id,
           'data_origin': 'real',
-          'captures': {
-            for (final entry in _captures.entries)
-              entry.key: [
-                for (final packet in entry.value)
-                  {
-                    'received_at': packet.receivedAt.toIso8601String(),
-                    'raw_packet': packet.raw,
-                  },
-              ],
-          },
+          'captures': _rawCaptures(),
         }),
         flush: true,
       );
@@ -483,6 +530,82 @@ class CalibrationService extends ChangeNotifier {
       return false;
     } finally {
       saving = false;
+      notifyListeners();
+    }
+  }
+
+  Map<String, List<Map<String, String>>> _rawCaptures() => {
+    for (final entry in _captures.entries)
+      entry.key: [
+        for (final packet in entry.value)
+          {
+            'received_at': packet.receivedAt.toIso8601String(),
+            'raw_packet': packet.raw,
+          },
+      ],
+  };
+
+  Map<String, dynamic> diagnosticSnapshot({
+    required String gloveId,
+    required String mountingId,
+    required String firmwareRevision,
+    required String settingsNotes,
+  }) => {
+    'schema_version': 'glove-calibration-diagnostics-v1',
+    'created_at': _clock().toUtc().toIso8601String(),
+    'data_origin': 'real',
+    'capture_mode': imuOnly ? 'imu_only' : 'full',
+    'applied_to_inference': false,
+    'glove_id': gloveId.trim(),
+    'mounting_id': mountingId.trim(),
+    'firmware_revision': firmwareRevision.trim(),
+    'settings_notes': settingsNotes.trim(),
+    'imu_who': _who,
+    'expected_pose_ids': steps.map((pose) => pose.id).toList(),
+    'acceleration_axis_checks': [
+      for (final (:pose, :medianG, :passed) in accelerationChecks())
+        {'pose': pose.id, 'median_g': medianG, 'passed': passed},
+    ],
+    if (!imuOnly && complete) 'full_review': measurements(),
+    'captures': _rawCaptures(),
+  };
+
+  Future<void> exportDiagnostics({
+    required String gloveId,
+    required String mountingId,
+    required String firmwareRevision,
+    required String settingsNotes,
+    Rect? sharePositionOrigin,
+  }) async {
+    if (_captures.isEmpty || capturing || saving || exportingDiagnostics) {
+      return;
+    }
+    exportingDiagnostics = true;
+    notifyListeners();
+    try {
+      final snapshot = diagnosticSnapshot(
+        gloveId: gloveId,
+        mountingId: mountingId,
+        firmwareRevision: firmwareRevision,
+        settingsNotes: settingsNotes,
+      );
+      final bytes = utf8.encode(
+        const JsonEncoder.withIndent('  ').convert(snapshot),
+      );
+      await SharePlus.instance.share(
+        ShareParams(
+          subject: 'Helping Hand calibration diagnostics',
+          files: [XFile.fromData(bytes, mimeType: 'application/json')],
+          fileNameOverrides: [
+            imuOnly ? 'imu-diagnostics.json' : 'glove-diagnostics.json',
+          ],
+          sharePositionOrigin: sharePositionOrigin,
+        ),
+      );
+    } catch (error) {
+      message = 'Export failed: $error';
+    } finally {
+      exportingDiagnostics = false;
       notifyListeners();
     }
   }

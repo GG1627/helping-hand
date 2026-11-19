@@ -1,4 +1,41 @@
-# Draft 01 presentation verification
+# Post-mortem presentation verification
+
+## Rubric-aligned ten-slide revision
+
+- Checked all ten main slides and two backups in Playwright Chromium at
+  1660 × 1000. Images loaded, key content fit above the slide footers, and
+  every inline note matched the standalone notes. The deck fit a 390 × 844
+  viewport in scaled mode.
+- Checked keyboard progression, overview, backup entry and return, and the
+  default and backup print modes. The slide timings total 405 seconds,
+  including the 120-second demo. The remaining 285 seconds leave a 15-second
+  buffer within the seven-minute delivery.
+- Exported and visually checked the ten-page
+  [Canvas PDF](exports/helping-hand-post-mortem.pdf). Pages retain searchable
+  text. The browser's optional print mode includes 12 slides.
+
+The physical demo, speaker handoffs, and full-run pacing require rehearsal.
+
+## November 19 presentation build
+
+- Opened the local HTML in Playwright Chromium on Windows. All five visual
+  assets loaded. No page errors or failed requests occurred.
+- Checked eight main slides and two backups at 1660 × 1000. The main slide
+  durations total 420 seconds, including 100 seconds for the demo. Key content
+  stayed inside each slide and above the footer. Checked scaled fit at 390 × 844.
+- Exercised keyboard progression, Home, overview, backup entry and return, and
+  the help print option. Opened all ten inline notes and matched them against the
+  standalone speaker notes.
+- Exported and visually inspected all eight pages of the
+  [Canvas PDF](exports/helping-hand-post-mortem.pdf). It is about 1.6 MB with
+  searchable text and approximately 1200 × 675 pt pages. The photo and screenshot
+  streams were compressed after export. Checked that the optional backup export
+  contains ten pages.
+
+These checks cover the presentation and its files. Live Z, physical word cue
+playback, phone projection, and full-team timing belong to the rehearsal.
+
+## November 6 draft 01
 
 Checked November 6, 2026 using Playwright Chromium on Windows, opening the
 local `index.html` directly. No application or hardware behavior was tested.

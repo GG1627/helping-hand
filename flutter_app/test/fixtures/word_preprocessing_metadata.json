@@ -1,0 +1,67 @@
+{
+  "architecture": "tcn",
+  "trained": true,
+  "vocabulary": [
+    "hello",
+    "please",
+    "yes"
+  ],
+  "feature_columns": [
+    "flex_thumb_raw",
+    "flex_index_raw",
+    "flex_middle_raw",
+    "flex_ring_raw",
+    "flex_pinky_raw",
+    "ax",
+    "ay",
+    "az",
+    "gx",
+    "gy",
+    "gz"
+  ],
+  "window_samples": 96,
+  "target_rate_hz": 40,
+  "standardizer": {
+    "feature_columns": [
+      "flex_thumb_raw",
+      "flex_index_raw",
+      "flex_middle_raw",
+      "flex_ring_raw",
+      "flex_pinky_raw",
+      "ax",
+      "ay",
+      "az",
+      "gx",
+      "gy",
+      "gz"
+    ],
+    "fitted_split": "train",
+    "mean": [
+      449.001944259361,
+      448.5031945263898,
+      401.4712498806141,
+      477.8432407732363,
+      422.7885647173281,
+      0.3040739812220434,
+      0.30458824037749666,
+      -0.5076086106274758,
+      -5.339665411705263,
+      1.9170609545868098,
+      -0.9842057819435097
+    ],
+    "method": "per_feature_standardization",
+    "scale": [
+      101.77529677253564,
+      101.92091765199356,
+      113.70340612642848,
+      155.21745216701873,
+      109.39423025284317,
+      0.5337919421830764,
+      0.37129269806366005,
+      0.44894822672547213,
+      104.45139245725797,
+      34.28777029461214,
+      17.189645743798287
+    ]
+  }
+}

@@ -10,6 +10,9 @@ workflow; it overrides the human review checkpoint in `ai-policy/AI-USAGE.md`
 for document-only changes. Continue following the policy's disclosure and commit
 naming requirements.
 
+For M6/R4 report work, follow the explicit commit restriction in the report
+workflow below instead of automatically committing document changes.
+
 ## Current glove and model sessions
 
 Start sensor, calibration, ML, and demo-readiness sessions with
@@ -86,6 +89,43 @@ provided November 12, 2026, then `docs/RELEASE_CANDIDATE_REPORT_REVIEW.md` for
 the existing report inventory and evidence limits. The required report is an
 approximately 1–2 page PDF. Preserve the October 28 PDFs as historical artifacts;
 later November changes are not evidence of work completed for that snapshot.
+
+## Production release and final report workflow
+
+Start M6/R4 report sessions with `docs/PRODUCTION_RELEASE_REPORT_PROGRESS.md`
+and `docs/FINAL_REPORT_EVIDENCE_CHECKLIST.md`. M6 requirements are preserved in
+`M6-Production-Release.md`; the checklist records the R4 requirements and the
+evidence still needed. The final report builds on the preliminary report, while
+preserving earlier reports and their historical evidence limits.
+
+Gael maintains the actual reports in Word. Provide proposed report text in chat
+for copying and pasting, and keep decisions, progress, and evidence links in
+Markdown. Do not create or edit a report document/PDF unless asked. Do not commit
+or push this report work without explicit instruction; authorization to commit
+one named change is not blanket authorization for later changes.
+
+During relevant assembly, calibration, model, haptic, integration, and testing
+sessions, consult the checklist and record evidence as it becomes available.
+Use its session/attempt/issue/timeline templates or link equivalent existing
+records. Capture date, setup and revisions, procedure, expected versus actual
+behavior, raw evidence paths, failures, changes, and retest results. A checked
+item means evidence documented, not necessarily a passing feature. Mark known
+unperformed checks `Not run`; use `Not yet documented` when results are unknown.
+
+The intended final scope is a finished PCB/glove, working calibrated flex sensors
+and new IMU, ten haptic outputs with integrated feedback, A-Z, 0-9, all eight app
+words, and working app/progress flows. Battery operation is the goal, with USB
+an acknowledged fallback. These are goals, not confirmed outcomes. Verify work
+from other sessions before updating claims. Keep historical demonstrations,
+software checks, offline model evaluation, and fresh physical/user tests separate.
+Do not infer hand location relative to the body from IMU orientation, or useful
+corrective feedback from actuator activation alone.
+
+Collect evidence now; update report sections with confirmed work when requested.
+Finalize the abstract, final-state/results discussion, and conclusion after the
+actual outcome is known. R4 is at most 5,000 words excluding references and
+acknowledgements, with a 200-300 word abstract; M6 is approximately 1-2 pages.
+Retain accurate citations, AI disclosure, unfinished goals, and limitations.
 
 ## Beta presentation
 

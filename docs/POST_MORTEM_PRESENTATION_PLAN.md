@@ -1,11 +1,60 @@
 # Helping Hand post-mortem presentation plan
 
-Updated November 6, 2026. **Presentation: November 19, 2026**, confirmed by Gael.
+Updated November 19, 2026. **Presentation: November 19, 2026**, confirmed by Gael.
 This document plans the presentation while project development continues.
 It does not schedule completion of the hardware, firmware, models, or app.
 The [P3 assignment](../P3-Post-Mortem-Presentation.md) governs requirements.
 
-## First HTML draft
+## November 19 handoff for the slides
+
+- **Delivery:** Gael confirmed seven minutes for the presentation, then two
+  minutes for questions. The ten-slide deck schedules 4:45 of narration and a
+  2:00 demo, with a 0:15 buffer and two question backups. See the
+  [updated HTML deck](../post_mortem_presentation/index.html),
+  [speaker notes](../post_mortem_presentation/speaker_notes.md), and
+  [Canvas PDF](../post_mortem_presentation/exports/helping-hand-post-mortem.pdf).
+  Showcase is a separate event.
+
+- **Live order:** G → Z → 3 → Hello → Please. Use the
+  [timed run sheet](../post_mortem_presentation/demo_checklist.md) for exact
+  app actions, buzzer patterns, and recovery. Finish on the green learned
+  rows in Words. The selected setup is laptop USB power and a signed-in,
+  connected Android phone with Developer Mode enabled.
+- **Hardware:** Use [the final wired perfboard glove photo](figures/r4/IMG_9891.jpeg)
+  as the product image. The fabricated PCB was abandoned after connection and
+  trace-quality problems. [Component-side photo](figures/r4/IMG_9894.jpeg) and
+  [reverse-side photo](figures/r4/IMG_9893.jpeg) show that prototype. A later
+  conductive-thread attempt gave way to discrete wiring after suspected shorts.
+  The ten piezos sit at five fingers and five back-of-hand plus positions.
+- **Architecture:** Flex and IMU readings feed the ESP32. Its MLP handles held
+  poses. The phone runs separate TCNs for J/Z and Hello/Please/Yes, then records
+  accepted practice progress. Show BLE in both directions. The glove sends
+  readings and output acknowledgments, and the app sends haptic requests.
+- **Results to label:** G, I, 1, Hello, Please, and Yes have operator-reported
+  live recognition. J/Z's 4/4 matching and 36/36 rejected unrelated attempts
+  are offline results. Gael confirmed the automatic **3** cue worked on the
+  glove. The Hello/Please cue patterns passed software tests with simulated
+  output responses. Live Z and live word cue playback still need a rehearsal.
+- **Coverage:** The static MLP has 34 classes, and J/Z use a separate motion
+  model. The Words list has eight lessons with green learned rows. The bundled
+  recognizer covers Hello, Please, and Yes. Automatic finger correction is
+  implemented for 3, and the word cues replay preset patterns after a match.
+
+Use the [evidence checklist](FINAL_REPORT_EVIDENCE_CHECKLIST.md) for BUILD-01,
+LIVE-04, EVAL-05, and HAPT-01 through HAPT-04. The app source and model updates
+were in the working copy at slide review. Confirm the exact live build on the
+phone before presenting. The deck uses the final glove and current Android
+screens, including a Letter A reference captured while disconnected. The
+supplied M6 and R4 reports cover the earlier release snapshot. The
+[content review](../post_mortem_presentation/CONTENT_REVIEW.md) maps the
+delivered slides and rehearsal items to the rubric.
+
+## Earlier planning and first draft
+
+The original planning material below records the November 6 approach and
+timing estimates. Use the November 19 handoff and current run sheet for delivery.
+
+### First HTML draft
 
 Draft 01 was built November 6 in
 [`post_mortem_presentation/index.html`](../post_mortem_presentation/index.html),
@@ -16,24 +65,19 @@ and a draft PDF. See the [deck README](../post_mortem_presentation/README.md),
 Final photos, results, haptic behavior, coverage, team stories, and speaker/demo
 assignments remain draft content. The beta deck is unchanged.
 
-## Confirmed presentation direction
+### Initial presentation direction
 
 - Build another **local HTML presentation in the beta style**, with local
   assets/fonts, keyboard navigation, a thin progress line, and a PDF export.
 - Prepare the story, layouts, notes, and demo flow now. Add final photos,
   supported capabilities, and results as the team finishes development.
-- Plan around the team's intended final build: integrated haptic feedback,
-  a PCB mounted on the glove, the new ICM-20948, letters A-Z, numbers 0-9,
-  and all eight words already listed in the app.
+- Use the intended final scope as context for the post-mortem. It included a
+  mounted PCB, ICM-20948, integrated haptics, A–Z, 0–9, and all eight words.
 - The eight words are **Hello, Thank You, Please, Sorry, Yes, No, Eat, Drink**.
   Source: [`WordsTab.candidateWords`](../flutter_app/lib/screens/tabs/words_tab.dart).
 
-These are intended presentation outcomes, not claims of completion today.
-The current recorded static model excludes J/Z, and the
-[packaged word model](../flutter_app/lib/services/word_sequence.dart) covers
-Hello/Please/Yes. The final deck should explain the actual motion-recognition
-path for J/Z and the evaluated eight-word model once available. This planning
-document does not change the runtime contracts or model-development work order.
+Use the November 19 handoff above for the delivered implementation and
+evidence available for this presentation.
 
 ## Starting point
 
@@ -107,8 +151,9 @@ trigger source. Keep model internals in backup slides.
 
 ### 3. The final glove
 
-Make the final assembly the main visual, with a PCB close-up or small beta/final
-comparison. Use a few labels for the PCB, IMU, flex sensors, and haptic placement.
+Make the final assembly the main visual. Label the cuff perfboard, flex strips,
+and piezo locations. Use the fabricated PCB as an iteration comparison and
+identify it as the abandoned prototype.
 Explain the purpose of the two or three most important physical changes.
 Do not turn this into a component inventory. A labeled design render can reserve
 the photo space in an early draft; replace it with a real image when available.
@@ -170,28 +215,12 @@ locally without internet or a build step; the live app's connection needs are
 separate. Check the new slide count and print behavior rather than retaining
 assumptions about beta's ten slides.
 
-## Proposed live-demo run sheet
+## Live-demo run sheet
 
-This is presentation choreography, not a development procedure. Choose actual
-targets after rehearsal. Have the phone signed in, connected, and projected
-before starting; assign a wearer and phone operator so transitions are smooth.
-
-| Interval | Live action | Audience takeaway |
-| --- | --- | --- |
-| 0-10 s | Show the worn final glove and selected target. | The actual final artifact is being used live. |
-| 10-40 s | Attempt a rehearsed letter or number; show the real haptic cue, adjust, and complete if supported by the final UX. | What feedback means and how the learner responds. |
-| 40-70 s | Perform one complete rehearsed word and show the real result. | Recognition includes motion, not only held poses. |
-| 70-90 s | Show saved completion; add a short extra target only if rehearsal supports it. | Practice produces visible progress. |
-
-If haptics only indicate success/error, describe that actual behavior rather
-than implying finger-specific correction. Explain what the wearer feels and
-how they interpret it; an audible tone alone is not evidence of tactile guidance.
-Do not prewrite a guaranteed successful prediction. Prepare a short recovery
-transition for a retry or reconnect, then continue showing available live use.
-
-Show broader coverage in the results material. Attempting all **44 targets**
-(26 letters, 10 digits, eight words) live would crowd out reflection. A motion
-letter could be the optional extra if it clearly demonstrates final capability.
+Use the [November 19 run sheet](../post_mortem_presentation/demo_checklist.md) for
+the 90-second G → Z → 3 → Hello → Please sequence. Have the phone signed in,
+connected, and projected before starting. Agree on a short recovery for retry
+or reconnect and use each live result as it occurs.
 
 ## Candidate success stories
 
@@ -202,10 +231,11 @@ Expected-final-build candidates, conditional on the delivered outcome:
 
 - **Closing the feedback loop:** connect sensing, recognition, meaningful haptic
   cues, and the learner's correction. Explain the integration decision that helped.
-- **Building a more integrated wearable:** explain the move to the PCB/final
-  mounting with actual photos and the demonstrated construction benefit.
-- **Expanding recognition coverage:** explain how data, preprocessing, model
-  choice, and app integration supported final letters, digits, and eight words.
+- **Building the final wearable:** use the prototype PCB and final wired
+  perfboard photos to explain how the team handled connection failures and
+  recovered a demo-ready assembly.
+- **Expanding recognition coverage:** explain how the separate J/Z model
+  handles motion alongside held poses and the three bundled words.
 
 A completed feature can be a success without a measured before/after gain.
 Claim improved comfort, reliability, accuracy, or learning only with evidence.
@@ -228,8 +258,8 @@ has a specific, better-supported example. Explain the actual mechanism and resul
 | Challenge | What made it difficult / effect | Future change to discuss |
 | --- | --- | --- |
 | Sensor damage and changing calibration | Thumb/index sensor faults were reported, and replacement sensors/mounting can change input distributions. Historical model results cannot establish performance on the rebuilt glove. | Add regular raw-signal health checks, mounting/strain-relief checks, calibration records, and repeated attempts after re-donning. Collect and evaluate data on the actual final assembly before reporting improvement. |
-| Limited data and motion coverage | The word dataset has 15 attempts and cannot establish robustness across wearers or wrist angles. The later audit found that the deployed window trims 7/15 historical attempts, including every Yes attempt. | Reserve fresh evaluation attempts; collect separate sessions, confusable signs, incomplete gestures, and unrelated motion. Compare justified window/model changes on frozen splits and measure false completions as well as correct ones. |
-| Completing hardware/software integration | As of the current handoff, ten piezo outputs have firmware support, but circuit review, cue design, app/classifier triggering, and on-glove validation remain pending. PCB work is unfinished. Confirm the team's actual scheduling/dependency difficulties before explaining their causes. | Plan smaller end-to-end integration milestones, give each interface an owner and an observable acceptance check, and reserve time to test the assembled artifact. Present this as a proposed process improvement unless the team confirms it was used. |
+| Limited data and motion coverage | The three-word and J/Z results come from small datasets. The J/Z replay included a focused set of matching trials and unrelated motions. | Reserve fresh attempts, distinct wearers and orientations, confusable signs, and incomplete or unrelated gestures. Record false completions along with correct ones. |
+| Completing hardware/software integration | The custom PCB and conductive-thread assembly had unreliable connections. The team finished the demo glove with wired perfboard. The automatic 3 cue worked in rehearsal, and the new word cues have software checks. | Plan smaller end-to-end milestones with explicit acceptance checks. Reserve time for wiring continuity, interruption checks, and wearer perception tests. |
 
 Sources: [current glove/model handoff](GLOVE_MODEL_SESSION_HANDOFF.md),
 [demo observations](R3_DEMO_OBSERVATIONS.md), and
@@ -248,7 +278,7 @@ Do not invent data to fill a layout. Remove all draft markers from the final dec
 | --- | --- | --- |
 | Cover/problem | Team, purpose, short problem statement. | Final glove image. |
 | System diagram | Editable sensing/recognition/feedback structure. | Actual final inference and haptic paths. |
-| Hardware slide | Photo layout and beta reference image. | Final glove, mounted PCB, IMU, and haptic placement. |
+| Hardware slide | Photo layout and beta reference image. | Final wired glove, abandoned PCB comparison, IMU, and haptic placement. |
 | App/capability slide | Learner journey and eight-word target list. | Current screenshots and actual supported coverage. |
 | Results callout | Fields for scope, trials, result, model size, and latency. | Relevant measured final figures and their sources. |
 | Reflection | Story prompts and provisional selection. | Team-confirmed examples, decisions, outcomes, and lessons. |
@@ -259,9 +289,8 @@ fact, source/asset location, owner, and final wording in the deck's content revi
 The checks below guide accurate presentation content; they do not impose an
 engineering schedule or expand the assignment's test requirements.
 
-The November 6 handoff is the current technical starting point. The October
-beta deck is a presentation reference. Later retrospective observations add
-historical physical-demo evidence; they do not validate the repaired assembly.
+Use the November 19 handoff at the top as the technical starting point. The
+October beta deck and November 6 plans remain historical references.
 
 - Record the final hardware, firmware/app revisions, phone, model bundle, and
   calibration configuration; take final assembly photos and current screenshots.
@@ -280,8 +309,9 @@ historical physical-demo evidence; they do not validate the repaired assembly.
 - Do not promote the historical three-trial test result into general accuracy.
   Historical data reused during development is regression evidence; reserve
   fresh attempts for a final evaluation claim.
-- Show tactile guidance live only if integrated and tested. Current firmware
-  output support alone does not establish corrective haptic feedback.
+- Describe Number 3 as finger-and-direction feedback. Describe the word
+  cues as preset playback. Give the actual wearer observation if discussing
+  how strongly the piezos can be felt.
 - Prepare a short recovery path for live failures. Continue showing genuine
   available functionality, explain the failure, and keep the live-use requirement.
   Recordings/screenshots can support an explanation but do not fulfill that requirement.

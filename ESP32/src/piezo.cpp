@@ -42,6 +42,8 @@ void setupPiezos() {
   initialized = true;
 }
 
+bool piezoOutputActive() { return activePin >= 0; }
+
 bool startPiezo(Piezo output, uint32_t frequencyHz, uint32_t durationMs) {
   const size_t index = static_cast<size_t>(output);
   if (!initialized || activePin >= 0 || index >= PIEZO_COUNT ||

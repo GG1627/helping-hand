@@ -1,87 +1,103 @@
-# Speaker notes · post-mortem draft 01
+# Helping Hand post-mortem speaker notes
 
-November 19, 2026. Prepared November 6. Main content: 6:10 including 90-second live demo; allow questions within seven minutes. Speakers and demo assignments remain TBD.
+November 19, 2026. **6:45 planned within seven minutes**, then two minutes for questions. That leaves 15 seconds for handoffs or interruptions. The written P3 prompt also anticipates questions throughout.
 
-Notes mirror the inline HTML templates. Update both when editing the narration. Notes opened in the deck appear on the projected screen; rehearse from this file on a separate device.
+| Time | Slides | Suggested roles |
+| --- | --- | --- |
+| 0:00–1:00 | 1–3 · introduction, problem, system | Introduction and system speaker |
+| 1:00–2:15 | 4–6 · models, hardware, app | Technical and app speakers |
+| 2:15–4:15 | 7 · live practice | Narrator, wearer, and phone operator |
+| 4:15–6:45 | 8–10 · successes, challenges, close | Reflection and closing speakers |
+| 6:45–7:00 | Handoff or question buffer | Closing speaker |
 
-## 1. Helping Hand: the need
+Confirm names and who advances the slides during rehearsal. Use these notes on a separate device during projection. The HTML notes contain the same slide narration.
 
-Speaker: TBD · 25 seconds.
+## 1. Helping Hand
 
-We built Helping Hand to connect a learner's own signing attempt to feedback. Books and ordinary prerecorded references show a sign, but do not measure that learner's hand. Our glove and app aim to make practice more responsive. Introduce the team and transition to the system.
+**0:00–0:15 · 15 seconds.** Introduce the team and point to the glove and phone.
 
-Draft: the photo shows the October beta glove, not the final PCB assembly. Replace it when available. We have not measured human learning improvement.
+“Helping Hand is a glove and Android app for practicing American Sign Language with haptic feedback. We’ll show you what we built, how someone uses it, and what we learned.”
 
-## 2. From sensing to feedback
+## 2. The problem
 
-Speaker: TBD · 30 seconds.
+**0:15–0:35 · 20 seconds.** Connect the family motivation to the gap in solo practice.
 
-Flex sensors capture bending; the IMU captures motion. The ESP32 reads them and performs current static recognition. BLE carries packets to Flutter, where complete word attempts run through a TCN and the app saves progress. The intended final loop adds haptic guidance.
+“In a survey of 100 hearing parents learning ASL for their deaf child, 94 used books, videos, or apps to teach themselves. A recorded example gives you a sign to copy. When you practice alone, you still have to catch mistakes in your handshape or movement.”
 
-Draft: the dashed line is a conceptual planned return path, not an implemented app-to-glove command claim. Update the diagram to the actual haptic trigger source and final architecture.
+## 3. System architecture
 
-## 3. The final glove: draft layout
+**0:35–1:00 · 25 seconds.** Point from left to right, then follow the return arrow.
 
-Speaker: TBD · 35 seconds.
+“The flex strips measure finger bend, and the motion sensor measures how the hand moves. The ESP32 recognizes signs you hold steady. Bluetooth sends its predictions and sensor readings to the Android app. The app recognizes moving signs, shows the result, and saves progress. During the demo, it also sends haptic commands back to the glove.”
 
-Use this slide to explain the finished physical design once available: why the PCB matters, how the new IMU is mounted, and what the piezos communicate. Focus on two or three decisions and their actual outcomes. These October photographs reserve the layout; they do not show the final PCB or new IMU assembly.
+## 4. How we recognize signs
 
-Draft: replace photos, pending labels, and goals with the actual final construction and observed behavior. Receiving an IMU does not establish orientation-fusion benefits; piezo control alone does not establish useful tactile guidance.
+**1:00–1:25 · 25 seconds.** Point to the five bars, then follow the trace on the right.
 
-## 4. What the learner can practice
+“For G, we can look at one set of finger-bend readings. The glove’s multilayer perceptron classifies that handshape. For Z, the order of the motion matters. A temporal convolutional network looks for patterns across successive readings. The phone runs one for J and Z and another for Hello, Please, and Yes.”
 
-Speaker: TBD · 35 seconds.
+## 5. Glove hardware
 
-The learner chooses a target, practices, receives feedback, and saves completion. Our intended final coverage is A-Z, 0-9, and Hello, Thank You, Please, Sorry, Yes, No, Eat, Drink. A pose is a held configuration; a sequence includes how it changes over time.
+**1:25–1:50 · 25 seconds.** Point to the actual glove, the earlier PCB, and the wiring callout.
 
-Draft: only Hello/Please/Yes are currently trained. The recorded static model has 34 classes excluding J/Z. Update supported coverage, model explanation, results with scope, and current screenshots after development. The third image is a word picker, not evidence that a new word was completed. Do not describe 80% confidence as 80% measured accuracy.
+“The demo glove has five flex sensors, a motion sensor, ten piezo buzzers, and a cuff-mounted ESP32. We tried a custom PCB and later hid the connections with conductive thread. When sensor readings dropped out, we switched to individual wires on perfboard. We’re powering it over USB today.”
 
-## 5. Live learner demonstration
+## 6. Android app
 
-Wearer: TBD · Phone operator: TBD · Narrator: TBD · 90 seconds.
+**1:50–2:15 · 25 seconds.** Move across the screenshots from sign-in to saved lessons.
 
-0-10 seconds: show the worn glove and prepared target. 10-40: attempt a rehearsed static sign, show actual feedback, adjust, and complete if supported. 40-70: perform a complete word and show the real prediction. 70-90: show saved completion; include a short extra target only if timing permits.
+“After signing in, Home shows your progress. Pick a letter, number, or word. The lesson shows the target sign, and the app saves your completed lessons. Eight word lessons are listed, and the recognizer supports three. Let’s try it with the glove.”
 
-Draft: use the real final haptic meaning. If it only indicates success/error, explain that. Do not guarantee a successful recognition. If a step fails, describe the observed failure, try a short recovery, and continue showing available live use. Login, BLE connection, projection, and props should be prepared beforehand. The slide does not establish measured learning improvement.
+## 7. Live ASL practice demo
 
-## 6. Three successes: candidate stories
+**2:15–4:15 · 120 seconds.** Use the projected phone. Start signed in, connected, and in Developer Mode. The run sheet gives the individual time limits and recovery actions.
 
-Speakers: TBD · 70 seconds, about 23 seconds per story.
+**G.** “I’ll hold G steady. Watch for the match and hold indicator. This prediction comes from the glove.”
 
-Story 1: integration connects sensing to a useful practice response and saved progress. Historical team observations report signs completed and corresponding Firebase progress. Confirm which shared contract, test, or coordination decision made this work; do not invent a team-process explanation.
+**Z.** “I’ll start an attempt, trace Z, and finish it. The phone recognizes the sequence.” Describe the actual outcome. Try one quick recovery if useful, then move on. I is the rehearsed spare held pose.
 
-Story 2: static poses do not represent whole-word motion. The team recorded real attempts, compared TCN/CNN-GRU/CNN-LSTM, selected a small TCN, and integrated complete-attempt inference. Hello/Please completion was reported in October. Update with final eight-word outcomes if delivered.
+**3.** “I’m curling the middle finger on purpose. Watch which finger lights up, then the dots move from bottom to center to top. That means straighten. I’ll correct the finger and show what the app does.”
 
-Story 3 is a draft slot for the final wearable integration. Explain the actual PCB/haptic/IMU outcome and why the approach worked once finished. If another collaboration or technical story is stronger, replace it. No improved reliability or learning result is established merely by completing a feature.
+**Hello and Please.** “For Hello I tap Start and Finish. After a match, the glove can replay a preset cue from left to center to right. Please uses a loop around the back of the hand.” Show Please if time permits and describe any output as observed.
 
-## 7. Three challenges and lessons
+**Progress.** “A green row and checkmark mean that lesson was saved.” Call out a change only if a new row turns green during the demo. Finish on Words and return to slide 8.
 
-Speakers: TBD · 70 seconds, about 23 seconds per story.
+## 8. Project successes
 
-1. The team reported thumb/index flex faults. Explain the actual symptoms, impact, replacement/calibration response, and the earlier checks we would use next time. Do not infer that every historical recording was faulty.
+**4:15–5:25 · 70 seconds.** Give each story about 20–23 seconds.
 
-2. Historical word data contain 15 attempts from the reported wearer. Timing and coverage matter: later audits found center trimming in 7/15 attempts. Explain one actual difficulty and the final response if it is evaluated; do not claim longer windows improved accuracy without results.
+**Saved practice progress.** “A prediction by itself gave the learner no record of their practice. We tied a match to the lesson they picked, so completion was visible and saved to the right place. During rehearsal we closed and reopened the app and could still see the completed signs.”
 
-3. Supply a concrete PCB/IMU/haptic or software handoff example from the team. The difficulty and proposed smaller integration steps are reflection candidates, not a proven explanation of delays. A challenge can be discussed even if it is solved before November 19.
+**Recognition for moving signs.** “We recorded whole attempts so the model could use the order of the motion. After rebuilding the glove, we collected more recordings and extended the input window. The updated word model accepted five of five matching recordings in offline replay. Hello, Please, and Yes also completed in the live check.”
 
-## 8. Final takeaway and questions
+**Haptic feedback.** “We wanted each buzz to tell the learner what to do. We used the flex readings to choose a bend or straighten cue and tested it on the glove with the number 3. For word practice, we built preset motion cues that play after a match on Hello or Please.”
 
-Speaker: TBD · 15 seconds.
+## 9. Challenges and lessons
 
-Close with the strongest supported final capability, its main limitation, and the lesson that represents the semester. Proposed theme: the learner experiences the whole sensing-feedback loop, so integration must be tested as a whole. Leave this slide visible for questions.
+**5:25–6:30 · 65 seconds.** Explain each problem, its impact, and what we’d do next.
 
-Draft: add the actual final outcome and limit; do not imply all targets or corrective haptics are already validated. Questions occur throughout the seven minutes, not in a separate assumed allowance.
+**Unreliable connections.** “The custom PCB broke and the conductive-thread assembly lost sensor readings as the glove moved. We suspected shorts and switched to discrete wires. Next time we’d check continuity while flexing the assembly and add strain relief before mounting it.”
 
-## Backup. Coverage: baseline and final targets
+**Damaged flex sensors.** “The thumb and index readings barely changed when the fingers bent, which made some attempts look wrong. The raw channels exposed the damaged sensors. We’d check each channel early, then recalibrate and repeat a few known signs after every hardware change.”
 
-Backup only · not part of the prepared 6:10.
+**Limits of the glove sensors.** “The flex strips measure finger bend, and the wrist sensor measures motion and rotation. Two signs can give similar readings even if the fingers cross or the hand starts closer to the face. Next time we’d test those cases before training and try camera tracking for the details the glove misses.”
 
-Use to explain the distinction between November 6 implementation and intended November 19 scope. Today all eight word pages exist, but only three words are trained. Update this table after final integration and evaluation. Do not present historical records as current repaired-glove evidence.
+## 10. Thank you and questions
 
-## Backup. Model and final measurement slots
+**6:30–6:45 · 15 seconds for the close and handoff.** Leave this slide up for the two-minute question period.
 
-Backup only · not part of the prepared 6:10.
+“Thank you. What questions do you have?”
 
-The historical TCN input is 96 samples at 40 Hz with 11 raw features, device-clock resampling, center trim/edge pad, and training-only standardization. No deployed magnetic features or orientation fusion. Historical size is 48,324 bytes, with 15 real attempts and a 9/3/3 whole-trial split. Three test trials are not evidence of generalization. Do not use desktop/emulator latency as intended-phone latency.
+## Backup 1. Original goals and final features
 
-Draft: fill final measurement slots only with recorded results and source links. An 80% confidence acceptance threshold is an implementation rule, not measured accuracy or a correctness probability calibration.
+**Question period.** The slide distinguishes the original scope from the build being shown. The original design proposed a mounted PCB, battery operation, broader word recognition, and general corrective feedback. The working app includes J/Z and the scoped haptic demos. The written reports describe the earlier release snapshot. Displayed lesson counts and recognition model labels describe different parts of the app.
+
+The demo uses the wired perfboard glove, USB power, a signed-in Android phone, Flutter app version 1.0.1+2 from the `gael` working copy, and the `piezo_demo` ESP32 environment. The review base was `c72ad4f` with local app changes. Record the actual running revision, phone/OS, and firmware during rehearsal. Current-device cloud readback, battery runtime, and broad wearer validation are open. The single glove has limited ability to distinguish finger spread or infer hand location relative to the body.
+
+The app also has developer tools for BLE diagnostics, recording and exporting labeled attempts, and manually testing the piezo outputs. These tools support setup and development. The learner demonstration uses Alphabet, Numbers, and Words.
+
+## Backup 2. Recognition and haptic test results
+
+**Question period.** Live counts came from one wearer and selected targets on the glove and app. Offline J/Z replay accepted two J and two Z attempts and rejected 36 unrelated recordings. Some were examined earlier in development. The word replay used five matching recordings and 25 wrong-target checks drawn from reused recordings. The design draft’s approximately 90% accuracy figure was a goal. The available trial counts describe the specific conditions shown.
+
+The Number 3 automatic cue has a live operator report. Hello and Please pulse order and cancellation were checked in Flutter with simulated responses. The operator described faint vibration in the separate manual output check. Phone latency and wearer interpretation of cues have yet to be measured. Firebase rules were updated for word completion IDs. The post-fix cloud readback has not been run.

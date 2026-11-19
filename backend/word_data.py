@@ -352,7 +352,8 @@ def _validate_text_fields(
                 trial_id=trial_id or None,
             )
 
-    if not _WORD_RE.fullmatch(word):
+    is_static_digit = vocabulary_version == "static-asl-v1" and len(word) == 1 and word in "0123456789"
+    if not (_WORD_RE.fullmatch(word) or is_static_digit):
         report.add(
             "error",
             "invalid_label",

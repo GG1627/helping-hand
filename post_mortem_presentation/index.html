@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Helping Hand post-mortem presentation, November 19, 2026. Working draft prepared November 6.">
-  <title>Helping Hand · Post-mortem · Draft 01</title>
+  <meta name="description" content="Helping Hand post-mortem presentation, November 19, 2026. Seven-minute presentation with separate question period.">
+  <title>Helping Hand · Post-mortem</title>
   <link rel="icon" href="assets/diagrams/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <script src="presentation.js" defer></script>
@@ -15,145 +15,298 @@
     <symbol id="icon-chip" viewBox="0 0 64 64"><rect x="17" y="17" width="30" height="30" rx="4"/><rect x="25" y="25" width="14" height="14" rx="2"/><path d="M24 7v10m16-10v10M24 47v10m16-10v10M7 24h10M7 40h10m30-16h10M47 40h10"/></symbol>
     <symbol id="icon-ble" viewBox="0 0 64 64"><path d="M20 17l27 28-14 12V7l14 12-27 28"/></symbol>
     <symbol id="icon-phone" viewBox="0 0 64 64"><rect x="17" y="5" width="30" height="54" rx="6"/><path d="M28 12h8m-5 39h2M24 32l6 6 12-15"/></symbol>
-    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 32 24"><path d="M2 12h27m-9-9 9 9-9 9"/></symbol>
   </defs></svg>
   <main id="stage" aria-label="Helping Hand post-mortem presentation">
     <div id="deck">
-      <section class="slide cover is-active" id="slide-1" aria-labelledby="title-1" data-title="Helping Hand: the need" data-seconds="25">
-        <span class="draft-tag">Draft 01 · Nov 6</span>
-        <div class="cover-orbit" aria-hidden="true"></div>
+      <section class="slide cover is-active" id="slide-1" aria-labelledby="title-1" data-title="Helping Hand" data-seconds="15">
+        <figure class="cover-visual">
+          <img class="cover-scene" src="assets/illustrations/cover-product-scene-knit.png" alt="Product visualization of the black knit Helping Hand glove with exposed sensors and wiring beside an Android phone.">
+          <div class="cover-display"><img src="assets/screenshots/home-nov19.png" alt="Helping Hand Home screen showing Alphabet practice and saved progress."></div>
+          <img class="cover-print-art" src="assets/illustrations/cover-art-print.png" alt="Product visualization of the black knit Helping Hand glove beside a phone showing the Android app’s Home screen.">
+        </figure>
         <div class="cover-copy">
           <p class="eyebrow">Post-mortem · November 19, 2026</p>
           <h1 class="wordmark" id="title-1">Helping<br>Hand</h1>
           <svg class="brand-trail" viewBox="0 0 280 35" aria-hidden="true"><path d="M3 17c65-31 163 26 231-4"/><circle cx="263" cy="13" r="8"/></svg>
-          <p class="cover-pitch">ASL practice.<br>Feedback from your own hand.</p>
-          <p class="need">A reference shows the sign.<br>Our goal is feedback on your attempt.</p>
+          <p class="cover-pitch">A glove and mobile app for practicing ASL with haptic feedback.</p>
           <div class="team"><span>Srinitha Srikanth</span><span>Brian Paz</span><span>Gael Garcia</span><span>Kali Schuchhardt</span></div>
         </div>
-        <figure class="cover-photo"><img src="assets/hardware/glove-beta-october.jpg" alt="October beta glove with finger flex sensors and perfboard-mounted electronics."><figcaption>October beta glove · final photo to replace</figcaption></figure>
-        <footer class="slide-footer"><span>Wearable-assisted ASL learning</span><b>01 / 08</b></footer>
-        <template class="slide-notes"><p>Speaker: TBD · 25 seconds.</p><p>We built Helping Hand to connect a learner's own signing attempt to feedback. Books and ordinary prerecorded references show a sign, but do not measure that learner's hand. Our glove and app aim to make practice more responsive. Introduce the team and transition to the system.</p><p>Draft: the photo shows the October beta glove, not the final PCB assembly. Replace it when available. We have not measured human learning improvement.</p></template>
+        <footer class="slide-footer"><b>01 / 10</b></footer>
+        <template class="slide-notes">
+          <p>0:00–0:15 · 15 seconds. Introduce the team and point to the glove and phone.</p>
+          <p>“Helping Hand is a glove and Android app for practicing American Sign Language with haptic feedback. We’ll show you what we built, how someone uses it, and what we learned.”</p>
+        </template>
       </section>
 
-      <section class="slide system" id="slide-2" aria-labelledby="title-2" data-title="From sensing to feedback" data-seconds="30">
-        <span class="draft-tag">Draft 01 · Nov 6</span>
-        <header><p class="eyebrow">The system</p><h2 id="title-2">Wear. Sign. <em>Get feedback.</em></h2><p class="subtitle">Finger bending and motion become a practice response.</p></header>
-        <div class="pipeline">
-          <div class="pipeline-step"><svg aria-hidden="true"><use href="#icon-hand"/></svg><h3>Sensor glove</h3><p>Five flex sensors<br>+ IMU readings</p></div>
-          <svg class="arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
-          <div class="pipeline-step"><svg aria-hidden="true"><use href="#icon-chip"/></svg><h3>ESP32</h3><p>Capture readings<br>+ static recognition</p></div>
-          <svg class="arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
-          <div class="pipeline-step"><svg aria-hidden="true"><use href="#icon-ble"/></svg><h3>Bluetooth LE</h3><p>Stream sensor<br>and prediction data</p></div>
-          <svg class="arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
-          <div class="pipeline-step"><svg aria-hidden="true"><use href="#icon-phone"/></svg><h3>Flutter app</h3><p>Word recognition<br>+ saved progress</p></div>
+      <section class="slide problem" id="slide-2" aria-labelledby="title-2" data-title="The problem" data-seconds="20">
+        <img class="problem-art" src="assets/illustrations/learning-problem.png" alt="Conceptual illustration of a learner comparing their hand position with a printed reference.">
+        <div class="problem-copy">
+          <h2 id="title-2">The problem</h2>
+          <p class="problem-stat"><strong>94 <small>of</small> 100</strong> hearing parents surveyed used self-teaching resources to learn ASL for their deaf child.</p>
+          <ul class="problem-points">
+            <li>Images and prerecorded videos give learners a sign to copy.</li>
+            <li>During solo practice, learners have to spot and correct their own handshape and movement errors.</li>
+          </ul>
         </div>
-        <div class="return-path" aria-label="Planned haptic feedback path, final trigger to confirm"><span>Haptic guidance · final integration pending</span></div>
-        <div class="system-bottom"><div><strong>Static poses → MLP on the glove</strong><p>Classify a held hand configuration.</p></div><div><strong>Motion sequences → TCN on the phone</strong><p>Classify a complete word attempt.</p></div></div>
-        <footer class="slide-footer"><span>Current recognition locations · dashed return path is planned</span><b>02 / 08</b></footer>
-        <template class="slide-notes"><p>Speaker: TBD · 30 seconds.</p><p>Flex sensors capture bending; the IMU captures motion. The ESP32 reads them and performs current static recognition. BLE carries packets to Flutter, where complete word attempts run through a TCN and the app saves progress. The intended final loop adds haptic guidance.</p><p>Draft: the dashed line is a conceptual planned return path, not an implemented app-to-glove command claim. Update the diagram to the actual haptic trigger source and final architecture.</p></template>
+        <footer class="slide-footer"><b>02 / 10</b><a href="https://sites.bu.edu/lavalab/files/2022/06/Lieberman-Mitchiner-Pontecorvo-2022.pdf" target="_blank" rel="noopener">Lieberman, Mitchiner &amp; Pontecorvo · §3.2.1</a></footer>
+        <template class="slide-notes">
+          <p>0:15–0:35 · 20 seconds. Connect the family motivation to the gap in solo practice.</p>
+          <p>“In a survey of 100 hearing parents learning ASL for their deaf child, 94 used books, videos, or apps to teach themselves. A recorded example gives you a sign to copy. When you practice alone, you still have to catch mistakes in your handshape or movement.”</p>
+        </template>
       </section>
 
-      <section class="slide hardware" id="slide-3" aria-labelledby="title-3" data-title="The final glove: draft layout" data-seconds="35">
-        <span class="draft-tag">Draft 01 · Nov 6</span>
-        <header><p class="eyebrow">Physical engineering</p><h2 id="title-3">A more integrated <em>glove.</em></h2><p class="subtitle">Final-build goals: PCB, new IMU, and feedback you can feel.</p></header>
+      <section class="slide system" id="slide-3" aria-labelledby="title-3" data-title="System architecture" data-seconds="25">
+        <header><p class="eyebrow">Our solution</p><h2 id="title-3">System architecture</h2></header>
+        <ol class="system-flow" role="list">
+          <li class="system-step">
+            <svg class="system-icon" aria-hidden="true"><use href="#icon-hand"/></svg>
+            <svg class="system-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+            <h3>Glove sensors</h3>
+            <p>Measure finger bend and hand motion.</p>
+          </li>
+          <li class="system-step">
+            <svg class="system-icon" aria-hidden="true"><use href="#icon-chip"/></svg>
+            <svg class="system-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+            <h3>ESP32</h3>
+            <p>Reads the sensors and recognizes held signs.</p>
+          </li>
+          <li class="system-step">
+            <svg class="system-icon" aria-hidden="true"><use href="#icon-ble"/></svg>
+            <svg class="system-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+            <h3>Bluetooth LE</h3>
+            <p>Carries sensor readings and predictions to the phone.</p>
+          </li>
+          <li class="system-step">
+            <svg class="system-icon" aria-hidden="true"><use href="#icon-phone"/></svg>
+            <h3>Android app</h3>
+            <p>Recognizes moving signs, shows results, and saves progress.</p>
+          </li>
+        </ol>
+        <div class="system-return">
+          <p>During the demo, the app sends haptic commands back to the glove.</p>
+        </div>
+        <footer class="slide-footer"><b>03 / 10</b></footer>
+        <template class="slide-notes">
+          <p>0:35–1:00 · 25 seconds. Point from left to right, then follow the return arrow.</p>
+          <p>“The flex strips measure finger bend, and the motion sensor measures how the hand moves. The ESP32 recognizes signs you hold steady. Bluetooth sends its predictions and sensor readings to the Android app. The app recognizes moving signs, shows the result, and saves progress. During the demo, it also sends haptic commands back to the glove.”</p>
+        </template>
+      </section>
+
+      <section class="slide recognition" id="slide-4" aria-labelledby="title-4" data-title="How we recognize signs" data-seconds="25">
+        <h2 id="title-4">How we recognize signs</h2>
+        <div class="recognition-layout">
+          <article class="recognition-panel">
+            <header><h3>Static signs</h3><span>Example · G</span></header>
+            <figure class="model-input">
+              <svg viewBox="0 0 440 96" role="img" aria-label="Illustrative snapshot of five finger bend readings.">
+                <path class="input-guide" d="M16 82H424"/>
+                <path class="input-bars" d="M66 76V42 M143 76V23 M220 76V55 M297 76V64 M374 76V59"/>
+              </svg>
+              <figcaption>One set of finger-bend readings</figcaption>
+            </figure>
+            <div class="recognition-model">
+              <strong>Multilayer perceptron (MLP)</strong>
+              <p>On the ESP32 · 24 letters and 10 digits</p>
+            </div>
+          </article>
+          <article class="recognition-panel recognition-motion">
+            <header><h3>Motion over time</h3><span>Example · Z</span></header>
+            <figure class="model-input">
+              <svg viewBox="0 0 440 96" role="img" aria-label="Illustrative sensor readings that change over the duration of an attempt.">
+                <path class="input-guide" d="M16 82H424 M413 74l11 8-11 8"/>
+                <path class="input-trace" d="M26 60L76 54 122 28 173 42 227 65 275 43 325 22 369 48 414 56"/>
+              </svg>
+              <figcaption>A sequence of sensor readings</figcaption>
+            </figure>
+            <div class="recognition-model">
+              <strong>Temporal convolutional networks (TCNs)</strong>
+              <p>On the phone · one for J/Z, one for words</p>
+            </div>
+          </article>
+        </div>
+        <footer class="slide-footer"><span>Illustrative sensor inputs</span><b>04 / 10</b></footer>
+        <template class="slide-notes">
+          <p>1:00–1:25 · 25 seconds. Point to the five bars, then follow the trace on the right.</p>
+          <p>“For G, we can look at one set of finger-bend readings. The glove’s multilayer perceptron classifies that handshape. For Z, the order of the motion matters. A temporal convolutional network looks for patterns across successive readings. The phone runs one for J and Z and another for Hello, Please, and Yes.”</p>
+        </template>
+      </section>
+
+      <section class="slide hardware" id="slide-5" aria-labelledby="title-5" data-title="Glove hardware" data-seconds="25">
+        <header><p class="eyebrow">Final build</p><h2 id="title-5">Glove hardware</h2></header>
         <div class="hardware-layout">
-          <div class="hardware-images"><figure class="glove"><img src="assets/hardware/glove-beta-october.jpg" alt="Historical October glove before final assembly."><figcaption>October glove</figcaption></figure><figure class="board"><img src="assets/hardware/circuit-beta-october.jpg" alt="October perfboard and ESP32 connections; not a fabricated custom PCB."><figcaption>October perfboard</figcaption></figure></div>
+          <div class="hardware-images">
+            <figure class="glove"><img src="assets/hardware/glove-final.jpg" alt="The final glove, with all five flex sensors, the piezo discs, wires, and cuff-mounted perfboard visible."><figcaption>Wired perfboard glove</figcaption></figure>
+            <figure class="board"><img src="assets/hardware/pcb-prototype.jpg" alt="Component side of the custom printed circuit board from an earlier hardware iteration."><figcaption>Earlier custom PCB</figcaption></figure>
+          </div>
           <div class="hardware-details">
-            <article><h3>A board made for the glove</h3><p>Custom PCB and final mounting.<br><span class="status pending">Assembly photo pending</span></p></article>
-            <article><h3>A new view of motion</h3><p>ICM-20948 accelerometer, gyro, magnetometer.<br><span class="status pending">On-glove results pending</span></p></article>
-            <article><h3>Guidance at the hand</h3><p>Planned: five finger + five dorsal piezos.<br><span class="status pending">Final cue behavior pending</span></p></article>
+            <article><h3>5 flex sensors + 9-axis IMU (ICM-20948)</h3><p>Finger bend, acceleration, and rotation feed recognition.</p></article>
+            <article><h3>10 piezoelectric buzzers</h3><p>Five by the fingers and five in a plus on the back of the hand.</p></article>
+            <article><h3>Cuff-mounted ESP32</h3><p>Perfboard with individual wires.</p></article>
+            <aside class="hardware-revision" aria-labelledby="hardware-revision-title">
+              <h3 id="hardware-revision-title">Why the wiring is visible</h3>
+              <p>An earlier prototype hid the connections with multiple fabric layers and conductive thread. When sensor readings failed, we switched to individual wires for today’s demo.</p>
+            </aside>
           </div>
         </div>
-        <div class="hardware-slot"><strong>Final assembly + PCB close-up</strong><span>Photo spaces reserved for the November build</span></div>
-        <footer class="slide-footer"><span>Photos are historical · final build remains in development</span><b>03 / 08</b></footer>
-        <template class="slide-notes"><p>Speaker: TBD · 35 seconds.</p><p>Use this slide to explain the finished physical design once available: why the PCB matters, how the new IMU is mounted, and what the piezos communicate. Focus on two or three decisions and their actual outcomes. These October photographs reserve the layout; they do not show the final PCB or new IMU assembly.</p><p>Draft: replace photos, pending labels, and goals with the actual final construction and observed behavior. Receiving an IMU does not establish orientation-fusion benefits; piezo control alone does not establish useful tactile guidance.</p></template>
+        <footer class="slide-footer"><span>Demonstration power · laptop USB</span><b>05 / 10</b></footer>
+        <template class="slide-notes">
+          <p>1:25–1:50 · 25 seconds. Point to the actual glove, the earlier PCB, and the wiring callout.</p>
+          <p>“The demo glove has five flex sensors, a motion sensor, ten piezo buzzers, and a cuff-mounted ESP32. We tried a custom PCB and later hid the connections with conductive thread. When sensor readings dropped out, we switched to individual wires on perfboard. We’re powering it over USB today.”</p>
+        </template>
       </section>
 
-      <section class="slide practice" id="slide-4" aria-labelledby="title-4" data-title="What the learner can practice" data-seconds="35">
-        <span class="draft-tag">Draft 01 · Nov 6</span>
-        <header><p class="eyebrow">The learner experience</p><h2 id="title-4">One place to <em>practice.</em></h2></header>
-        <div class="practice-layout">
-          <div><div class="app-screens"><figure><img src="assets/screenshots/beta-home.png" alt="October beta Helping Hand Home screen."><figcaption>Choose</figcaption></figure><figure><img src="assets/screenshots/beta-static-practice.png" alt="October letter B practice screen in a disconnected state."><figcaption>Practice</figcaption></figure><figure><img src="assets/screenshots/beta-words.png" alt="October word-selection screen with the eight starter words."><figcaption>Explore words</figcaption></figure></div><p class="screen-note">October UI references · practice screen is disconnected.<br>Replace with final connected-practice and completion screens.</p></div>
-          <div class="coverage">
-            <p class="coverage-label">November 19 recognition target</p>
-            <div class="coverage-top"><strong>26<span>letters</span></strong><strong>10<span>digits</span></strong><strong>8<span>words</span></strong></div>
-            <ul class="word-list" aria-label="Intended final word vocabulary"><li>Hello <small>trained</small></li><li>Thank You</li><li>Please <small>trained</small></li><li>Sorry</li><li>Yes <small>trained</small></li><li>No</li><li>Eat</li><li>Drink</li></ul>
-            <p class="draft-note">Current: 34 static classes + 3 trained words.<br>Eight-word expansion and motion letters J/Z pending.</p>
+      <section class="slide practice" id="slide-6" aria-labelledby="title-6" data-title="Android app" data-seconds="25">
+        <h2 id="title-6">Android app</h2>
+        <div class="app-screens">
+          <figure><img src="assets/screenshots/sign-in-cleared.png" alt="Welcome back sign-in screen with blank email and password fields."><figcaption>Sign in</figcaption></figure>
+          <figure><img src="assets/screenshots/home-nov19.png" alt="Home dashboard with Alphabet practice, progress, and learning paths."><figcaption>Home and progress</figcaption></figure>
+          <figure><img src="assets/screenshots/alphabet-nov19.png" alt="Alphabet lesson picker showing completed letters with checkmarks."><figcaption>Alphabet lessons</figcaption></figure>
+          <figure><img src="assets/screenshots/letter-a-nov19.png" alt="Letter A screen showing the 3D target handshape and hold progress, captured with the glove disconnected."><figcaption>3D sign reference</figcaption></figure>
+          <figure><img src="assets/screenshots/words-progress-nov19.png" alt="Words screen with Hello, Please, and Yes marked Learned with green rows and checkmarks."><figcaption>Saved word lessons</figcaption></figure>
+        </div>
+        <footer class="slide-footer"><span>App captures · November 19</span><b>06 / 10</b></footer>
+        <template class="slide-notes">
+          <p>1:50–2:15 · 25 seconds. Move across the screenshots from sign-in to saved lessons.</p>
+          <p>“After signing in, Home shows your progress. Pick a letter, number, or word. The lesson shows the target sign, and the app saves your completed lessons. Eight word lessons are listed, and the recognizer supports three. Let’s try it with the glove.”</p>
+        </template>
+      </section>
+
+      <section class="slide live" id="slide-7" aria-labelledby="title-7" data-title="Live ASL practice demo" data-seconds="120">
+        <div class="live-circles" aria-hidden="true"></div><span class="live-dot" aria-hidden="true"></span><svg class="live-mark" aria-hidden="true"><use href="#icon-hand"/></svg>
+        <p class="eyebrow">Glove and Android app</p><h2 id="title-7">Live ASL<br><em>practice demo</em></h2>
+        <ol class="live-steps">
+          <li><b>G</b><span>Hold a pose</span></li>
+          <li><b>Z</b><span>Trace a motion</span></li>
+          <li><b>3</b><span>Correct a finger position</span></li>
+          <li><b>Hello / Please</b><span>Match a word</span></li>
+        </ol>
+        <p class="live-footnote"></p>
+        <footer class="slide-footer"><b>07 / 10</b></footer>
+        <template class="slide-notes">
+          <p>2:15–4:15 · 120 seconds. Use the projected phone. Start signed in, connected, and in Developer Mode. The run sheet gives the individual time limits and recovery actions.</p>
+          <p>G. “I’ll hold G steady. Watch for the match and hold indicator. This prediction comes from the glove.”</p>
+          <p>Z. “I’ll start an attempt, trace Z, and finish it. The phone recognizes the sequence.” Describe the actual outcome. Try one quick recovery if useful, then move on. I is the rehearsed spare held pose.</p>
+          <p>3. “I’m curling the middle finger on purpose. Watch which finger lights up, then the dots move from bottom to center to top. That means straighten. I’ll correct the finger and show what the app does.”</p>
+          <p>Hello and Please. “For Hello I tap Start and Finish. After a match, the glove can replay a preset cue from left to center to right. Please uses a loop around the back of the hand.” Show Please if time permits and describe any output as observed.</p>
+          <p>Progress. “A green row and checkmark mean that lesson was saved.” Call out a change only if a new row turns green during the demo. Finish on Words and return to slide 8.</p>
+        </template>
+      </section>
+
+      <section class="slide successes" id="slide-8" aria-labelledby="title-8" data-title="Project successes" data-seconds="70">
+        <header><p class="eyebrow">Post-mortem</p><h2 id="title-8">Project successes</h2></header>
+        <div class="success-stories">
+          <article>
+            <h3>Saved practice progress</h3>
+            <p>Matching a sign completes the lesson. Progress is still there when you reopen the app.</p>
+          </article>
+          <article>
+            <h3>Recognition for moving signs</h3>
+            <p>The app uses the full motion to recognize a sign. Hello, Please, and Yes matched in live practice.</p>
+          </article>
+          <article>
+            <h3>Haptic feedback</h3>
+            <p>Finger pulses cue you to bend or straighten. Preset motion cues show how to move for word practice.</p>
+          </article>
+        </div>
+        <footer class="slide-footer"><span></span><b>08 / 10</b></footer>
+        <template class="slide-notes">
+          <p>4:15–5:25 · 70 seconds. Give each story about 20–23 seconds.</p>
+          <p>Saved practice progress. “A prediction by itself gave the learner no record of their practice. We tied a match to the lesson they picked, so completion was visible and saved to the right place. During rehearsal we closed and reopened the app and could still see the completed signs.”</p>
+          <p>Recognition for moving signs. “We recorded whole attempts so the model could use the order of the motion. After rebuilding the glove, we collected more recordings and extended the input window. The updated word model accepted five of five matching recordings in offline replay. Hello, Please, and Yes also completed in the live check.”</p>
+          <p>Haptic feedback. “We wanted each buzz to tell the learner what to do. We used the flex readings to choose a bend or straighten cue and tested it on the glove with the number 3. For word practice, we built preset motion cues that play after a match on Hello or Please.”</p>
+        </template>
+      </section>
+
+      <section class="slide challenges" id="slide-9" aria-labelledby="title-9" data-title="Challenges and lessons" data-seconds="65">
+        <header><p class="eyebrow">Post-mortem</p><h2 id="title-9">Challenges and lessons</h2></header>
+        <div class="challenge-head"><span>What happened</span><span>What we’d do next</span></div>
+        <article class="challenge-row">
+          <div>
+            <h3>Unreliable connections</h3>
+            <p>The PCB broke, and conductive thread lost sensor readings.</p>
           </div>
+          <p class="lesson">Test the wiring while flexing the glove.</p>
+        </article>
+        <article class="challenge-row">
+          <div>
+            <h3>Damaged flex sensors</h3>
+            <p>Thumb and index readings barely changed when the fingers bent.</p>
+          </div>
+          <p class="lesson">Check each sensor before calibration.</p>
+        </article>
+        <article class="challenge-row">
+          <div>
+            <h3>Limits of the glove sensors</h3>
+            <p>The glove can’t measure exact finger positions relative to each other or hand location relative to the body.</p>
+          </div>
+          <p class="lesson">Test sensing limits before training. Try camera tracking.</p>
+        </article>
+        <footer class="slide-footer"><span></span><b>09 / 10</b></footer>
+        <template class="slide-notes">
+          <p>5:25–6:30 · 65 seconds. Explain each problem, its impact, and what we’d do next.</p>
+          <p>Unreliable connections. “The custom PCB broke and the conductive-thread assembly lost sensor readings as the glove moved. We suspected shorts and switched to discrete wires. Next time we’d check continuity while flexing the assembly and add strain relief before mounting it.”</p>
+          <p>Damaged flex sensors. “The thumb and index readings barely changed when the fingers bent, which made some attempts look wrong. The raw channels exposed the damaged sensors. We’d check each channel early, then recalibrate and repeat a few known signs after every hardware change.”</p>
+          <p>Limits of the glove sensors. “The flex strips measure finger bend, and the wrist sensor measures motion and rotation. Two signs can give similar readings even if the fingers cross or the hand starts closer to the face. Next time we’d test those cases before training and try camera tracking for the details the glove misses.”</p>
+        </template>
+      </section>
+
+      <section class="slide closing" id="slide-10" aria-labelledby="title-10" data-title="Thank you and questions" data-seconds="15">
+        <svg class="closing-trail" viewBox="0 0 1600 900" aria-hidden="true"><path d="M-100 820C250 350 650 1090 1050 640S1440 235 1730 390"/><circle cx="1050" cy="640" r="15"/></svg>
+        <div class="closing-copy">
+          <p class="wordmark">Helping Hand</p>
+          <h2 id="title-10">Thank you.<br><em>Questions?</em></h2>
         </div>
-        <div class="practice-footer"><p><strong>Practice loop</strong><br><span>Select → attempt → feedback → save</span></p><p><strong>Final measurements</strong><br><span>[Add fresh results, trial scope, and phone latency]</span></p></div>
-        <footer class="slide-footer"><span>Targets are goals · “trained” identifies the current three-word bundle</span><b>04 / 08</b></footer>
-        <template class="slide-notes"><p>Speaker: TBD · 35 seconds.</p><p>The learner chooses a target, practices, receives feedback, and saves completion. Our intended final coverage is A-Z, 0-9, and Hello, Thank You, Please, Sorry, Yes, No, Eat, Drink. A pose is a held configuration; a sequence includes how it changes over time.</p><p>Draft: only Hello/Please/Yes are currently trained. The recorded static model has 34 classes excluding J/Z. Update supported coverage, model explanation, results with scope, and current screenshots after development. The third image is a word picker, not evidence that a new word was completed. Do not describe 80% confidence as 80% measured accuracy.</p></template>
+        <footer class="slide-footer"><span>November 19, 2026</span><b>10 / 10</b></footer>
+        <template class="slide-notes">
+          <p>6:30–6:45 · 15 seconds for the close and handoff. Leave this slide up for the two-minute question period.</p>
+          <p>“Thank you. What questions do you have?”</p>
+        </template>
       </section>
 
-      <section class="slide live" id="slide-5" aria-labelledby="title-5" data-title="Live learner demonstration" data-seconds="90">
-        <span class="draft-tag">Draft run sheet</span><div class="live-circles" aria-hidden="true"></div><span class="live-dot" aria-hidden="true"></span><svg class="live-mark" aria-hidden="true"><use href="#icon-hand"/></svg>
-        <p class="eyebrow">Helping Hand in action</p><h2 id="title-5">Try it.<br><em>Feel it.</em><br>Learn the sign.</h2>
-        <div class="live-route"><span>Sign</span><svg aria-hidden="true"><use href="#icon-arrow"/></svg><span>Feedback</span><svg aria-hidden="true"><use href="#icon-arrow"/></svg><span>Progress</span></div>
-        <p class="live-footnote">Live glove + phone · 90 seconds<br>Final targets and haptic sequence to rehearse.</p>
-        <footer class="slide-footer"><span>Live use · show the actual response and outcome</span><b>05 / 08</b></footer>
-        <template class="slide-notes"><p>Wearer: TBD · Phone operator: TBD · Narrator: TBD · 90 seconds.</p><p>0-10 seconds: show the worn glove and prepared target. 10-40: attempt a rehearsed static sign, show actual feedback, adjust, and complete if supported. 40-70: perform a complete word and show the real prediction. 70-90: show saved completion; include a short extra target only if timing permits.</p><p>Draft: use the real final haptic meaning. If it only indicates success/error, explain that. Do not guarantee a successful recognition. If a step fails, describe the observed failure, try a short recovery, and continue showing available live use. Login, BLE connection, projection, and props should be prepared beforehand. The slide does not establish measured learning improvement.</p></template>
+      <section class="slide backup" id="backup-1" data-backup aria-labelledby="backup-title-1" data-title="Original goals and final features" data-seconds="0">
+        <header><p class="eyebrow">Backup</p><h2 id="backup-title-1">Original goals and final features</h2></header>
+        <table class="backup-table">
+          <thead><tr><th>Area</th><th>Original goal</th><th>Presentation build</th></tr></thead>
+          <tbody>
+            <tr><td>Wearable</td><td>Mounted PCB and battery power</td><td>Wired perfboard, calibrated ICM-20948, and USB power</td></tr>
+            <tr><td>Recognition</td><td>A–Z, 0–9, and eight words</td><td>34 held poses plus J/Z motion. Eight lessons, three words in the bundle.</td></tr>
+            <tr><td>Feedback</td><td>Corrective guidance during practice</td><td>On-screen matching and saved progress. Developer Mode adds a finger cue for 3 and preset playback for Hello and Please.</td></tr>
+            <tr><td>Validation</td><td>Practice and recognition testing</td><td>Selected live and offline checks. Multi-wearer accuracy, tactile interpretation, and battery runtime remain open.</td></tr>
+          </tbody>
+        </table>
+        <footer class="slide-footer"><span>Original design, release reports, and November 19 demo handoff</span><b>Backup 01</b></footer>
+        <template class="slide-notes">
+          <p>Question period. The slide distinguishes the original scope from the build being shown. The original design proposed a mounted PCB, battery operation, broader word recognition, and general corrective feedback. The working app includes J/Z and the scoped haptic demos. The written reports describe the earlier release snapshot. Displayed lesson counts and recognition model labels describe different parts of the app.</p>
+          <p>The demo uses the wired perfboard glove, USB power, a signed-in Android phone, Flutter app version 1.0.1+2 from the gael working copy, and the piezo_demo ESP32 environment. The review base was c72ad4f with local app changes. Record the actual running revision, phone/OS, and firmware during rehearsal. Current-device cloud readback, battery runtime, and broad wearer validation are open. The single glove has limited ability to distinguish finger spread or infer hand location relative to the body.</p>
+          <p>The app also has developer tools for BLE diagnostics, recording and exporting labeled attempts, and manually testing the piezo outputs. These tools support setup and development. The learner demonstration uses Alphabet, Numbers, and Words.</p>
+        </template>
       </section>
 
-      <section class="slide successes" id="slide-6" aria-labelledby="title-6" data-title="Three successes: candidate stories" data-seconds="70">
-        <span class="draft-tag">Stories to confirm</span><header><p class="eyebrow">What went well</p><h2 id="title-6">Three pieces that <em>came together.</em></h2></header>
-        <div class="success-grid">
-          <article class="success-story"><p class="story-number">01</p><h3>A connected<br>practice loop</h3><dl class="story-detail"><dt>Challenge</dt><dd>Make sensor data useful to a learner.</dd><dt>Approach</dt><dd>Connect BLE, feedback, and saved progress.</dd><dt>Outcome</dt><dd>Historical live practice and saved completion reported.</dd></dl><span class="status">October team observation</span></article>
-          <article class="success-story"><p class="story-number">02</p><h3>From poses<br>to motion</h3><dl class="story-detail"><dt>Challenge</dt><dd>A word changes over time.</dd><dt>Approach</dt><dd>Record attempts, compare models, integrate a TCN.</dd><dt>Outcome</dt><dd>Three-word inference and completion integrated.</dd></dl><span class="status">Software + historical demo</span></article>
-          <article class="success-story"><p class="story-number">03</p><h3>A more integrated<br>wearable</h3><dl class="story-detail"><dt>Challenge</dt><dd>Bring electronics and feedback onto the glove.</dd><dt>Approach</dt><dd>PCB, mounting, IMU, and haptic integration.</dd><dt>Outcome</dt><dd>[Add final build outcome and why it worked]</dd></dl><span class="status pending">Candidate · final build pending</span></article>
-        </div>
-        <p class="draft-note reflection-note">Confirm three distinct stories and the team's explanation of why each approach worked.</p>
-        <footer class="slide-footer"><span>Challenge → approach → outcome · draft candidates</span><b>06 / 08</b></footer>
-        <template class="slide-notes"><p>Speakers: TBD · 70 seconds, about 23 seconds per story.</p><p>Story 1: integration connects sensing to a useful practice response and saved progress. Historical team observations report signs completed and corresponding Firebase progress. Confirm which shared contract, test, or coordination decision made this work; do not invent a team-process explanation.</p><p>Story 2: static poses do not represent whole-word motion. The team recorded real attempts, compared TCN/CNN-GRU/CNN-LSTM, selected a small TCN, and integrated complete-attempt inference. Hello/Please completion was reported in October. Update with final eight-word outcomes if delivered.</p><p>Story 3 is a draft slot for the final wearable integration. Explain the actual PCB/haptic/IMU outcome and why the approach worked once finished. If another collaboration or technical story is stronger, replace it. No improved reliability or learning result is established merely by completing a feature.</p></template>
-      </section>
-
-      <section class="slide challenges" id="slide-7" aria-labelledby="title-7" data-title="Three challenges and lessons" data-seconds="70">
-        <span class="draft-tag">Team reflection draft</span><header><p class="eyebrow">What we would change</p><h2 id="title-7">The hard parts. <em>The lessons.</em></h2></header>
-        <div class="challenge-head"><span>Difficulty + impact</span><span>What we would do differently</span></div>
-        <article class="challenge-row"><div><span class="row-number">01</span><h3>Sensor faults + calibration</h3><p>Bad readings complicate recognition<br>and make old results harder to reuse.</p></div><p class="lesson">Check signals early and often.<span>Track mounting, calibration, and changes.</span></p></article>
-        <article class="challenge-row"><div><span class="row-number">02</span><h3>Learning motion from limited data</h3><p>Few trials, similar signs, and variable timing<br>limit what a model result can establish.</p></div><p class="lesson">Plan data coverage with the features.<span>Use fresh attempts and include failure cases.</span></p></article>
-        <article class="challenge-row"><div><span class="row-number">03</span><h3>Physical + software dependencies</h3><p>Changes to the glove affect the full loop.<br>[Add one concrete team example]</p></div><p class="lesson">Integrate smaller pieces sooner.<span>Agree interfaces and leave time for live use.</span></p></article>
-        <p class="draft-note reflection-note">Add what actually happened, why it was difficult, and how the team responded.</p>
-        <footer class="slide-footer"><span>Difficulty → impact → future improvement · lessons to confirm with the team</span><b>07 / 08</b></footer>
-        <template class="slide-notes"><p>Speakers: TBD · 70 seconds, about 23 seconds per story.</p><p>1. The team reported thumb/index flex faults. Explain the actual symptoms, impact, replacement/calibration response, and the earlier checks we would use next time. Do not infer that every historical recording was faulty.</p><p>2. Historical word data contain 15 attempts from the reported wearer. Timing and coverage matter: later audits found center trimming in 7/15 attempts. Explain one actual difficulty and the final response if it is evaluated; do not claim longer windows improved accuracy without results.</p><p>3. Supply a concrete PCB/IMU/haptic or software handoff example from the team. The difficulty and proposed smaller integration steps are reflection candidates, not a proven explanation of delays. A challenge can be discussed even if it is solved before November 19.</p></template>
-      </section>
-
-      <section class="slide closing" id="slide-8" aria-labelledby="title-8" data-title="Final takeaway and questions" data-seconds="15">
-        <span class="draft-tag">Draft 01 · Nov 6</span><p class="wordmark">Helping Hand</p>
-        <svg class="closing-wave" viewBox="0 0 820 310" aria-hidden="true"><path d="M-40 250C170-30 360 410 540 175S730 10 870 100"/><circle cx="540" cy="175" r="13"/></svg>
-        <h2 id="title-8">Bring the feedback<br><em>to the learner.</em></h2><p class="closing-lead">The glove, recognition, and app are one experience.</p>
-        <div class="closing-bottom"><strong>Questions?</strong><span>Working takeaway: test the whole loop.<br>[Add final demonstrated outcome + remaining limit]</span></div>
-        <footer class="slide-footer"><span>November 19, 2026 · project outcome to update after final rehearsal</span><b>08 / 08</b></footer>
-        <template class="slide-notes"><p>Speaker: TBD · 15 seconds.</p><p>Close with the strongest supported final capability, its main limitation, and the lesson that represents the semester. Proposed theme: the learner experiences the whole sensing-feedback loop, so integration must be tested as a whole. Leave this slide visible for questions.</p><p>Draft: add the actual final outcome and limit; do not imply all targets or corrective haptics are already validated. Questions occur throughout the seven minutes, not in a separate assumed allowance.</p></template>
-      </section>
-
-      <section class="slide backup" id="backup-1" data-backup aria-labelledby="backup-title-1" data-title="Coverage: baseline and final targets" data-seconds="0">
-        <span class="draft-tag">Backup · Nov 6 snapshot</span><header><p class="eyebrow">Coverage and scope</p><h2 id="backup-title-1">Today's baseline. <em>November's target.</em></h2></header>
-        <table class="backup-table"><thead><tr><th>Area</th><th>Documented baseline</th><th>Intended final coverage</th></tr></thead><tbody>
-          <tr><td>Letters + numbers</td><td>34 recorded static classes<small>J/Z excluded; legacy 36-class baseline retained.</small></td><td>A-Z and 0-9<small>Add actual motion-letter path and per-sign results.</small></td></tr>
-          <tr><td>Words</td><td>Hello, Please, Yes<small>TCN; explicit Start attempt / Finish sign.</small></td><td>Eight app words<small>Hello, Thank You, Please, Sorry, Yes, No, Eat, Drink.</small></td></tr>
-          <tr><td>Wearable</td><td>New parts received; software support prepared<small>Repaired assembly validation unconfirmed.</small></td><td>Mounted PCB + ICM-20948 + haptics<small>Add final photos and observed feedback behavior.</small></td></tr>
-        </tbody></table><p class="backup-note">Scope every final claim to the tested wearer, configuration, targets, and conditions. A supported label list is not a per-class accuracy result.</p>
-        <footer class="slide-footer"><span>Source: current glove/model handoff · refresh before presentation</span><b>Backup 01</b></footer>
-        <template class="slide-notes"><p>Backup only · not part of the prepared 6:10.</p><p>Use to explain the distinction between November 6 implementation and intended November 19 scope. Today all eight word pages exist, but only three words are trained. Update this table after final integration and evaluation. Do not present historical records as current repaired-glove evidence.</p></template>
-      </section>
-
-      <section class="slide backup" id="backup-2" data-backup aria-labelledby="backup-title-2" data-title="Model and final measurement slots" data-seconds="0">
-        <span class="draft-tag">Backup · results pending</span><header><p class="eyebrow">Technical questions</p><h2 id="backup-title-2">Recognition needs <em>context.</em></h2><p class="subtitle">Final evaluation fields · keep the wearer and whole-attempt scope visible.</p></header>
-        <div class="metric-slots"><div class="metric-slot"><h3>Coverage + trials</h3><p>[Targets, attempts, wearer,<br>split, configuration]</p></div><div class="metric-slot"><h3>Recognition + failures</h3><p>[Per-sign completion,<br>false completions, F1]</p></div><div class="metric-slot"><h3>Deployment</h3><p>[Model bytes, phone latency,<br>delivered packet rate]</p></div></div>
-        <div class="baseline-strip"><div><strong>96 × 11</strong><span>Current word input<br>40 Hz · five flex + six motion channels</span></div><div><strong>3-word TCN</strong><span>Current packaged model<br>48,324-byte historical export</span></div><div><strong>15 real attempts</strong><span>Historical 9 / 3 / 3 whole-trial split<br>Small reported-wearer dataset</span></div></div>
-        <p class="backup-note">Historical reserved test: 3/3 correct, macro F1 1.00. This tiny offline result does not establish general accuracy; after further tuning, old attempts are development/regression evidence.</p>
-        <p class="draft-note">Fresh assembled-glove recognition and intended-phone latency: Not run in the current record.<br>Update this slide for the final model rather than inheriting old results.</p>
-        <footer class="slide-footer"><span>Sources: training record + November 6 handoff · no new measurements in this draft</span><b>Backup 02</b></footer>
-        <template class="slide-notes"><p>Backup only · not part of the prepared 6:10.</p><p>The historical TCN input is 96 samples at 40 Hz with 11 raw features, device-clock resampling, center trim/edge pad, and training-only standardization. No deployed magnetic features or orientation fusion. Historical size is 48,324 bytes, with 15 real attempts and a 9/3/3 whole-trial split. Three test trials are not evidence of generalization. Do not use desktop/emulator latency as intended-phone latency.</p><p>Draft: fill final measurement slots only with recorded results and source links. An 80% confidence acceptance threshold is an implementation rule, not measured accuracy or a correctness probability calibration.</p></template>
+      <section class="slide backup" id="backup-2" data-backup aria-labelledby="backup-title-2" data-title="Recognition and haptic test results" data-seconds="0">
+        <header><p class="eyebrow">Backup</p><h2 id="backup-title-2">Recognition and haptic test results</h2></header>
+        <table class="backup-table">
+          <thead><tr><th>Check</th><th>Observed result</th><th>Scope</th></tr></thead>
+          <tbody>
+            <tr><td>Live practice</td><td>G, I, 1, Hello, Please, Yes · 3/3 each<br>K, X · 1/3 each</td><td>One wearer, three attempts per target</td></tr>
+            <tr><td>J/Z replay</td><td>4/4 matches accepted<br>0/36 unrelated recordings accepted</td><td>Offline, with some recordings seen during development</td></tr>
+            <tr><td>Word replay</td><td>5/5 matches accepted<br>0/25 wrong-target checks accepted</td><td>Offline, with recordings reused across wrong targets</td></tr>
+            <tr><td>Haptics</td><td>Manual outputs matched app dots. The automatic 3 demo worked on the glove.</td><td>Hello and Please cue order checked in software with simulated responses</td></tr>
+          </tbody>
+        </table>
+        <footer class="slide-footer"><span>Selected trials · November 18–19</span><b>Backup 02</b></footer>
+        <template class="slide-notes">
+          <p>Question period. Live counts came from one wearer and selected targets on the glove and app. Offline J/Z replay accepted two J and two Z attempts and rejected 36 unrelated recordings. Some were examined earlier in development. The word replay used five matching recordings and 25 wrong-target checks drawn from reused recordings. The design draft’s approximately 90% accuracy figure was a goal. The available trial counts describe the specific conditions shown.</p>
+          <p>The Number 3 automatic cue has a live operator report. Hello and Please pulse order and cancellation were checked in Flutter with simulated responses. The operator described faint vibration in the separate manual output check. Phone latency and wearer interpretation of cues have yet to be measured. Firebase rules were updated for word completion IDs. The post-fix cloud readback has not been run.</p>
+        </template>
       </section>
     </div>
   </main>
-  <div id="slide-progress" role="progressbar" aria-label="Slide progress" aria-valuemin="1" aria-valuemax="8" aria-valuenow="1"><span></span></div>
-  <dialog id="overview-dialog" aria-labelledby="overview-title"><div class="dialog-heading"><h2 id="overview-title">Slide overview</h2><button class="close-dialog" aria-label="Close overview">×</button></div><p class="overview-group">Main deck · 6 minutes 10 seconds</p><div class="overview-grid" id="overview-main"></div><p class="overview-group">Backup · outside the timed flow</p><div class="overview-grid" id="overview-backup"></div></dialog>
+  <div id="slide-progress" role="progressbar" aria-label="Slide progress" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1"><span></span></div>
+  <dialog id="overview-dialog" aria-labelledby="overview-title"><div class="dialog-heading"><h2 id="overview-title">Slide overview</h2><button class="close-dialog" aria-label="Close overview">×</button></div><p class="overview-group">Main deck · 6:45 + 0:15 buffer</p><div class="overview-grid" id="overview-main"></div><p class="overview-group">Backup · outside the timed flow</p><div class="overview-grid" id="overview-backup"></div></dialog>
   <dialog id="notes-dialog" aria-labelledby="notes-title"><div class="dialog-heading"><h2 id="notes-title">Speaker notes</h2><button class="close-dialog" aria-label="Close notes">×</button></div><p class="dialog-note">These notes appear on this screen. Close before projecting; use speaker_notes.md on a separate device.</p><div id="notes-content"></div></dialog>
-  <dialog id="help-dialog" aria-labelledby="help-title"><div class="dialog-heading"><h2 id="help-title">Presentation shortcuts</h2><button class="close-dialog" aria-label="Close help">×</button></div><dl class="shortcut-list"><div><dt>← / → · Space</dt><dd>Previous / next slide</dd></div><div><dt>Home / End</dt><dd>First / last main slide</dd></div><div><dt>O · N · ?</dt><dd>Overview · Notes · Help</dd></div><div><dt>B</dt><dd>Backup slides / return to main deck</dd></div><div><dt>F</dt><dd>Toggle fullscreen</dd></div><div><dt>P</dt><dd>Print / save PDF</dd></div><div><dt>Esc</dt><dd>Close dialog / exit fullscreen</dd></div></dl><label class="print-backups"><input type="checkbox" id="include-backups">Include backup slides when printing</label><p class="dialog-note">Default PDF: eight main slides. Draft labels and pending-content markers remain visible.</p></dialog>
+  <dialog id="help-dialog" aria-labelledby="help-title"><div class="dialog-heading"><h2 id="help-title">Presentation shortcuts</h2><button class="close-dialog" aria-label="Close help">×</button></div><dl class="shortcut-list"><div><dt>← / → · Space</dt><dd>Previous / next slide</dd></div><div><dt>Home / End</dt><dd>First / last main slide</dd></div><div><dt>O · N · ?</dt><dd>Overview · Notes · Help</dd></div><div><dt>B</dt><dd>Backup slides / return to main deck</dd></div><div><dt>F</dt><dd>Toggle fullscreen</dd></div><div><dt>P</dt><dd>Print / save PDF</dd></div><div><dt>Esc</dt><dd>Close dialog / exit fullscreen</dd></div></dl><label class="print-backups"><input type="checkbox" id="include-backups">Include backup slides when printing</label><p class="dialog-note">The default PDF contains ten main slides.</p></dialog>
   <p class="sr-only" id="announcement" aria-live="polite"></p>
-  <noscript><p class="noscript-message">JavaScript is disabled. Scroll to view slides; printing includes the eight main slides.</p></noscript>
+  <noscript><p class="noscript-message">JavaScript is disabled. Scroll to view slides; printing includes the ten main slides.</p></noscript>
 </body>
 </html>

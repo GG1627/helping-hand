@@ -11,6 +11,7 @@ BlePacket calibrationPacket(
   DateTime now, {
   String pose = 'open_1',
   bool flat = false,
+  int? indexRaw,
 }) {
   final flex = List.filled(5, 700);
   for (var i = 0; i < 5; i++) {
@@ -18,6 +19,7 @@ BlePacket calibrationPacket(
       flex[i] = 300;
     }
   }
+  if (indexRaw != null) flex[1] = indexRaw;
   final accel = <double>[0, 0, 1];
   if (RegExp(r'^[xyz]_-?1$').hasMatch(pose)) {
     accel.fillRange(0, 3, 0);
@@ -36,13 +38,22 @@ void completeCalibration(
   void Function(BlePacket) send,
   DateTime Function() nextTime, {
   bool flat = false,
+  String? clippedPoseId,
 }) {
   var sequence = 1;
   while (!service.complete) {
     final pose = service.step.id;
     service.start(connected: true, fresh: true, recordingBusy: false);
     for (var i = 0; i <= 120; i++) {
-      send(calibrationPacket(sequence++, nextTime(), pose: pose, flat: flat));
+      send(
+        calibrationPacket(
+          sequence++,
+          nextTime(),
+          pose: pose,
+          flat: flat,
+          indexRaw: pose == clippedPoseId && i == 0 ? 4095 : null,
+        ),
+      );
     }
   }
 }
@@ -155,6 +166,135 @@ void main() {
     );
     expect(service.activeProfile, isNull);
   });
+
+  test('redo replaces just the selected pose after a complete capture', () {
+    completeCalibration(
+      service,
+      service.handlePacket,
+      nextTime,
+      clippedPoseId: 'index_bent_2',
+    );
+    final original = service.review();
+    expect(original.failedPoseIds, {'index_bent_2'});
+    expect(original.measurements['blockers'], [
+      'index: ADC clipping at a rail.',
+    ]);
+    final diagnostics = service.diagnosticSnapshot(
+      gloveId: '',
+      mountingId: '',
+      firmwareRevision: '',
+      settingsNotes: '',
+    );
+    expect(
+      diagnostics['full_review']['blockers'],
+      original.measurements['blockers'],
+    );
+    expect(
+      diagnostics['captures']['index_bent_2'].first['raw_packet'],
+      contains('flex1_raw=4095'),
+    );
+    final pose = calibrationSteps.firstWhere((s) => s.id == 'index_bent_2');
+    service.axisCheckConfirmed = true;
+    service.retakePose(pose);
+    expect(service.step.id, pose.id);
+    expect(service.complete, isFalse);
+    expect(service.capturedPoseCount, calibrationSteps.length);
+    service.start(connected: true, fresh: true, recordingBusy: false);
+    service.handlePacket(calibrationPacket(1, nextTime(), pose: pose.id));
+    service.handlePacket(calibrationPacket(3, nextTime(), pose: pose.id));
+    expect(service.capturing, isFalse);
+    service.keepPreviousCapture();
+    expect(service.review(), isNotNull);
+    expect(service.measurements(), original.measurements);
+
+    service.retakePose(pose);
+    service.start(connected: true, fresh: true, recordingBusy: false);
+    for (var i = 0; i <= 120; i++) {
+      service.handlePacket(calibrationPacket(i + 1, nextTime(), pose: pose.id));
+    }
+    expect(service.complete, isTrue);
+    expect(service.axisCheckConfirmed, isTrue);
+    final renewed = service.review();
+    expect(renewed.failedPoseIds, isEmpty);
+    expect(renewed.measurements['blockers'], isEmpty);
+    expect(
+      renewed.measurements['acceleration_axis_checks'],
+      original.measurements['acceleration_axis_checks'],
+    );
+    for (var i = 0; i < calibrationFingers.length; i++) {
+      if (calibrationFingers[i] != 'index') {
+        expect(
+          renewed.measurements['flex'][i],
+          original.measurements['flex'][i],
+        );
+      }
+    }
+  });
+
+  test(
+    'IMU diagnostics capture six faces with clipping and a failed axis',
+    () async {
+      final imu = CalibrationService(imuOnly: true, clock: () => now);
+      addTearDown(imu.dispose);
+      expect(imu.initialized, isTrue);
+      expect(imu.steps.map((pose) => pose.id), [
+        'x_1',
+        'x_-1',
+        'y_1',
+        'y_-1',
+        'z_1',
+        'z_-1',
+      ]);
+      Map<String, dynamic> snapshot() => imu.diagnosticSnapshot(
+        gloveId: '',
+        mountingId: '',
+        firmwareRevision: '',
+        settingsNotes: '',
+      );
+      for (final pose in imu.steps) {
+        expect(imu.step.id, pose.id);
+        imu.start(connected: true, fresh: true, recordingBusy: false);
+        for (var i = 0; i <= 120; i++) {
+          imu.handlePacket(
+            calibrationPacket(
+              i + 1,
+              nextTime(),
+              pose: pose.id == 'y_1' ? 'z_1' : pose.id,
+              indexRaw: 4095,
+            ),
+          );
+        }
+        if (pose.id == 'x_1') {
+          expect(imu.complete, isFalse);
+          expect(snapshot()['captures'].keys, ['x_1']);
+        }
+      }
+      expect(imu.complete, isTrue);
+      final diagnostic = snapshot();
+      expect(diagnostic['capture_mode'], 'imu_only');
+      expect(diagnostic.containsKey('profile_id'), isFalse);
+      expect(diagnostic['captures'].length, 6);
+      expect(diagnostic['acceleration_axis_checks'][2], {
+        'pose': 'y_1',
+        'median_g': [0, 0, 1],
+        'passed': false,
+      });
+      expect(
+        diagnostic['captures']['y_1'].first['raw_packet'],
+        contains('flex1_raw=4095'),
+      );
+      expect(
+        await imu.save(
+          gloveId: 'glove_01',
+          mountingId: 'mount_1',
+          firmwareRevision: 'build1',
+          settingsNotes: 'test',
+        ),
+        isFalse,
+      );
+      expect(imu.activeProfile, isNull);
+    },
+  );
 
   test(
     'cancels stale, dropped and disconnected captures without advancing',

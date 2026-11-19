@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1150" height="410" viewBox="0 0 1150 410" role="img" aria-labelledby="title description">
+  <title id="title">Helping Hand system architecture</title>
+  <desc id="description">Five flex sensors and an ICM-20948 connect to the ESP32-S3. The ESP32 runs static recognition and sends sensor readings and predictions to the Flutter app over BLE. The app runs word recognition, saves progress locally, and syncs with Firebase over HTTPS. A manual test command in the demo firmware lets the ESP32 pulse one of ten piezos.</desc>
+  <rect width="1150" height="410" fill="#fff"/>
+
+  <g fill="none" stroke="#404040" stroke-width="1.8">
+    <rect x="33" y="51" width="174" height="76"/>
+    <rect x="33" y="175" width="174" height="76"/>
+    <rect x="305" y="84" width="180" height="136"/>
+    <rect x="640" y="42" width="224" height="222"/>
+    <rect x="961" y="104" width="156" height="99"/>
+    <rect x="305" y="308" width="180" height="71"/>
+    <path d="M207 89 H251 V115 H297 M207 213 H251 V190 H297 M485 134 H632 M640 191 H493 M872 150 H953 M395 220 V300"/>
+  </g>
+  <g fill="#404040">
+    <path d="M305 115 l-10 -4.5 v9 z M305 190 l-10 -4.5 v9 z M640 134 l-10 -4.5 v9 z M485 191 l10 -4.5 v9 z M864 150 l10 -4.5 v9 z M961 150 l-10 -4.5 v9 z M395 308 l-4.5 -10 h9 z"/>
+  </g>
+
+  <g fill="#202020" font-family="Arial, Helvetica, sans-serif" font-size="20" text-anchor="middle">
+    <text x="120" y="85">Flex sensors</text>
+    <text x="120" y="109">5 fingers</text>
+    <text x="120" y="209">9-axis IMU</text>
+    <text x="120" y="233">ICM-20948</text>
+    <text x="395" y="145">ESP32-S3</text>
+    <text x="395" y="170">Static MLP</text>
+    <text x="752" y="91">Flutter app</text>
+    <text x="752" y="118">Practice + feedback</text>
+    <text x="752" y="145">Word TCN</text>
+    <text x="752" y="172">Local progress</text>
+    <text x="752" y="199">Record / export</text>
+    <text x="752" y="226">Manual buzzer test</text>
+    <text x="1039" y="135">Firebase</text>
+    <text x="1039" y="160">Authentication</text>
+    <text x="1039" y="185">Firestore</text>
+    <text x="395" y="339">10 piezos</text>
+    <text x="395" y="363">One at a time</text>
+  </g>
+  <g fill="#202020" font-family="Arial, Helvetica, sans-serif" font-size="17" text-anchor="middle">
+    <text x="235" y="76">ADC</text>
+    <text x="235" y="237">I²C</text>
+    <text x="562.5" y="121">BLE telemetry</text>
+    <text x="562.5" y="156" font-size="15">Data + predictions</text>
+    <text x="562.5" y="180" font-size="16">BLE test command</text>
+    <text x="562.5" y="214" font-size="15">Demo firmware</text>
+    <text x="912.5" y="134">HTTPS</text>
+    <text x="912.5" y="174">Wi-Fi /</text>
+    <text x="912.5" y="194">cellular</text>
+    <text x="410" y="272" text-anchor="start">GPIO</text>
+  </g>
+</svg>

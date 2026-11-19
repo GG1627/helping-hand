@@ -13,8 +13,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class _Glove extends ChangeNotifier implements BleConnectionService {
   bool complete = true;
+  bool connected = true;
   @override
-  bool get isConnected => true;
+  bool get isConnected => connected;
   @override
   String get connectedDeviceName => 'Test glove';
   @override
@@ -72,6 +73,7 @@ void main() {
             child: RecordSignsTab(
               bleService: glove,
               recordingService: recorder,
+              isActive: true,
             ),
           ),
         ),
@@ -105,7 +107,7 @@ void main() {
       expect(
         tester
             .widget<FilledButton>(
-              find.widgetWithText(FilledButton, 'Start 3-second countdown'),
+              find.widgetWithText(FilledButton, 'Start recording'),
             )
             .onPressed,
         isNull,
@@ -113,9 +115,10 @@ void main() {
       glove.complete = true;
       glove.notifyListeners();
       await tester.pump();
-      await tester.ensureVisible(find.text('Start 3-second countdown'));
-      await tester.tap(find.text('Start 3-second countdown'));
-      await tester.pump(const Duration(seconds: 3));
+      await tester.ensureVisible(find.text('Start recording'));
+      await tester.tap(find.text('Start recording'));
+      expect(recorder.state, TrialRecordingState.recording);
+      await tester.pump(const Duration(seconds: 4));
       expect(recorder.state, TrialRecordingState.recording);
       expect(recorder.currentMetadata!.word, 'thank_you');
       expect(recorder.currentMetadata!.vocabularyVersion, 'words-draft');
@@ -172,4 +175,92 @@ void main() {
       await tester.runAsync(() => directory.delete(recursive: true));
     },
   );
+
+  testWidgets('static hold starts immediately and saves once at three seconds', (
+    tester,
+  ) async {
+    GoogleFonts.config.allowRuntimeFetching = false;
+    final directory = (await tester.runAsync(
+      () => Directory.systemTemp.createTemp('static_screen_'),
+    ))!;
+    final recorder = RecordingService(
+      storageDirectoryProvider: () async => directory,
+    );
+    final glove = _Glove()..complete = false;
+    await tester.binding.setSurfaceSize(const Size(375, 900));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: RecordSignsTab(
+          bleService: glove,
+          recordingService: recorder,
+          isActive: true,
+        ),
+      ),
+    );
+    await tester.tap(find.widgetWithText(ChoiceChip, 'D'));
+    await tester.pump();
+    final recordHold = find.text('Record 3-second hold');
+    await tester.ensureVisible(recordHold);
+    await tester.tap(recordHold);
+    expect(recorder.state, TrialRecordingState.recording);
+    expect(recorder.currentMetadata!.word, 'd');
+    expect(recorder.currentMetadata!.vocabularyVersion, 'static-asl-v1');
+    for (var i = 0; i < 120; i++) {
+      recorder.handlePacket(
+        BlePacket.parse(
+          'seq=$i,t_ms=${i * 25},who=0x70,'
+          'flex0_raw=100,flex1_raw=200,flex2_raw=300,flex3_raw=400,flex4_raw=500',
+          receivedAt: DateTime.fromMillisecondsSinceEpoch(
+            1800000000000 + i * 25,
+          ),
+        ),
+      );
+    }
+    await tester.pump(const Duration(milliseconds: 2999));
+    expect(recorder.savedTrialCount, 0);
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 1));
+    expect(recorder.state, TrialRecordingState.idle);
+    expect(recorder.savedTrialCount, 1);
+    await _waitForDisk(tester, () => recorder.lastSavedFiles != null);
+    await tester.runAsync(() async {
+      final files = recorder.lastSavedFiles!;
+      expect(await files.csv.readAsString(), contains('d,static-asl-v1'));
+      expect(
+        await files.manifest.readAsString(),
+        contains('"packet_count": 120'),
+      );
+    });
+
+    await tester.ensureVisible(recordHold);
+    await tester.tap(recordHold);
+    expect(recorder.currentMetadata!.trialId, 'static_d_0002');
+    glove.connected = false;
+    glove.notifyListeners();
+    await tester.pump(const Duration(seconds: 3));
+    expect(recorder.savedTrialCount, 1);
+    expect(recorder.discardedTrialCount, 1);
+    await _waitForDisk(tester, () => recorder.message.contains('BLE_drop'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Glove disconnected. Reconnect and record the hold again.'),
+      findsOneWidget,
+    );
+
+    await tester.pumpWidget(const SizedBox());
+    recorder.dispose();
+    glove.dispose();
+    await tester.binding.setSurfaceSize(null);
+    await tester.runAsync(() => directory.delete(recursive: true));
+  });
+}
+
+Future<void> _waitForDisk(WidgetTester tester, bool Function() done) async {
+  for (var attempt = 0; attempt < 50 && !done(); attempt++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 10)),
+    );
+    await tester.pump();
+  }
+  expect(done(), isTrue);
 }

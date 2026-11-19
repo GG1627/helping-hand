@@ -28,6 +28,7 @@ class _CalibrationScreenState extends State<CalibrationScreen>
   final _mount = TextEditingController();
   final _firmware = TextEditingController();
   final _settings = TextEditingController();
+  final _poseHeading = GlobalKey();
   StreamSubscription<BlePacket>? _subscription;
   Timer? _watchdog;
 
@@ -79,6 +80,52 @@ class _CalibrationScreenState extends State<CalibrationScreen>
     ),
   );
 
+  Future<void> _choosePose(Set<String> failedPoseIds) async {
+    final poses = [
+      ...widget.calibration.steps.where(
+        (pose) => failedPoseIds.contains(pose.id),
+      ),
+      ...widget.calibration.steps.where(
+        (pose) => !failedPoseIds.contains(pose.id),
+      ),
+    ];
+    final selected = await showDialog<CalibrationStep>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Redo a pose'),
+        children: [
+          for (final pose in poses)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, pose),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 48),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(pose.title),
+                    if (failedPoseIds.contains(pose.id))
+                      Text(
+                        'Needs review',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+    if (!mounted || selected == null) return;
+    widget.calibration.retakePose(selected);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final heading = _poseHeading.currentContext;
+      if (heading != null) Scrollable.ensureVisible(heading, alignment: .1);
+    });
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: Listenable.merge([
@@ -91,21 +138,45 @@ class _CalibrationScreenState extends State<CalibrationScreen>
       final connected = widget.bleService.isConnected;
       final fresh = widget.bleService.hasFreshValidPacket();
       final busy = widget.recording.state != TrialRecordingState.idle;
-      final measured = calibration.complete ? calibration.measurements() : null;
-      final blockers = (measured?['blockers'] as List?) ?? [];
+      final review = calibration.complete && !calibration.imuOnly
+          ? calibration.review()
+          : null;
+      final imuChecks = calibration.complete && calibration.imuOnly
+          ? calibration.accelerationChecks()
+          : null;
+      final blockers = (review?.measurements['blockers'] as List?) ?? [];
+      final setupFields = [
+        _field(_glove, 'Glove ID', hint: 'glove_01'),
+        _field(_mount, 'Mounting version', hint: 'mount_v1'),
+        _field(_firmware, 'Firmware revision', hint: 'Commit or build ID'),
+        _field(
+          _settings,
+          'Sensor settings notes',
+          hint: 'Record ranges, filters, sample rate, and board mounting.',
+        ),
+        const Text('Use equipment identifiers and avoid participant names.'),
+      ];
       return Scaffold(
-        appBar: AppBar(title: const Text('Glove calibration')),
+        appBar: AppBar(
+          title: Text(
+            calibration.imuOnly ? 'IMU diagnostics' : 'Glove calibration',
+          ),
+        ),
         body: SafeArea(
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
+              if (!calibration.imuOnly) ...[
+                Text(
+                  'Developer calibration',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+              ],
               Text(
-                'Developer calibration',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Measure this glove before collecting signs. Saved profiles label recordings; they do not change live recognition.',
+                calibration.imuOnly
+                    ? 'Capture six board orientations. You can export failed checks.'
+                    : 'Measure this glove before collecting signs. Saved profiles label recordings; they do not change live recognition.',
               ),
               const SizedBox(height: 16),
               WarmCard(
@@ -152,55 +223,47 @@ class _CalibrationScreenState extends State<CalibrationScreen>
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              WarmCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Identify the setup',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    _field(_glove, 'Glove ID', hint: 'glove_01'),
-                    _field(_mount, 'Mounting version', hint: 'mount_v1'),
-                    _field(
-                      _firmware,
-                      'Firmware revision',
-                      hint: 'Commit or build ID',
-                    ),
-                    _field(
-                      _settings,
-                      'Sensor settings notes',
-                      hint:
-                          'Record ranges, filters, sample rate, and board mounting.',
-                    ),
-                    const Text(
-                      'Use equipment identifiers, not names. Settings are entered by the operator, not read back from firmware.',
-                    ),
-                  ],
+              if (!calibration.imuOnly) ...[
+                const SizedBox(height: 16),
+                WarmCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Identify the setup',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      ...setupFields,
+                    ],
+                  ),
                 ),
-              ),
+              ],
               const SizedBox(height: 16),
               WarmCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     LinearProgressIndicator(
-                      value: calibration.stepIndex / calibrationSteps.length,
+                      value:
+                          calibration.capturedPoseCount /
+                          calibration.steps.length,
                       semanticsLabel: 'Calibration poses completed',
                     ),
                     const SizedBox(height: 12),
                     Text(
                       calibration.complete
                           ? 'Review measurements'
-                          : 'Pose ${calibration.stepIndex + 1} of ${calibrationSteps.length}',
+                          : calibration.retaking
+                          ? 'Redo pose'
+                          : 'Pose ${calibration.stepIndex + 1} of ${calibration.steps.length}',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (!calibration.complete) ...[
                       const SizedBox(height: 8),
                       Text(
                         calibration.step.title,
+                        key: _poseHeading,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 8),
@@ -231,9 +294,36 @@ class _CalibrationScreenState extends State<CalibrationScreen>
                         TextButton(
                           onPressed: () => calibration.cancel(),
                           child: const Text('Cancel capture'),
+                        )
+                      else if (calibration.retaking)
+                        TextButton(
+                          onPressed: calibration.keepPreviousCapture,
+                          child: const Text('Keep previous capture'),
                         ),
                     ],
-                    if (measured != null) ...[
+                    if (imuChecks != null) ...[
+                      const SizedBox(height: 8),
+                      const Text('Median acceleration in g (X, Y, Z)'),
+                      for (final (:pose, :medianG, :passed) in imuChecks)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Text(
+                            '${pose.title} · ${medianG.map((v) => v.toStringAsFixed(3)).join(', ')}${passed ? '' : ' · Check failed'}',
+                          ),
+                        ),
+                      OutlinedButton.icon(
+                        onPressed: () => _choosePose({
+                          for (final check in imuChecks)
+                            if (!check.passed) check.pose.id,
+                        }),
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Redo a pose'),
+                      ),
+                    ],
+                    if (review case (
+                      measurements: final measured,
+                      failedPoseIds: final failedPoseIds,
+                    )) ...[
                       for (final finger in measured['flex'] as List)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 6),
@@ -254,6 +344,13 @@ class _CalibrationScreenState extends State<CalibrationScreen>
                         ),
                       for (final issue in measured['warnings'] as List)
                         Text('Review: $issue'),
+                      OutlinedButton.icon(
+                        onPressed: calibration.saving
+                            ? null
+                            : () => _choosePose(failedPoseIds),
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Redo a pose'),
+                      ),
                       const SizedBox(height: 12),
                       const Text(
                         'These are initial engineering checks, not validated accuracy limits. Full magnetic calibration has not been performed.',
@@ -294,24 +391,55 @@ class _CalibrationScreenState extends State<CalibrationScreen>
                         ),
                       ),
                     ],
+                    if (calibration.capturedPoseCount > 0)
+                      Builder(
+                        builder: (context) => OutlinedButton.icon(
+                          onPressed:
+                              calibration.capturing ||
+                                  calibration.saving ||
+                                  calibration.exportingDiagnostics
+                              ? null
+                              : () {
+                                  final box =
+                                      context.findRenderObject() as RenderBox?;
+                                  calibration.exportDiagnostics(
+                                    gloveId: _glove.text,
+                                    mountingId: _mount.text,
+                                    firmwareRevision: _firmware.text,
+                                    settingsNotes: _settings.text,
+                                    sharePositionOrigin: box == null
+                                        ? null
+                                        : box.localToGlobal(Offset.zero) &
+                                              box.size,
+                                  );
+                                },
+                          icon: const Icon(Icons.ios_share),
+                          label: Text(
+                            calibration.exportingDiagnostics
+                                ? 'Exporting…'
+                                : 'Export measurements',
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
                       children: [
-                        OutlinedButton(
-                          onPressed:
-                              calibration.capturing ||
-                                  calibration.saving ||
-                                  calibration.stepIndex == 0
-                              ? null
-                              : calibration.retryPrevious,
-                          child: const Text('Repeat previous pose'),
-                        ),
+                        if (!calibration.complete && !calibration.retaking)
+                          OutlinedButton(
+                            onPressed:
+                                calibration.capturing ||
+                                    calibration.saving ||
+                                    calibration.capturedPoseCount == 0
+                                ? null
+                                : calibration.retryPrevious,
+                            child: const Text('Repeat previous pose'),
+                          ),
                         TextButton(
                           onPressed: calibration.capturing || calibration.saving
                               ? null
                               : () async {
-                                  if (calibration.stepIndex > 0) {
+                                  if (calibration.capturedPoseCount > 0) {
                                     final discard = await showDialog<bool>(
                                       context: context,
                                       builder: (context) => AlertDialog(
@@ -319,7 +447,7 @@ class _CalibrationScreenState extends State<CalibrationScreen>
                                           'Discard these measurements?',
                                         ),
                                         content: const Text(
-                                          'The saved profile stays active. Unsaved measurements will be cleared.',
+                                          'This clears the captures from this session.',
                                         ),
                                         actions: [
                                           TextButton(
@@ -337,7 +465,7 @@ class _CalibrationScreenState extends State<CalibrationScreen>
                                         ],
                                       ),
                                     );
-                                    if (discard != true) return;
+                                    if (!mounted || discard != true) return;
                                   }
                                   calibration.reset();
                                 },
@@ -352,6 +480,18 @@ class _CalibrationScreenState extends State<CalibrationScreen>
                   ],
                 ),
               ),
+              if (calibration.imuOnly) ...[
+                const SizedBox(height: 16),
+                WarmCard(
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.zero,
+                    title: const Text('Setup details (optional)'),
+                    expandedAlignment: Alignment.centerLeft,
+                    expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                    children: setupFields,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
