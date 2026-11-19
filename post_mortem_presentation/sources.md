@@ -27,9 +27,12 @@
 
 ## Visuals
 
-- [Cover backdrop](assets/illustrations/cover-backdrop.png) was generated with
-  the built-in ImageGen tool. The cover layers the original glove photograph
-  and the actual Words screenshot over it.
+- [Cover product scene](assets/illustrations/cover-product-scene.png) is a
+  built-in ImageGen visualization based on the
+  [beta composition](../beta_presentation/assets/illustrations/intro-product-scene.png)
+  and the supplied final glove photo. The phone display uses the original
+  [Home capture](assets/screenshots/home-nov19.png) from November 19, 05:13:01.
+  Slide 5 shows the original hardware photo.
 - [Problem illustration](assets/illustrations/learning-problem.png) reuses the
   generated artwork from the [beta presentation](../beta_presentation/assets/prompts.md#learning-problem).
   The slide uses it to illustrate practice alone.
@@ -51,6 +54,12 @@
   Italic follow the [beta style guide](../docs/BETA_PRESENTATION_STYLE_GUIDE.md).
   Their local font licenses are in `assets/fonts/`.
 
-### Cover backdrop generation prompt
+### Cover product scene generation prompt
+
+> Use case: compositing for a full-bleed 16:9 technical presentation cover. Image 1 is the beta composition reference; recreate its ivory desktop scene, negative space, lighting, and left-to-right staging, while updating the wearable. Image 2 shows the real final prototype; it is the hardware reference and takes precedence over the beta version. Image 3 is the actual Android Home capture and is the placement and aspect-ratio reference for the phone display, which will be composited separately. Keep the left 44 percent of the landscape frame nearly empty, evenly lit warm ivory all the way down, for editable text later. In the right foreground show an adult wearing the exact black knitted glove from Image 2, seen straight-on from the back of the hand with the thumb on the left, fingers relaxed and open, and the wrist extending off the lower-right edge. Keep all five long silver striped flex strips, ten small round golden/ivory piezo discs in the photographed layout, the loose red, orange and black wires, and the blue perfboard and black ESP32 mounted at the cuff. Match the shape, component placements and colors of Image 2 as faithfully as possible. Keep the fingers and cuff in frame. Do not bring back the older green circuit board or silver battery. Behind and just to the left of the glove at roughly 57% of the image width, place one upright modern slim black Android phone resting on a small stand on the desk. Its whole screen is visible and unobscured, facing the camera straight-on with edges nearly vertical, portrait screen with interior aspect ratio approximately 0.45, and a uniform solid pale ivory display that I can replace with Image 3. Keep the phone a little smaller than the glove and keep the background soft. Warm natural desk lighting, restrained muted green plant or accents on the far right. Photorealistic product staging, authentic engineering prototype, no extra electronics, no extra phones, no generated text or logo.
+
+### Earlier cover backdrop generation prompt
+
+The previous cover used [this generated backdrop](assets/illustrations/cover-backdrop.png).
 
 > Use case: productivity-visual. Generate only the image background for the opening slide of Helping Hand, an ASL learning glove and app. Full-bleed 16:9 landscape. Make it look like a premium editorial product photograph of a carefully art-directed empty studio flat lay, with a real photographed object and a phone to be composited later. The left 45% is a continuously blank warm ivory paper surface (#FFFCF5), very even light and low texture, for dark slide type. The right half is a boldly colored field of rich deep teal (#00645C) matte paper, filling the right edge and bottom edge, entering from the upper edge at 60% frame width and easing to a soft angled edge near 44% at the bottom. Layer a sculptural mint paper ribbon or curled strip on the far right edge and lower-right corner, with realistic directional sunlight and clean soft shadows, evocative of motion and a haptic pulse. Add one very small golden yellow accent in the upper right. Keep the center-right area relatively quiet so two foreground product images can sit there. Restrained modern product-launch art direction, crisp clear geometry, subtle physical paper grain, refined and confident. No glove, hands, phone, electronics, frames, circles, words, lettering, typography, or logos.
