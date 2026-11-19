@@ -32,5 +32,10 @@ main slides. To print backups too, open `?` and select **Include backup slides
 when printing**. Use the CSS page size (16:9), background graphics on, and browser
 headers/footers off.
 
+The cover uses a [2× artwork capture](assets/illustrations/cover-art-print.png)
+in print to avoid artifacts from the phone's perspective transform. If the
+cover artwork changes, refresh that capture at 3200 × 1800 with the slide copy
+and footer hidden. The title and other slide text are printed directly from HTML.
+
 Review the [rubric and delivery checks](CONTENT_REVIEW.md),
 [claim and asset sources](sources.md), and [verification](verification.md).
