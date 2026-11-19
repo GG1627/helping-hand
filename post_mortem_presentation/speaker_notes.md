@@ -24,11 +24,11 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 “Beginners can learn what a sign looks like from a video or a printed reference. When they practice alone, they still have to judge their own handshape and movement. We built Helping Hand to give feedback on the attempt they actually make.”
 
-## 3. How the system works
+## 3. System architecture
 
-**0:35–1:00 · 25 seconds.** Follow the diagram from sensors to the app, then point to the return arrow.
+**0:35–1:00 · 25 seconds.** Point from left to right, then follow the return arrow.
 
-“Five flex strips measure finger bend, and an IMU measures motion. The ESP32 reads both and recognizes held signs using the flex readings. Bluetooth sends the readings and predictions to the Android app, which recognizes moving signs and saves completed lessons. During the demo, the app also sends haptic commands back to the glove.”
+“The flex strips measure finger bend, and the motion sensor measures how the hand moves. The ESP32 recognizes signs you hold steady. Bluetooth sends its predictions and sensor readings to the Android app. The app recognizes moving signs, shows the result, and saves progress. During the demo, it also sends haptic commands back to the glove.”
 
 ## 4. How we recognize signs
 

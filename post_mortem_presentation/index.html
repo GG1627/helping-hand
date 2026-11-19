@@ -12,9 +12,10 @@
 <body>
   <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
     <symbol id="icon-hand" viewBox="0 0 64 64"><path d="M23 34V13a4 4 0 0 1 8 0v18-22a4 4 0 0 1 8 0v23-18a4 4 0 0 1 8 0v20-13a4 4 0 0 1 8 0v22c0 12-7 19-18 19-7 0-12-3-16-9L10 35a4 4 0 0 1 6-5l7 7"/></symbol>
+    <symbol id="icon-chip" viewBox="0 0 64 64"><rect x="17" y="17" width="30" height="30" rx="4"/><rect x="25" y="25" width="14" height="14" rx="2"/><path d="M24 7v10m16-10v10M24 47v10m16-10v10M7 24h10M7 40h10m30-16h10M47 40h10"/></symbol>
     <symbol id="icon-ble" viewBox="0 0 64 64"><path d="M20 17l27 28-14 12V7l14 12-27 28"/></symbol>
     <symbol id="icon-phone" viewBox="0 0 64 64"><rect x="17" y="5" width="30" height="54" rx="6"/><path d="M28 12h8m-5 39h2M24 32l6 6 12-15"/></symbol>
-    <symbol id="icon-arrow" viewBox="0 0 400 24"><path d="M3 12h394m-10-9 10 9-10 9"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 32 24"><path d="M2 12h27m-9-9 9 9-9 9"/></symbol>
   </defs></svg>
   <main id="stage" aria-label="Helping Hand post-mortem presentation">
     <div id="deck">
@@ -53,35 +54,40 @@
         </template>
       </section>
 
-      <section class="slide system" id="slide-3" aria-labelledby="title-3" data-title="How the system works" data-seconds="25">
-        <h2 id="title-3">How the system works</h2>
-        <div class="system-flow">
-          <article class="system-device system-glove">
-            <p class="system-device-label"><svg aria-hidden="true"><use href="#icon-hand"/></svg> Glove</p>
-            <div class="system-stage"><h3>Sensors</h3><p>Flex strips measure finger bend. The IMU measures motion.</p></div>
-            <div class="system-stage"><h3>ESP32</h3><p>Reads the sensors and recognizes held signs.</p></div>
-          </article>
-          <div class="system-connection">
-            <p class="system-connection-label"><svg aria-hidden="true"><use href="#icon-ble"/></svg> Bluetooth LE</p>
-            <div class="system-transfer">
-              <p><span class="sr-only">Glove to phone. </span>Readings and held-sign predictions</p>
-              <svg aria-hidden="true" viewBox="0 0 400 24"><use href="#icon-arrow"/></svg>
-            </div>
-            <div class="system-transfer system-transfer-return">
-              <svg aria-hidden="true" viewBox="0 0 400 24"><use href="#icon-arrow"/></svg>
-              <p><span class="sr-only">Phone to glove. </span>Haptic commands during the demo</p>
-            </div>
-          </div>
-          <article class="system-device system-phone">
-            <p class="system-device-label"><svg aria-hidden="true"><use href="#icon-phone"/></svg> Android app</p>
-            <div class="system-stage"><h3>Recognition</h3><p>Uses the sensor stream to recognize moving signs.</p></div>
-            <div class="system-stage"><h3>Practice</h3><p>Shows the result and saves completed lessons.</p></div>
-          </article>
+      <section class="slide system" id="slide-3" aria-labelledby="title-3" data-title="System architecture" data-seconds="25">
+        <header><p class="eyebrow">Our solution</p><h2 id="title-3">System architecture</h2></header>
+        <ol class="system-flow" role="list">
+          <li class="system-step">
+            <svg class="system-icon" aria-hidden="true"><use href="#icon-hand"/></svg>
+            <svg class="system-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+            <h3>Glove sensors</h3>
+            <p>Measure finger bend and hand motion.</p>
+          </li>
+          <li class="system-step">
+            <svg class="system-icon" aria-hidden="true"><use href="#icon-chip"/></svg>
+            <svg class="system-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+            <h3>ESP32</h3>
+            <p>Reads the sensors and recognizes held signs.</p>
+          </li>
+          <li class="system-step">
+            <svg class="system-icon" aria-hidden="true"><use href="#icon-ble"/></svg>
+            <svg class="system-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+            <h3>Bluetooth LE</h3>
+            <p>Carries sensor readings and predictions to the phone.</p>
+          </li>
+          <li class="system-step">
+            <svg class="system-icon" aria-hidden="true"><use href="#icon-phone"/></svg>
+            <h3>Android app</h3>
+            <p>Recognizes moving signs, shows results, and saves progress.</p>
+          </li>
+        </ol>
+        <div class="system-return">
+          <p>During the demo, the app sends haptic commands back to the glove.</p>
         </div>
         <footer class="slide-footer"><b>03 / 10</b></footer>
         <template class="slide-notes">
-          <p>0:35–1:00 · 25 seconds. Follow the diagram from sensors to the app, then point to the return arrow.</p>
-          <p>“Five flex strips measure finger bend, and an IMU measures motion. The ESP32 reads both and recognizes held signs using the flex readings. Bluetooth sends the readings and predictions to the Android app, which recognizes moving signs and saves completed lessons. During the demo, the app also sends haptic commands back to the glove.”</p>
+          <p>0:35–1:00 · 25 seconds. Point from left to right, then follow the return arrow.</p>
+          <p>“The flex strips measure finger bend, and the motion sensor measures how the hand moves. The ESP32 recognizes signs you hold steady. Bluetooth sends its predictions and sensor readings to the Android app. The app recognizes moving signs, shows the result, and saves progress. During the demo, it also sends haptic commands back to the glove.”</p>
         </template>
       </section>
 
