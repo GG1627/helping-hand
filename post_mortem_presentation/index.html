@@ -19,13 +19,12 @@
   </defs></svg>
   <main id="stage" aria-label="Helping Hand post-mortem presentation">
     <div id="deck">
-      <section class="slide cover is-active" id="slide-1" aria-labelledby="title-1" data-title="Why we built Helping Hand" data-seconds="25">
-        <div class="cover-orbit" aria-hidden="true"></div>
+      <section class="slide cover is-active" id="slide-1" aria-labelledby="title-1" data-title="Helping Hand" data-seconds="25">
         <div class="cover-copy">
           <p class="eyebrow">Post-mortem · November 19, 2026</p>
           <h1 class="wordmark" id="title-1">Helping<br>Hand</h1>
           <svg class="brand-trail" viewBox="0 0 280 35" aria-hidden="true"><path d="M3 17c65-31 163 26 231-4"/><circle cx="263" cy="13" r="8"/></svg>
-          <p class="cover-pitch">Feedback between<br>ASL lessons.</p>
+          <p class="cover-pitch">A glove and mobile app for practicing ASL with haptic feedback.</p>
           <p class="need">Beginners practicing on their own need a way to check the handshape or motion they just made.</p>
           <div class="team"><span>Srinitha Srikanth</span><span>Brian Paz</span><span>Gael Garcia</span><span>Kali Schuchhardt</span></div>
         </div>
@@ -33,15 +32,15 @@
           <img src="assets/hardware/glove-final.jpg" alt="Finished black glove with five flex strips, ten wired piezo discs, and cuff-mounted electronics.">
           <figcaption>Final glove · November 2026</figcaption>
         </figure>
-        <footer class="slide-footer"><span>Wearable-assisted American Sign Language practice</span><b>01 / 08</b></footer>
+        <footer class="slide-footer"><b>01 / 08</b></footer>
         <template class="slide-notes">
           <p>0:00–0:25 · 25 seconds. Point to the finished glove and introduce the team.</p>
-          <p>“When you practice American Sign Language between lessons, a reference can show the handshape or movement you’re aiming for. You still need a way to check the attempt you just made. We built Helping Hand, a sensor glove and Android app that let you practice selected signs, see what was recognized, and keep track of completed lessons.”</p>
+          <p>“Helping Hand is a glove and mobile app for practicing American Sign Language with haptic feedback. If you practice between lessons, a reference can show you the sign. Our glove and app let you check your own attempt and save completed lessons.”</p>
         </template>
       </section>
 
-      <section class="slide system" id="slide-2" aria-labelledby="title-2" data-title="How the glove and app work together" data-seconds="35">
-        <header><p class="eyebrow">System overview</p><h2 id="title-2">How the glove and app <em>work together.</em></h2></header>
+      <section class="slide system" id="slide-2" aria-labelledby="title-2" data-title="How the glove and app work" data-seconds="35">
+        <header><p class="eyebrow">System overview</p><h2 id="title-2">How the glove and app work</h2></header>
         <div class="pipeline">
           <div class="pipeline-step"><svg aria-hidden="true"><use href="#icon-hand"/></svg><h3>Sensor glove</h3><p>Five flex strips<br>+ motion sensor</p></div>
           <svg class="arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
@@ -63,8 +62,8 @@
         </template>
       </section>
 
-      <section class="slide hardware" id="slide-3" aria-labelledby="title-3" data-title="The glove we finished" data-seconds="40">
-        <header><p class="eyebrow">Final hardware</p><h2 id="title-3">The glove we <em>finished.</em></h2></header>
+      <section class="slide hardware" id="slide-3" aria-labelledby="title-3" data-title="Glove hardware" data-seconds="40">
+        <header><p class="eyebrow">Final build</p><h2 id="title-3">Glove hardware</h2></header>
         <div class="hardware-layout">
           <div class="hardware-images">
             <figure class="glove"><img src="assets/hardware/glove-final.jpg" alt="The final glove, with all five flex strips, the piezo discs, wires, and cuff-mounted perfboard visible."><figcaption>Wired perfboard glove</figcaption></figure>
@@ -83,13 +82,13 @@
         </template>
       </section>
 
-      <section class="slide practice" id="slide-4" aria-labelledby="title-4" data-title="Lessons, recognition, and progress" data-seconds="45">
-        <header><p class="eyebrow">The learner experience</p><h2 id="title-4">Choose a sign. <em>Track your progress.</em></h2></header>
+      <section class="slide practice" id="slide-4" aria-labelledby="title-4" data-title="App features and recognition results" data-seconds="45">
+        <header><p class="eyebrow">Android app</p><h2 id="title-4">App features and recognition results</h2></header>
         <div class="practice-layout">
           <div class="app-screens">
-            <figure><img src="assets/screenshots/alphabet-nov19.png" alt="Alphabet lesson picker with green completed letters and checkmarks."><figcaption>Choose a lesson</figcaption></figure>
-            <figure><img src="assets/screenshots/letter-a-nov19.png" alt="Letter A screen showing the 3D target handshape and hold progress, captured with the glove disconnected."><figcaption>See the target</figcaption></figure>
-            <figure><img src="assets/screenshots/words-progress-nov19.png" alt="Words screen with Hello, Please, and Yes marked Learned with green rows and checkmarks."><figcaption>See saved lessons</figcaption></figure>
+            <figure><img src="assets/screenshots/alphabet-nov19.png" alt="Alphabet lesson picker with green completed letters and checkmarks."><figcaption>Alphabet lessons</figcaption></figure>
+            <figure><img src="assets/screenshots/letter-a-nov19.png" alt="Letter A screen showing the 3D target handshape and hold progress, captured with the glove disconnected."><figcaption>3D sign reference</figcaption></figure>
+            <figure><img src="assets/screenshots/words-progress-nov19.png" alt="Words screen with Hello, Please, and Yes marked Learned with green rows and checkmarks."><figcaption>Completed word lessons</figcaption></figure>
           </div>
           <div class="coverage">
             <h3>Recognition in the demo build</h3>
@@ -99,7 +98,7 @@
               <div><dt>Words</dt><dd>Hello, Please, Yes <small>Three of eight available lessons</small></dd></div>
             </dl>
             <div class="practice-result">
-              <p><strong>One-wearer live check</strong></p>
+              <p><strong>Live test with one wearer</strong></p>
               <p><b>3/3 each</b> · G, I, 1, Hello, Please, Yes<br><b>1/3 each</b> · K, X</p>
             </div>
           </div>
@@ -111,17 +110,17 @@
         </template>
       </section>
 
-      <section class="slide live" id="slide-5" aria-labelledby="title-5" data-title="Live practice" data-seconds="100">
+      <section class="slide live" id="slide-5" aria-labelledby="title-5" data-title="Live ASL practice demo" data-seconds="100">
         <div class="live-circles" aria-hidden="true"></div><span class="live-dot" aria-hidden="true"></span><svg class="live-mark" aria-hidden="true"><use href="#icon-hand"/></svg>
-        <p class="eyebrow">Live demonstration</p><h2 id="title-5">From a sign<br><em>to a saved lesson.</em></h2>
+        <p class="eyebrow">Glove and Android app</p><h2 id="title-5">Live ASL<br><em>practice demo</em></h2>
         <ol class="live-steps">
           <li><b>G</b><span>Hold a pose</span></li>
           <li><b>Z</b><span>Trace a motion</span></li>
-          <li><b>3</b><span>Try a finger cue</span></li>
+          <li><b>3</b><span>Correct a finger position</span></li>
           <li><b>Hello / Please</b><span>Match a word</span></li>
         </ol>
         <p class="live-footnote">Look for the checkmark in Words.</p>
-        <footer class="slide-footer"><span>Glove + Android app</span><b>05 / 08</b></footer>
+        <footer class="slide-footer"><b>05 / 08</b></footer>
         <template class="slide-notes">
           <p>2:25–4:05 · 100 seconds. Switch to the projected phone or keep it visible alongside the cue slide. Start signed in, connected, and in Developer Mode.</p>
           <p>G. “I’ll choose G and hold it steady. Watch the match and hold indicator. This prediction comes from the glove.”</p>
@@ -132,61 +131,61 @@
         </template>
       </section>
 
-      <section class="slide successes" id="slide-6" aria-labelledby="title-6" data-title="Three things that worked" data-seconds="80">
-        <header><p class="eyebrow">Successes</p><h2 id="title-6">Three things that <em>worked.</em></h2></header>
+      <section class="slide successes" id="slide-6" aria-labelledby="title-6" data-title="Project successes" data-seconds="80">
+        <header><p class="eyebrow">Post-mortem</p><h2 id="title-6">Project successes</h2></header>
         <div class="success-grid">
           <article class="success-story">
-            <h3>Practice that<br>carries over</h3>
-            <dl class="story-detail"><dt>Challenge</dt><dd>Make a prediction useful to the learner.</dd><dt>What worked</dt><dd>Save completion against the selected lesson after a match.</dd><dt>Outcome</dt><dd>Completed signs were visible after reopening the app.</dd></dl>
+            <h3>Saved practice progress</h3>
+            <dl class="story-detail"><dt>Challenge</dt><dd>Track which signs the learner completes.</dd><dt>What worked</dt><dd>Mark a lesson complete when the app accepts the sign.</dd><dt>Outcome</dt><dd>Completed lessons were still visible after reopening the app.</dd></dl>
           </article>
           <article class="success-story">
-            <h3>Motion came<br>into practice</h3>
+            <h3>Recognition for moving signs</h3>
             <dl class="story-detail"><dt>Challenge</dt><dd>Recognize a sign that changes over time.</dd><dt>What worked</dt><dd>Record whole attempts and run a sequence model on the phone.</dd><dt>Outcome</dt><dd>Hello, Please, and Yes completed in live practice.</dd></dl>
           </article>
           <article class="success-story">
-            <h3>A cue tied to<br>a correction</h3>
-            <dl class="story-detail"><dt>Challenge</dt><dd>Choose a cue from the learner’s finger position.</dd><dt>What worked</dt><dd>Map measured bend ranges to pulse sequences for 3.</dd><dt>Outcome</dt><dd>The automatic cue worked in an on-glove rehearsal.</dd></dl>
+            <h3>Haptic correction for 3</h3>
+            <dl class="story-detail"><dt>Challenge</dt><dd>Show which finger to move and in which direction.</dd><dt>What worked</dt><dd>Use measured finger bend to select a pulse pattern.</dd><dt>Outcome</dt><dd>The glove played the automatic cue during rehearsal.</dd></dl>
           </article>
         </div>
         <footer class="slide-footer"><span></span><b>06 / 08</b></footer>
         <template class="slide-notes">
           <p>4:05–5:25 · 80 seconds. Tell each story in about 25 seconds and hand off to the lessons.</p>
-          <p>Practice that carries over. “Our first challenge was making a prediction meaningful to a beginner. We tied it to the selected lesson and only saved completion after the app accepted a match. That made the result visible as a completed lesson and gave the learner something to come back to. During rehearsal, we closed and reopened the app and could still see the completed signs.”</p>
-          <p>Motion came into practice. “A whole word is too much to describe with one frame. We recorded complete attempts and chose a compact temporal model to run on the phone. After the rebuild, we collected more recordings and extended the input window so it could keep more of the motion. The updated word model completed all five matching attempts in offline replay, and Hello, Please, and Yes completed in our live practice check. The same attempt interaction also gave us a way to add J and Z.”</p>
-          <p>A cue tied to a correction. “We could already activate individual buzzers, but we wanted the cue to depend on the learner’s attempt. For Number 3, we used measured bend ranges for the middle and pinky fingers. The app sends one pulse at a time and highlights the locations confirmed by the glove. The timed correction demo worked in one on-glove rehearsal. That gave us an example of closing the loop for a specific sign.”</p>
+          <p>Saved practice progress. “We wanted learners to see which signs they had completed. We tied it to the selected lesson and only saved completion after the app accepted a match. That made the result visible as a completed lesson and gave the learner something to come back to. During rehearsal, we closed and reopened the app and could still see the completed signs.”</p>
+          <p>Recognition for moving signs. “To recognize a moving sign, we needed to use readings from the entire attempt. We recorded complete attempts and chose a compact temporal model to run on the phone. After the rebuild, we collected more recordings and extended the input window so it could keep more of the motion. The updated word model completed all five matching attempts in offline replay, and Hello, Please, and Yes completed in our live practice check. We used the same start-and-finish controls for J and Z.”</p>
+          <p>Haptic correction for 3. “We could already activate individual buzzers, but we wanted the cue to depend on the learner’s attempt. For Number 3, we used measured bend ranges for the middle and pinky fingers. The app sends one pulse at a time and highlights the locations confirmed by the glove. The timed correction demo worked in one on-glove rehearsal. The cue showed which finger to move and in which direction.”</p>
         </template>
       </section>
 
-      <section class="slide challenges" id="slide-7" aria-labelledby="title-7" data-title="Three things we would change" data-seconds="75">
-        <header><p class="eyebrow">Challenges</p><h2 id="title-7">Three things we <em>would change.</em></h2></header>
+      <section class="slide challenges" id="slide-7" aria-labelledby="title-7" data-title="Challenges and lessons" data-seconds="75">
+        <header><p class="eyebrow">Post-mortem</p><h2 id="title-7">Challenges and lessons</h2></header>
         <div class="challenge-head"><span>What happened</span><span>What we would do next time</span></div>
-        <article class="challenge-row"><div><h3>Connections failed during wear</h3><p>The PCB broke, and the thread build lost sensor readings. We switched to discrete wires.</p></div><p class="lesson">Test connections during movement.<span>Add strain relief before final mounting.</span></p></article>
-        <article class="challenge-row"><div><h3>Flex faults looked like sign misses</h3><p>Damaged thumb and index sensors stayed near their unbent readings.</p></div><p class="lesson">Inspect raw signals early.<span>Recheck calibration and known signs after hardware changes.</span></p></article>
-        <article class="challenge-row"><div><h3>The rebuild changed model inputs</h3><p>Nine matching word recordings from the rebuild failed to complete with the earlier model.</p></div><p class="lesson">Plan for retraining and fresh tests.<span>Reserve attempts across wearers and include likely mistakes.</span></p></article>
+        <article class="challenge-row"><div><h3>Unreliable connections</h3><p>The PCB broke, and the conductive-thread build lost sensor readings. We switched to individual wires.</p></div><p class="lesson">Test connections while flexing the glove.<span>Add strain relief before final mounting.</span></p></article>
+        <article class="challenge-row"><div><h3>Damaged flex sensors</h3><p>The thumb and index sensors barely responded when the fingers bent.</p></div><p class="lesson">Check each sensor reading early.<span>Recheck calibration and known signs after hardware changes.</span></p></article>
+        <article class="challenge-row"><div><h3>Word recognition after the rebuild</h3><p>The earlier model missed all nine matching word attempts in an offline test of rebuilt-glove recordings.</p></div><p class="lesson">Retrain and test after hardware changes.<span>Test with more wearers and include signs the model could confuse.</span></p></article>
         <footer class="slide-footer"><span></span><b>07 / 08</b></footer>
         <template class="slide-notes">
           <p>5:25–6:40 · 75 seconds. Spend about 25 seconds per example.</p>
-          <p>Connections under movement. “Our custom PCB broke and its engraved traces gave us unreliable connections. The conductive-thread version also lost readings during use. We suspected shorts and switched to individual wires. Next time we’d check continuity while flexing the assembly and add strain relief before mounting a board on the glove.”</p>
-          <p>Sensor failures that looked like recognition failures. “The thumb and index channels sometimes stayed near their unbent readings even when the fingers moved. An informal tryout helped send us back to the raw channels, where we found damaged sensors and replaced them. Next time we’d check every channel independently, record calibration after every rebuild, and rerun a few known signs before trying to tune the model.”</p>
-          <p>Limited recordings and inconsistent results. “Movement speed and the rebuilt sensors changed what the model saw. We found nine correct word attempts that the earlier model failed to complete in offline replay. We retrained, but our tests still covered few wearers and targets, and K and X were inconsistent live. Next time we’d reserve fresh attempts from additional wearers, include similar and unrelated signs, and record misses as well as matches.”</p>
+          <p>Unreliable connections. “Our custom PCB broke and its engraved traces gave us unreliable connections. The conductive-thread version also lost readings during use. We suspected shorts and switched to individual wires. Next time we’d check continuity while flexing the assembly and add strain relief before mounting a board on the glove.”</p>
+          <p>Damaged flex sensors. “The thumb and index channels sometimes stayed near their unbent readings even when the fingers moved. An informal tryout helped send us back to the raw channels, where we found damaged sensors and replaced them. Next time we’d check every channel independently, record calibration after every rebuild, and rerun a few known signs before trying to tune the model.”</p>
+          <p>Word recognition after the rebuild. “Movement speed and the rebuilt sensors changed what the model saw. We found nine correct word attempts that the earlier model failed to complete in offline replay. We retrained, but our tests still covered few wearers and targets, and K and X were inconsistent live. Next time we’d reserve fresh attempts from additional wearers, include similar and unrelated signs, and record misses as well as matches.”</p>
         </template>
       </section>
 
-      <section class="slide closing" id="slide-8" aria-labelledby="title-8" data-title="What we learned" data-seconds="20">
+      <section class="slide closing" id="slide-8" aria-labelledby="title-8" data-title="Main lesson and next steps" data-seconds="20">
         <p class="wordmark">Helping Hand</p>
         <svg class="closing-wave" viewBox="0 0 820 310" aria-hidden="true"><path d="M-40 250C170-30 360 410 540 175S730 10 870 100"/><circle cx="540" cy="175" r="13"/></svg>
-        <h2 id="title-8">Test from the glove<br><em>to the saved result.</em></h2>
-        <p class="closing-lead">Selected signs now connect to practice feedback and saved lessons.</p>
-        <div class="closing-bottom"><strong>Questions?</strong><span>Next checks · more wearers and how they interpret the cues.</span></div>
+        <h2 id="title-8">Test the glove<br><em>and app together</em></h2>
+        <p class="closing-lead">Check recognition, feedback, and saved progress in the same practice session.</p>
+        <div class="closing-bottom"><strong>Questions?</strong><span>Next, test recognition and haptic cues with more wearers.</span></div>
         <footer class="slide-footer"><span>November 19, 2026</span><b>08 / 08</b></footer>
         <template class="slide-notes">
           <p>6:40–7:00 · 20 seconds. Leave this slide up for the two-minute question period.</p>
-          <p>“We built a glove and app that let beginners get feedback on selected ASL signs and return to saved lessons. Our strongest lesson was to test from the moving glove all the way to the saved result. The next step is to check recognition across more wearers and find out whether people can reliably feel and interpret the cues.”</p>
+          <p>“We built a glove and app that let beginners get feedback on selected ASL signs and return to saved lessons. Our main lesson was to test recognition, feedback, and saved progress in the same practice session. The next step is to check recognition across more wearers and find out whether people can reliably feel and interpret the cues.”</p>
         </template>
       </section>
 
-      <section class="slide backup" id="backup-1" data-backup aria-labelledby="backup-title-1" data-title="Delivered coverage and limits" data-seconds="0">
-        <header><p class="eyebrow">Backup · scope</p><h2 id="backup-title-1">Delivered coverage <em>and limits.</em></h2></header>
+      <section class="slide backup" id="backup-1" data-backup aria-labelledby="backup-title-1" data-title="Original goals and final features" data-seconds="0">
+        <header><p class="eyebrow">Backup</p><h2 id="backup-title-1">Original goals and final features</h2></header>
         <table class="backup-table">
           <thead><tr><th>Area</th><th>Original goal</th><th>Presentation build</th></tr></thead>
           <tbody>
@@ -204,8 +203,8 @@
         </template>
       </section>
 
-      <section class="slide backup" id="backup-2" data-backup aria-labelledby="backup-title-2" data-title="What the checks showed" data-seconds="0">
-        <header><p class="eyebrow">Backup · results</p><h2 id="backup-title-2">What the checks <em>showed.</em></h2></header>
+      <section class="slide backup" id="backup-2" data-backup aria-labelledby="backup-title-2" data-title="Recognition and haptic test results" data-seconds="0">
+        <header><p class="eyebrow">Backup</p><h2 id="backup-title-2">Recognition and haptic test results</h2></header>
         <table class="backup-table">
           <thead><tr><th>Check</th><th>Observed result</th><th>Scope</th></tr></thead>
           <tbody>
