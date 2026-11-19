@@ -7,8 +7,22 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import 'word_sequence.dart';
 
 class TfliteWordClassifier implements WordClassifier {
-  static const modelAsset = 'assets/models/words_tcn/model.tflite';
-  static const metadataAsset = 'assets/models/words_tcn/model_metadata.json';
+  TfliteWordClassifier({String? target})
+    : _directory = additionalPracticeWords.contains(target)
+          ? _expandedDirectory
+          : _wordDirectory,
+      _motionLetters = false;
+  TfliteWordClassifier.motionLetters()
+    : _directory = _motionDirectory,
+      _motionLetters = true;
+
+  static const _wordDirectory = 'assets/models/words_tcn';
+  static const _expandedDirectory = 'assets/models/expanded_words_tcn';
+  static const _motionDirectory = 'assets/models/motion_letters_tcn';
+  static const modelAsset = '$_wordDirectory/model.tflite';
+  static const metadataAsset = '$_wordDirectory/model_metadata.json';
+  final String _directory;
+  final bool _motionLetters;
   Uint8List? _modelBytes;
   WordModelSpec? _spec;
   bool _disposed = false;
@@ -16,10 +30,18 @@ class TfliteWordClassifier implements WordClassifier {
   @override
   Future<void> initialize() async {
     final spec = WordModelSpec.fromJson(
-      jsonDecode(await rootBundle.loadString(metadataAsset))
+      jsonDecode(await rootBundle.loadString('$_directory/model_metadata.json'))
           as Map<String, dynamic>,
+      motionLetters: _motionLetters,
+      wordVocabulary: _directory == _expandedDirectory
+          ? expandedWordVocabulary
+          : trainedWords,
     );
-    final bytes = (await rootBundle.load(modelAsset)).buffer.asUint8List();
+    final data = await rootBundle.load('$_directory/model.tflite');
+    final bytes = data.buffer.asUint8List(
+      data.offsetInBytes,
+      data.lengthInBytes,
+    );
     if (_disposed) return;
     final interpreter = Interpreter.fromBuffer(
       bytes,

@@ -75,6 +75,7 @@ def test_word_predictions_use_the_explicit_capture_subset(tmp_path, monkeypatch)
     class Runtime:
         def __init__(self, directory, mode):
             self.config = SequencePreprocessing()
+            self.labels = ['hello', 'please', 'yes']
             self.splits = {}
             self.evidence = {'test': 'synthetic_stub'}
             self.metadata = {'standardizer': {'method': 'per_feature_standardization',

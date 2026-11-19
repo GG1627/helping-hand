@@ -152,11 +152,16 @@ Future<Map<String, dynamic>> evaluateReplay(
     throw const FormatException('Unsupported replay schema.');
   }
   final mode = request['mode'];
-  final spec = mode == 'word'
-      ? WordModelSpec.fromJson(
-          Map<String, dynamic>.from(request['word_metadata']),
-        )
-      : null;
+  WordModelSpec? spec;
+  if (mode == 'word') {
+    final metadata = Map<String, dynamic>.from(request['word_metadata']);
+    spec = WordModelSpec.fromJson(
+      metadata,
+      wordVocabulary: (metadata['vocabulary'] as List).contains('other')
+          ? expandedWordVocabulary
+          : trainedWords,
+    );
+  }
   final rows = <Map<String, dynamic>>[];
   for (final trialJson in request['trials'] as List) {
     final trial = Map<String, dynamic>.from(trialJson);

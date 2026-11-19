@@ -51,13 +51,13 @@ tests should be disclosed rather than replaced by invented results.
 | --- | --- | --- | --- | --- |
 | PCB fabrication, assembly, and glove integration | Team fabricated a PCB and tried it in the glove. The current glove uses perfboard and discrete wiring. | Exact dates not yet documented | BUILD-01 | The PCB and conductive-thread builds were abandoned after unreliable connections. Photos are on file, and the as-built wiring diagram is still to be documented. |
 | Five working flex sensors and calibration | Not yet documented | | | |
-| New ICM-20948 integration and calibration | Not yet documented | | | |
-| A-Z recognition, including moving J/Z | ESP32 static MLP supports 24 letters, excluding J and Z. Operator reported at least 10 live successes each for G and I. | Nov. 18 rehearsal | LIVE-01, LIVE-03 | Full per-letter live validation is not yet documented. |
+| New ICM-20948 integration and calibration | Gael confirmed that the ICM-20948 was installed, calibrated, and working on the glove. | Confirmed during M6 review | CAL-03 and M6 review follow-up below | The app flagged some checks. The cause of those messages remains unknown. |
+| A-Z recognition, including moving J/Z | ESP32 static MLP supports 24 letters. J and Z use a separate phone TCN in Alphabet practice. Operator reported at least 10 live successes each for G and I. | Nov. 18 rehearsal, Nov. 19 J/Z integration | LIVE-01, LIVE-03, EVAL-05 | J/Z have been checked offline. Live J/Z and full per-letter validation are not yet documented. |
 | 0-9 recognition | ESP32 static MLP supports ten digits. Operator reported at least 10 live successes for 1. | Nov. 18 rehearsal | LIVE-01, LIVE-03 | Full per-digit live validation is not yet documented. |
-| All eight app words | App lists eight words. The deployed TCN recognizes Hello, Please, and Yes. The operator reported at least 10 live successes each for those words. | Nov. 18 rehearsal | EVAL-04, LIVE-02, LIVE-03 | Five lessons are outside the deployed model vocabulary. Exact attempt totals and per-trial records are not yet documented. |
+| All eight app words | App lists eight words. Hello, Please, and Yes have named live practice results. The working build adds Sorry and No using a second model checked offline. | Nov. 18 rehearsal and Nov. 19 model expansion | EVAL-04, EVAL-06, LIVE-02 to LIVE-04 | Live Sorry and No checks are Not run. Thank You and Eat need further separation checks. Drink has no captured trials. |
 | Ten actuator outputs | Operator heard all ten during serial testing. In the app's manual Piezo Outputs screen, the operator reported that the physical buzzers matched the highlighted dots. | Nov. 18 report | HAPT-01 | Tactile sensation was very faint in the serial check. The phone test has no per-output tally or interruption results on file. |
-| Automatic finger bend/straighten guidance | Visual estimates exist in letter practice. Automatic physical correction is an unfinished goal. | | HAPT-01 | Reliable detection, physical cue selection, and wearer interpretation still require validation. |
-| Word-motion guidance / demonstration patterns | The operator reported that the Developer Mode visual preview worked as intended during word practice. | Nov. 18 report | HAPT-01 | Physical word-motion guidance remains an unfinished goal. |
+| Automatic finger bend/straighten guidance | The Developer Mode demo for 3 starts automatically after five seconds, repeats needed middle or pinky corrections, and stops when practice completes. Gael reported that the timed demo worked on the glove. | Nov. 19 implementation and rehearsal | DATA-02, HAPT-02, HAPT-03 | Per-cue timing, output counts, and wearer perception were not measured during the rehearsal. |
+| Word-motion guidance / demonstration patterns | Developer Mode starts a preset back-of-hand cue three seconds after opening Hello or Please, then replays after two-second pauses. Starting an attempt pauses the cue. | Current working build | HAPT-04, HAPT-05 | Software tests simulate glove responses. Live guidance and motion-error feedback remain unverified. |
 | App instruction, navigation, and feedback | Final-build checks not yet documented | | | |
 | Accounts and saved progress | Operator reported that progress was still visible after closing and reopening the app. | Nov. 18 report | LIVE-03 | Account isolation and cloud records are not yet documented. |
 | Battery-powered operation | Demo power will be supplied by laptop USB due to earlier battery issues. | Nov. 18 decision | BUILD-01 | Battery failure details and runtime are not yet documented. |
@@ -101,8 +101,9 @@ changes to the sensor or model contracts by itself.
   reused evaluation data; reserve fresh final attempts before tuning when able.
 - [ ] **ML-4:** Keep a per-target live attempt log for the letters, numbers, and
   words actually tested. Include failed, invalid, and inconclusive attempts.
-  [LIVE-03](#live-03-selected-sign-rehearsal-and-progress-persistence) has the
-  operator's per-target totals as reported.
+  [LIVE-03](#live-03-selected-sign-rehearsal-and-progress-persistence) and
+  [LIVE-04](#live-04-three-attempt-live-practice-check) preserve the operator's
+  reported per-target results.
 - [ ] **ML-5:** Record expected target, sign actually performed, predicted label,
   confidence, completion awarded or not, and any separate human correctness
   check. A completion threshold is not an accuracy measurement.
@@ -140,7 +141,8 @@ that a user learned or retained a sign.
   counts. Distinguish audible hints from tactile perception if relevant.
 - [x] **HAP-6:** Describe the final word-motion behavior, if any. Separate
   demonstration playback from feedback based on detected motion errors.
-  See [HAPT-01](#hapt-01-piezo-output-check) for the working visual preview.
+  See [HAPT-01](#hapt-01-piezo-output-check) for the earlier visual preview and
+  [HAPT-05](#hapt-05-word-guidance-before-practice) for current preset guidance.
 - [ ] **HAP-7:** Check perception during signing and whether actuation affects
   sensor readings, recognition, BLE delivery, power, or comfort.
 - [ ] **HAP-8:** Check that cues stop on cancellation, navigation, disconnection,
@@ -162,7 +164,8 @@ improved learning are separate claims. Record only what was actually evaluated.
   cloud records. Test offline/reconnection behavior if feasible; a visible
   "Synced" indicator alone does not independently verify database contents.
   [LIVE-03](#live-03-selected-sign-rehearsal-and-progress-persistence) records
-  the reported close/reopen check.
+  the reported close/reopen check. [APP-09](#app-09-firestore-progress-sync-fix)
+  records a write rejection and the server-side fix.
 - [ ] **APP-5:** Record final software checks/builds with commands, revisions,
   dates, pass/fail counts, warnings, and logs. Keep older alpha/beta runs dated.
 - [ ] **APP-6:** For a sustained-use test, record duration, workload, delivered
@@ -278,15 +281,24 @@ personal account information or participant identities in report screenshots.
 | CAL-02 | November 18, 2026 | Guided flex calibration after resistor swap (HW-1) | Operator reported index ADC clipping and blocked profile save | [Index clipping note](#cal-02-index-adc-clipping) | Results / limitations |
 | CAL-03 | November 18, 2026 | Six-face accelerometer diagnostic (HW-3) | Four checks passed. Both Y captures had the opposite sign from their pose labels. | [Axis measurements](#cal-03-six-face-accelerometer-diagnostic) | Results / limitations |
 | DATA-01 | November 18, 2026 | Post-swap recording review (HW-1, ML-2) | Verified 57 labeled trials and measured ADC clipping | [Recording review](#data-01-post-swap-recording-review) | Results / limitations |
+| DATA-02 | November 19, 2026 | Repeated static holds and moving J/Z (HW-1, ML-2, HAP-3) | 123 real trials. Seven static reference candidates checked against reserved holds. The scheduler passed 38 synthetic direction checks offline. | [Capture and cue checks](#data-02-repeated-sign-recordings-and-haptic-references) | Results / limitations |
+| DATA-03 | November 19, 2026 | Additional seven-word recording session (HW-1, ML-2) | 53 real trials and 5,250 packet-valid frames. | [Word capture](#data-03-additional-word-recordings) | Results / limitations |
 | EVAL-01 | November 18, 2026 | Offline app-rule replay of post-swap recordings (ML-4 to ML-8) | Static 5/36 intended completions. Words 0/9 intended completions. | [Replay results](#eval-01-post-swap-offline-replay) | Results / limitations |
 | EVAL-02 | November 18, 2026 | Post-swap augmentation pilot (ML-3, ML-8, ML-9) | Six word candidates tied at 2/3 validation top-1. Both TCNs completed 1/3 in app-rule replay. | [Pilot results](#eval-02-post-swap-augmentation-pilot) | Results / limitations |
 | EVAL-03 | November 18, 2026 | Demo word TCN retraining (ML-3, ML-8, ML-9) | Frozen candidate completed 3/3 matching and 0/18 wrong-target exposures on reserved recordings. | [Demo word candidate](#eval-03-demo-word-tcn-retraining) | Results / limitations |
 | LIVE-01 | November 18, 2026 | Demo wearer rehearsal (ML-4, ML-5) | Operator reported live G, I, and 1 successes and inconsistent word results except Please. | [Rehearsal and follow-up](#live-01-demo-wearer-rehearsal) | Results / limitations |
 | EVAL-04 | November 18, 2026 | Real-only, all-channel word model (ML-3, ML-8, ML-9) | Five matching completions and zero wrong-target completions across 25 exposures on reserved recordings. | [Second word APK](#eval-04-real-only-all-channel-word-model) | Results / limitations |
+| EVAL-05 | November 19, 2026 | IMU-only J/Z TCN (ML-3, ML-8, ML-9) | Accepted 4/4 matching held-out motion letters and 0/36 unrelated attempts in the second offline experiment. | [Motion letters](#eval-05-jz-motion-letter-tcn) | Results / limitations |
+| EVAL-06 | November 19, 2026 | Expanded word TCN (ML-3, ML-8, ML-9) | 22/24 intended matches across seven words on reserved recordings. One Thank You attempt scored as Eat. | [Word expansion](#eval-06-expanded-word-tcn) | Results / limitations |
 | LIVE-02 | November 18, 2026 | Real-only word model live retest (ML-4, ML-5) | Operator reported that Please, Hello, and Yes worked on the phone. | [Live word retest](#live-02-real-only-word-model-live-retest) | Results / limitations |
 | HAPT-01 | November 18, 2026 | Piezo output check (HAP-1, HAP-2, HAP-4, HAP-6) | All ten outputs were audible during serial testing. The operator reported matching dots and buzzers in the manual phone test and a working word-practice preview. | [Piezo output check](#hapt-01-piezo-output-check) | Results / limitations |
+| HAPT-02 | November 19, 2026 | Number 3 practice demo (HAP-3, HAP-4, HAP-8) | Flutter tests exercised two directions and canceled the sequence on an invalid reading or page exit. | [Number 3 demo](#hapt-02-number-3-practice-demo) | Results / limitations |
+| HAPT-03 | November 19, 2026 | Live rehearsal of the automatic number 3 demo (HAP-3, HAP-4) | Gael reported that the timed number 3 demo worked on the glove. | [Automatic haptic rehearsal](#hapt-03-automatic-number-3-demo-rehearsal) | Results / limitations |
+| HAPT-04 | November 19, 2026 | Preset word cues for Hello and Please (HAP-4, HAP-6, HAP-8) | Flutter tests exercised the requested output order using simulated glove responses. | [Word cue playback](#hapt-04-word-cue-playback) | Results / limitations |
+| HAPT-05 | Follow-up after slide preparation | Preset haptic guidance before word practice (HAP-6, HAP-8) | The cue starts three seconds after opening a lesson, replays after two seconds, and pauses before sensor recording. | [Word guidance](#hapt-05-word-guidance-before-practice) | Design / Results |
 | BUILD-01 | Reported November 18, 2026 | PCB and glove assembly revisions (BUILD-1, BUILD-4, HIST-2, DES-2) | Team abandoned the fabricated PCB and later replaced conductive thread with discrete wiring on a perfboard-based glove. | [Assembly history](#build-01-pcb-and-glove-assembly-history) | Timeline / Design / Results |
 | LIVE-03 | Reported November 18, 2026 | Selected-sign rehearsal and progress (ML-4, ML-5, APP-4) | Operator reported at least 10 successful attempts each for G, I, 1, Hello, Please, and Yes, and progress persisted after closing and reopening the app. | [Rehearsal and persistence](#live-03-selected-sign-rehearsal-and-progress-persistence) | Results / limitations |
+| LIVE-04 | Reported November 18, 2026 | Three-attempt live practice check (ML-4, ML-5, ML-8) | G, I, 1, Hello, Yes, and Please succeeded on all three attempts each. K and X succeeded once each in three attempts. | [Practice results](#live-04-three-attempt-live-practice-check) | M6 verification / R4 Results |
 | USER-01 | Reported November 18, 2026 | Two friends of team members across two lab rounds (USER-1 to USER-3, HIST-2) | Participants reported the glove was failing. The team replaced broken flex sensors after the first round and switched to wires after diagnosing conductive-thread shorts in the second. | [Lab tryouts](#user-01-lab-glove-tryouts) | Results / engineering lessons |
 | | | | | | |
 
@@ -372,6 +384,43 @@ to the mounting or firmware. This run measured steady acceleration.
   them as flex measurements. The recordings contain one labeled attempt per
   static target and three per recorded word. Repeatability and live lesson
   completion require additional evidence.
+
+### DATA-02 repeated sign recordings and haptic references
+
+- `trials (6).csv` and `manifest (6).json` in Gael's Downloads match session
+  `session_20261119T084617_709220Z`. The export has 14,824 packet-valid frames
+  over 123 trials from one recorded signer ID, including five J and six Z
+  motion attempts. There is no attached calibration profile.
+- Thumb/index raw values were identical in 2,420 frames and within four counts
+  in 11,791 frames. Gael reported that bending the index independently also
+  moves the thumb reading. Ring hit the ADC rail in 3,655 frames.
+- [The reference builder](../tools/haptics/build_pose_references.py) used steady
+  central measurements from three or four holds per target and reserved each
+  target's final two holds for a check. It omitted thumb and index everywhere
+  and omitted ring for 3 and C, where it clipped in the fit holds. The ring
+  and pinky bands for 5 showed poor coverage on the reserved holds. G, L, O,
+  0, C and 3 had better coverage on the available channels in this session.
+- The builder exercised both directions in 38 synthetic dry runs. The offline
+  scheduler emitted a finger pulse followed by top/center/bottom or the reverse.
+  The local bands, per-hold results, source hashes, and synthetic test inputs
+  are in `tmp/motion-letters-20261119/static_haptic_references.json`.
+  Physical playback, perception, and correction efficacy were not run.
+
+### DATA-03 additional word recordings
+
+- The matched `trials (7).csv` and `manifest (7).json` from Downloads identify
+  session `session_20261119T142754_729891Z`. The 53 saved attempts include six
+  Hello, seven Thank You, seven Please, eight Sorry, nine Yes, eight No, and
+  eight Eat. All are labeled neutral under one signer ID. There are zero Drink
+  or idle trials in the export.
+- The backend accepted all 5,250 frames. Device times advanced within each
+  attempt with no sequence gaps. Phone receipt times tied in 237 adjacent pairs
+  and the longest within-trial receipt gap was 94 ms. Ring clipped at an ADC
+  rail in 605 frames. Thumb and index were within four counts in 4,952 frames.
+- Together with the two earlier post-swap word exports, there are 85 attempts
+  and 8,493 packets across the seven labels. Session labels alone do not
+  establish independent wearers. Source hashes and whole-trial assignments
+  are in `tmp/word-expansion-20261119/frozen-split.json`.
 
 ### EVAL-01 post-swap offline replay
 
@@ -499,6 +548,57 @@ to the mounting or firmware. This run measured steady acceleration.
   to the standard Flutter assets. The recorded static MLP remains the
   deployed baseline for G, I, and 1.
 
+### EVAL-05 J/Z motion letter TCN
+
+- [The trainer](../backend/train_motion_letters.py) uses a 160-sample window
+  at 40 Hz with six accelerometer and gyroscope features. The training set
+  contains 104 original trials, including three J and four Z, and adds 208
+  timing-offset examples derived from training trials. Scaling is fitted on
+  real training windows. The ESP32 static MLP and three-word bundle remain in use.
+- The first offline model accepted all four J/Z attempts and falsely accepted
+  nine of 45 unrelated attempts. The second fit included additional recorded
+  word negatives and validation negatives. At an 80% acceptance threshold it
+  accepted all four held-out J/Z attempts and none of 36 unrelated attempts.
+  The four included two J and two Z. Some of these recordings were examined in
+  the first experiment. Signer independence and live accuracy are not established.
+- The Flutter app routes J/Z to **Start attempt** and **Finish sign** in Alphabet
+  practice and saves matching completions as letters. Flutter's input tensors
+  matched Python's exactly on all 40 held-out raw packet sequences. The six-axis
+  [model bundle](../flutter_app/assets/models/motion_letters_tcn/model_metadata.json)
+  records the export and input hashes. Per-trial evidence is in
+  `tmp/motion-letters-20261119/rejection-tuned/evaluation.json` locally.
+  The live app/glove test is Not run.
+
+### EVAL-06 expanded word TCN
+
+- Fixed whole-trial training, validation, and reserved sets before fitting.
+  The three word sessions contributed 37, 24, and 24 word attempts to those
+  sets. The separate letter/number session contributed 36, 18, and 18 unrelated
+  attempts, including moving J/Z. An `other` output can reject those movements.
+- Compared all motion and flex inputs, six inertial axes alone, and the six
+  inertial axes plus middle and pinky. Compared recorded-only fits with four
+  training-only timing variants per attempt. The selected TCN used middle
+  and pinky with the six motion axes, 73 original trials, and zero timing
+  variants. The model masks flex rail readings after train-only scaling.
+  See the [bundle metadata](../flutter_app/assets/models/expanded_words_tcn/model_metadata.json).
+- At the app's 80% matching threshold, the exported model matched 22/24
+  reserved word attempts and rejected all 18 reserved unrelated signs. It
+  matched all 14 reserved attempts from the latest export. Two older Thank
+  You attempts missed; one scored as Eat and one scored Thank You below
+  threshold. The original three-word bundle matched 11/11 reserved attempts
+  for its three trained words and made 11 wrong-label matches on the same
+  42-clip set, all from unrelated signs.
+- The working app uses the expanded model for Sorry and No and the rehearsal
+  model for Hello, Please, and Yes. Replay through the Flutter capture and
+  completion controller matched 3/3 for Sorry and 3/3 for No. Each target
+  had 0/39 false completions, with zero capture or preprocessing failures.
+  The still and moving sign negatives do not cover ordinary idle actions or
+  new users. The 79 Flutter tests and Android debug build passed. Both
+  packaged model files matched the verified assets. Live testing is Not run.
+  The local run directory
+  `tmp/word-expansion-20261119/` holds the frozen split, TFLite scores, and
+  `expanded_words-replay.json`.
+
 ### HAPT-01 piezo output check
 
 - The operator used the ESP32 piezo testing tool and reported hearing all ten
@@ -514,9 +614,81 @@ to the mounting or firmware. This run measured steady acceleration.
   that the physical buzzers activated at the locations shown by the highlighted
   dots. The phone/app/firmware revisions, per-output tally, perceived intensity,
   and stop behavior on interruption are not yet documented for this check.
+  On November 19, Gael reconfirmed that the manual test passed and the dots
+  matched the buzzers.
 - **Word practice:** Gael also tried the practice screen preview and reported
   that it worked as intended. The preview visually highlights a dot after a
   recognized target word. Physical word-motion guidance remains unfinished.
+
+### HAPT-02 number 3 practice demo
+
+- Below regular recognition, **Numbers → 3** in Developer Mode has a **Demo**
+  box. With the glove connected, the learner gets five seconds to try 3 before
+  cues are enabled. It uses the DATA-02 raw bands for middle (513–550) and pinky
+  (310–355). Both reserved holds had all 79 central samples inside both bands.
+  Thumb and index were coupled, and ring clipped in the fit holds, so those
+  three inputs are omitted. The 175 ms persistence and 3.5% entry margin are
+  software settings. The recognition tracker still awards lesson progress.
+- The first cue selects the largest normalized deviation and stays with that
+  finger until it enters its band or crosses past it. Bend uses finger,
+  top, center, bottom. Straighten uses finger, bottom, center, top. The hand
+  highlights each confirmed active output from the existing `piezo_demo`
+  firmware. The app waits for that output to end before requesting the next.
+  After a pattern ends, the same cue can repeat after two seconds if it is
+  still needed. Completion, page exit, app backgrounding, or a fault cancels
+  the demo. A correction that changes mid-pattern stops scheduling its
+  remaining pulses.
+- The targeted Flutter tests checked the start and repeat timing, both output
+  orders, one-finger priority, and acknowledgment-driven highlights. They also
+  exercised cancellation on completion, an invalid reading, and page exit.
+  These checks used simulated packets and responses. See
+  [HAPT-03](#hapt-03-automatic-number-3-demo-rehearsal) for the separate live
+  rehearsal and [HAPT-01](#hapt-01-piezo-output-check) for manual mapping.
+
+### HAPT-03 automatic number 3 demo rehearsal
+
+- After trying the hands-free Number 3 demo on the glove, Gael reported that
+  it worked. The tested app behavior waits five seconds before enabling cues,
+  pauses two seconds before repeating a still-needed cue, and ends practice
+  output at recognition completion. The operator report does not log each
+  timing or cue independently. Device revisions, pulse counts, measured
+  latency, and wearer perception are not yet documented for this rehearsal.
+
+### HAPT-04 word cue playback
+
+- This record describes the earlier version that played a cue after a match.
+  HAPT-05 describes the current lesson-entry trigger.
+- In Developer Mode, a matching attempt plays a preset pattern on the back
+  of the hand. Hello uses left, center, right. Please uses left, top,
+  right, bottom, repeated three times. The cue illustrates the chosen
+  motion pattern. The recognition model continues to determine matches.
+- The app requests one pulse at a time using the existing `piezo_demo`
+  firmware and highlights the dot confirmed by the glove. The learner can start
+  another attempt after the cue stops. Leaving the lesson, backgrounding the app,
+  or losing the BLE connection cancels playback.
+- Flutter tests checked both sequences and cancellation using simulated
+  responses. Live playback for Hello and Please is Not run. Words uses green
+  rows and checkmarks for saved completions from the existing progress store.
+
+### HAPT-05 word guidance before practice
+
+- With Developer Mode enabled and a glove running `piezo_demo` connected,
+  opening Hello or Please schedules the first cue after three seconds. Hello uses
+  left, center, right. Please uses left, top, right, bottom for three laps.
+  The hand highlights outputs confirmed by the glove. The next cue starts
+  two seconds after the glove confirms the previous cue's stop.
+- Starting practice cancels a pending cue. If output is active or being
+  stopped, the app waits for the firmware's stop acknowledgment before
+  recording. Guidance resumes after a cancelled or unmatched attempt and
+  ends after a match. Leaving the lesson, backgrounding the app, or losing
+  the glove connection ends automatic replay.
+  Word recognition and progress still use the Start attempt / Finish sign flow.
+- Flutter widget tests checked the three-second delay, the two-second pause
+  after a confirmed stop, early-start cancellation, and replay after a
+  cancelled attempt. They also checked that a stale pulse response does
+  not start recording and that a match ends replay. All 79 Flutter tests
+  and the Android debug build passed. Live verification on the glove is
+  pending.
 
 ### BUILD-01 PCB and glove assembly history
 
@@ -569,6 +741,38 @@ to the mounting or firmware. This run measured steady acceleration.
   closing and reopening the app. Cloud records, cross-device or account
   behavior, and offline persistence are not yet documented.
 
+### LIVE-04 three-attempt live practice check
+
+Gael reported attempting eight targets three times each with the glove and
+app. These are firsthand counts reported in chat. Per-attempt logs, predicted
+labels on misses, and confidence scores are unavailable.
+
+| Target | Successful attempts | Total attempts |
+| --- | ---: | ---: |
+| G | 3 | 3 |
+| I | 3 | 3 |
+| 1 | 3 | 3 |
+| Hello | 3 | 3 |
+| Yes | 3 | 3 |
+| Please | 3 | 3 |
+| K | 1 | 3 |
+| X | 1 | 3 |
+
+Use these counts for the eight-target check. The overlap with LIVE-03 is
+unknown, so the counts should stay in their respective records. The results
+describe one wearer and the selected targets. The cause of the K and X misses
+is unknown. Gael confirmed hardware changes and rewiring are unavailable now.
+
+**Configuration reference:** At review, the local branch and `origin/gael`
+both pointed to `d1c506b3e165bd6109b6feed7551d9f460984ac3`. That source revision
+has Flutter version `1.0.1+2`, the ESP32 `adafruit_feather_esp32s3` and
+`piezo_demo` build environments, the recorded 34-class static MLP, and the v2
+Hello/Please/Yes TCN. The bundled word model SHA-256 is
+`6ed41ddd6b09d727e87cd1b6d299a9a75d5e51615cbad93822c1bb3487c9f7dd`.
+The repository's earlier phone reference is Fairphone Gen 6 / Android 15.
+The exact APK, flashed firmware environment, phone/OS, and power used for
+these attempts have yet to be confirmed.
+
 ### USER-01 lab glove tryouts
 
 - **Participants and feedback:** Gael reported two lab tryouts with two friends
@@ -579,11 +783,38 @@ to the mounting or firmware. This run measured steady acceleration.
 | Round | Observation reported by Gael | Change or retest |
 | --- | --- | --- |
 | About one month before November 18 | The team investigated incorrect readings and identified broken flex sensors. | The team bought and installed replacement flex sensors. |
-| November 18, 2026 | The team investigated missing sensor readings and attributed them to conductive-thread shorts. | The team switched to discrete wiring. A repeat tryout with the two participants after rewiring is not yet documented. |
+| November 18, 2026 | The team investigated missing sensor readings and attributed them to conductive-thread shorts. | The team switched to discrete wiring. Gael confirmed that a repeat tryout with those participants after rewiring has not been done. |
 
 - **Evidence gap for M6:** The first round's date is approximate. Both rounds
   are documented from Gael's recollection. Gael reported having no photos or
   other records from the tryouts, so timestamped third-party evidence is missing.
+
+### M6 review follow-up for R4
+
+- Gael confirmed that the new IMU was installed, calibrated, and working. The
+  app did flag calibration checks, including the earlier recorded diagnostic.
+  The cause of the app messages was not determined. Keep the diagnostic
+  readings as observations from that run.
+- Gael confirmed recognition of more words than the three named in the live
+  practice check. The bundle inspected at `d1c506b` lists Hello, Please, and
+  Yes. The full label list and corresponding build for the broader coverage
+  remain to be confirmed. Use the three named words when reporting LIVE-04.
+- Gael confirmed that the team has not done another tryout with the two outside
+  participants since the glove was rewired.
+
+### APP-09 Firestore progress sync fix
+
+- November 19, 2026. Android log supplied by Gael showed repeated
+  `PERMISSION_DENIED` writes to `users/{uid}/progress/current` after a Flutter
+  restart. Expected behavior was for signed-in progress to sync to Firestore.
+- The app writes `word_prediction_*` completion IDs, but the rules previously
+  allowed only 36 static exercise IDs. Updated
+  [the Firestore rules](../flutter_app/firestore.rules) to allow all eight
+  curriculum word IDs and 44 total exercises. Authentication and ownership
+  checks stayed in place.
+- A source check matched the allowlist to all eight Words tab entries and 36
+  static targets. Firebase CLI compiled and released the rules to
+  `helping-hand-83137`. Phone retry and cloud document readback were not run.
 
 ### Build/test session record - copy for each session
 

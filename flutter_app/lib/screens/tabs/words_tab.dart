@@ -41,81 +41,71 @@ class WordsTab extends StatelessWidget {
         const SizedBox(height: 8),
         Builder(
           builder: (context) => Text(
-            '${candidateWords.length} words',
+            '${candidateWords.where(learnedWords.contains).length} of ${candidateWords.length} learned',
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
         const SizedBox(height: 16),
-        ...candidateWords.indexed.map((entry) {
-          final (index, word) = entry;
-          final label = _displayWord(word);
-          return Column(
-            children: [
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => onWordSelected(word),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 40,
-                          child: ExcludeSemantics(
-                            child: Text(
-                              '${index + 1}'.padLeft(2, '0'),
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: HelpingHandColors.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
+        for (final word in candidateWords)
+          Builder(
+            builder: (context) {
+              final learned = learnedWords.contains(word);
+              final theme = Theme.of(context);
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Material(
+                  key: ValueKey('word-row-$word'),
+                  color: learned
+                      ? HelpingHandColors.secondary
+                      : HelpingHandColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () => onWordSelected(word),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  displayWord(word),
+                                  style: theme.textTheme.titleMedium,
+                                ),
+                                if (learned)
+                                  Text(
+                                    'Learned',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: HelpingHandColors.success,
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                label,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                learnedWords.contains(word)
-                                    ? 'Completed'
-                                    : trainedWords.contains(word)
-                                    ? 'Recognition available'
-                                    : 'Recognition coming later',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
+                          const SizedBox(width: 12),
+                          Icon(
+                            learned
+                                ? Icons.check_circle_outline
+                                : Icons.arrow_forward_rounded,
+                            size: 20,
+                            color: learned
+                                ? HelpingHandColors.success
+                                : HelpingHandColors.primary,
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 20,
-                          color: HelpingHandColors.primary,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const Divider(),
-            ],
-          );
-        }),
+              );
+            },
+          ),
       ],
     ),
   );
-
-  static String _displayWord(String word) {
-    return word
-        .split('_')
-        .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
-        .join(' ');
-  }
 }

@@ -83,6 +83,8 @@ flutter:
     - assets/fonts/
     - assets/models/test.glb
     - assets/models/words_tcn/
+    - assets/models/expanded_words_tcn/
+    - assets/models/motion_letters_tcn/
     - assets/three_hand_viewer.html
   #   - images/a_dot_ham.jpeg
 

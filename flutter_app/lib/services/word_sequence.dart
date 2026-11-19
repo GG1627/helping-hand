@@ -4,18 +4,31 @@ import 'dart:typed_data';
 import 'ble_packet.dart';
 
 const trainedWords = <String>['hello', 'please', 'yes'];
+const additionalPracticeWords = <String>['sorry', 'no'];
+const wordPracticeTargets = <String>[
+  ...trainedWords,
+  ...additionalPracticeWords,
+];
+const expandedWordVocabulary = <String>[
+  'hello',
+  'thank_you',
+  'please',
+  'sorry',
+  'yes',
+  'no',
+  'eat',
+  'other',
+];
+const trainedMotionLetters = <String>['j', 'z'];
+const motionLetterVocabulary = <String>[...trainedMotionLetters, 'other'];
+const imuMotionFeatureColumns = <String>['ax', 'ay', 'az', 'gx', 'gy', 'gz'];
 const wordFeatureColumns = <String>[
   'flex_thumb_raw',
   'flex_index_raw',
   'flex_middle_raw',
   'flex_ring_raw',
   'flex_pinky_raw',
-  'ax',
-  'ay',
-  'az',
-  'gx',
-  'gy',
-  'gz',
+  ...imuMotionFeatureColumns,
 ];
 const magneticWordFeatureColumns = <String>[
   ...wordFeatureColumns,
@@ -70,28 +83,33 @@ class WordFrame {
 }
 
 class WordModelSpec {
-  WordModelSpec.fromJson(Map<String, dynamic> json)
-    : windowSamples = json['window_samples'] as int,
-      rateHz = (json['target_rate_hz'] as num).toDouble(),
-      vocabulary = List<String>.from(json['vocabulary'] as List),
-      featureColumns = List<String>.unmodifiable(
-        json['feature_columns'] as List,
-      ),
-      windowPolicy =
-          (json['preprocessing']?['window_policy'] as String?) ??
-          'center_trim_edge_pad',
-      mean = List<num>.from(
-        json['standardizer']['mean'] as List,
-      ).map((n) => n.toDouble()).toList(),
-      scale = List<num>.from(
-        json['standardizer']['scale'] as List,
-      ).map((n) => n.toDouble()).toList() {
+  WordModelSpec.fromJson(
+    Map<String, dynamic> json, {
+    this.motionLetters = false,
+    List<String> wordVocabulary = trainedWords,
+  }) : windowSamples = json['window_samples'] as int,
+       rateHz = (json['target_rate_hz'] as num).toDouble(),
+       vocabulary = List<String>.from(json['vocabulary'] as List),
+       featureColumns = List<String>.unmodifiable(
+         json['feature_columns'] as List,
+       ),
+       windowPolicy =
+           (json['preprocessing']?['window_policy'] as String?) ??
+           'center_trim_edge_pad',
+       mean = List<num>.from(
+         json['standardizer']['mean'] as List,
+       ).map((n) => n.toDouble()).toList(),
+       scale = List<num>.from(
+         json['standardizer']['scale'] as List,
+       ).map((n) => n.toDouble()).toList() {
     bool same(List<dynamic> a, List<dynamic> b) =>
         a.length == b.length &&
         List.generate(a.length, (i) => a[i] == b[i]).every((v) => v);
     final preprocessing = json['preprocessing'];
     final featureSet = preprocessing?['feature_set'] ?? 'flex_imu6';
-    final expectedFeatures = featureSet == 'flex_imu6'
+    final expectedFeatures = motionLetters
+        ? (featureSet == 'imu6' ? imuMotionFeatureColumns : const <String>[])
+        : featureSet == 'flex_imu6'
         ? wordFeatureColumns
         : featureSet == 'flex_imu9'
         ? magneticWordFeatureColumns
@@ -113,7 +131,10 @@ class WordModelSpec {
           'center_trim_edge_pad',
           'reject_overlength_edge_pad',
         ].contains(windowPolicy) ||
-        !same(vocabulary, trainedWords) ||
+        !same(
+          vocabulary,
+          motionLetters ? motionLetterVocabulary : wordVocabulary,
+        ) ||
         expectedFeatures.isEmpty ||
         !same(featureColumns, expectedFeatures) ||
         !same(
@@ -130,6 +151,7 @@ class WordModelSpec {
     }
   }
   final int windowSamples;
+  final bool motionLetters;
   final double rateHz;
   final List<String> vocabulary;
   final List<String> featureColumns;
@@ -145,6 +167,9 @@ class WordModelSpec {
       throw const FormatException('Not enough sensor data.');
     }
     final values = frames.map((frame) {
+      if (motionLetters && frame.values.length == wordFeatureColumns.length) {
+        return frame.values.sublist(wordFeatureColumns.length - featureCount);
+      }
       if (featureCount == 14 && frame.values.length == 11) {
         if (frame.magneticValues == null || frame.magneticValues!.length != 3) {
           throw const FormatException(

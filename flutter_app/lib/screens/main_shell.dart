@@ -14,6 +14,7 @@ import 'calibration_screen.dart';
 import '../services/stable_prediction_tracker.dart';
 import '../theme/helping_hand_theme.dart';
 import '../widgets/stable_prediction_practice_card.dart';
+import '../widgets/static_haptic_demo_card.dart';
 import '../widgets/word_practice_card.dart';
 import '../services/word_sequence.dart';
 import 'learning_screen.dart';
@@ -199,7 +200,10 @@ class _MainShellState extends State<MainShell> {
     required String target,
     required String title,
   }) {
-    if (category == 'words') {
+    final motionLetter =
+        category == 'alphabet' &&
+        trainedMotionLetters.contains(target.toLowerCase());
+    if (category == 'words' || motionLetter) {
       _clearStaticPractice();
     } else {
       _selectPracticeTarget(target);
@@ -209,38 +213,55 @@ class _MainShellState extends State<MainShell> {
       category: category,
       target: target,
       title: title,
-      practice: category == 'words'
+      practice: category == 'words' || motionLetter
           ? WordPracticeCard(
-              target: target,
+              target: motionLetter ? target.toLowerCase() : target,
               bleService: _bleService,
-              showHapticDemo: _developerMode,
-              onCompleted: (word) async {
-                await _progressRepository.completeWord(word);
+              showHapticDemo: _developerMode && !motionLetter,
+              motionLetter: motionLetter,
+              onCompleted: (sign) async {
+                if (motionLetter) {
+                  await _progressRepository.completeStaticTarget(sign);
+                } else {
+                  await _progressRepository.completeWord(sign);
+                }
                 if (_progressRepository.state.status ==
                     ProgressSyncStatus.localSaveFailure) {
-                  throw StateError(
-                    'Word completion could not be saved locally.',
-                  );
+                  throw StateError('Completion could not be saved locally.');
                 }
               },
             )
-          : _practiceCard(),
+          : _practiceCard(showDemo: _developerMode && target == '3'),
     );
   }
 
-  Widget _practiceCard() {
-    return AnimatedBuilder(
-      animation: Listenable.merge([_bleService, _practiceRevision]),
-      builder: (context, _) => StablePredictionPracticeCard(
-        target: _selectedPracticeTarget,
-        packet: _bleService.lastPacket,
-        predictedLabel: _predictionResult.predictedLabel,
-        predictedConfidence: _predictionResult.predictedConfidence,
-        progress: _predictionResult.progress,
-        message: _practiceMessage,
-        connected: _bleService.isConnected,
-        onRetry: _retryPracticeTarget,
-      ),
+  Widget _practiceCard({required bool showDemo}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AnimatedBuilder(
+          animation: Listenable.merge([_bleService, _practiceRevision]),
+          builder: (context, _) => StablePredictionPracticeCard(
+            target: _selectedPracticeTarget,
+            predictedLabel: _predictionResult.predictedLabel,
+            predictedConfidence: _predictionResult.predictedConfidence,
+            progress: _predictionResult.progress,
+            message: _practiceMessage,
+            connected: _bleService.isConnected,
+            onRetry: _retryPracticeTarget,
+          ),
+        ),
+        if (showDemo) ...[
+          const SizedBox(height: 16),
+          ValueListenableBuilder(
+            valueListenable: _practiceRevision,
+            builder: (context, _, _) => StaticHapticDemoCard(
+              bleService: _bleService,
+              completed: _predictionTracker.isCompleted,
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -255,7 +276,7 @@ class _MainShellState extends State<MainShell> {
         learnedNumbers: progress.learnedNumbers,
         totalNumbers: 10,
         learnedWords: progress.learnedWords,
-        totalWords: trainedWords.length,
+        totalWords: wordPracticeTargets.length,
         syncStatus: _progressState.status,
         syncMessage: _progressState.message,
         accountEmail: widget.email,
@@ -307,6 +328,7 @@ class _MainShellState extends State<MainShell> {
         RecordSignsTab(
           bleService: _bleService,
           recordingService: _recordingService,
+          isActive: tabIndex == 4,
         ),
         BleTestingTab(bleService: _bleService),
         DeveloperToolsTab(

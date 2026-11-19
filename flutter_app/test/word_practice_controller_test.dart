@@ -11,6 +11,7 @@ class FakeClassifier implements WordClassifier {
   bool failLoad = false;
   Completer<WordPrediction>? pending;
   List<double> probabilities = [0.98, 0.01, 0.01];
+  List<String> vocabulary = trainedWords;
   @override
   Future<void> initialize() async {
     loads++;
@@ -22,7 +23,7 @@ class FakeClassifier implements WordClassifier {
     calls++;
     return pending != null
         ? pending!.future
-        : WordPrediction.fromProbabilities(probabilities, trainedWords);
+        : WordPrediction.fromProbabilities(probabilities, vocabulary);
   }
 
   @override
@@ -95,6 +96,35 @@ void main() {
     expect(controller.prediction!.confidence, 45);
   });
   test(
+    'motion letters accept only the selected letter and reject other motion',
+    () async {
+      final motion = FakeClassifier()..vocabulary = motionLetterVocabulary;
+      final practice = WordPracticeController(
+        target: 'z',
+        classifier: motion,
+        motionLetter: true,
+        clock: () => now,
+      );
+      addTearDown(practice.dispose);
+      await practice.initialize();
+      expect(practice.phase, WordPracticePhase.ready);
+
+      Future<bool> attempt(List<double> scores) {
+        motion.probabilities = scores;
+        practice.start(connected: true, freshSensors: true);
+        for (var index = 0; index < 40; index++) {
+          now = now.add(const Duration(milliseconds: 25));
+          practice.add(sensorPacket(now, index));
+        }
+        return practice.finish(connected: true);
+      }
+
+      expect(await attempt([0.01, 0.01, 0.98]), isFalse);
+      expect(await attempt([0.98, 0.01, 0.01]), isFalse);
+      expect(await attempt([0.01, 0.98, 0.01]), isTrue);
+    },
+  );
+  test(
     'offline IMU discards attempt rather than using static flex data',
     () async {
       record();
@@ -165,7 +195,7 @@ void main() {
   test('untrained word never loads the classifier', () async {
     final otherClassifier = FakeClassifier();
     final other = WordPracticeController(
-      target: 'sorry',
+      target: 'drink',
       classifier: otherClassifier,
     );
     await other.initialize();

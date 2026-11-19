@@ -17,6 +17,7 @@ class WordPracticeController extends ChangeNotifier {
   WordPracticeController({
     required this.target,
     required this.classifier,
+    this.motionLetter = false,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now;
   static const minimumConfidence = 80.0;
@@ -24,10 +25,11 @@ class WordPracticeController extends ChangeNotifier {
   static const maximumAttempt = Duration(seconds: 8);
   final String target;
   final WordClassifier classifier;
+  final bool motionLetter;
   final DateTime Function() _clock;
   final List<WordFrame> _frames = [];
   WordPracticePhase phase = WordPracticePhase.loading;
-  String message = 'Preparing word recognition...';
+  String message = 'Preparing recognition...';
   WordPrediction? prediction;
   DateTime? _startedAt;
   DateTime? _lastReceivedAt;
@@ -39,9 +41,13 @@ class WordPracticeController extends ChangeNotifier {
       : _clock().difference(_startedAt!).inMilliseconds / 1000;
 
   Future<void> initialize() async {
-    if (!trainedWords.contains(target)) {
+    if (!(motionLetter ? trainedMotionLetters : wordPracticeTargets).contains(
+      target,
+    )) {
       phase = WordPracticePhase.unavailable;
-      message = 'Recognition is not available for this word yet.';
+      message = motionLetter
+          ? 'Recognition is not available for this letter yet.'
+          : 'Recognition is not available for this word yet.';
       _notify();
       return;
     }
@@ -54,7 +60,9 @@ class WordPracticeController extends ChangeNotifier {
       if (_disposed) return;
       debugPrint('Word model load failed: $error');
       phase = WordPracticePhase.unavailable;
-      message = 'Word recognition could not load. Reopen this page to retry.';
+      message = motionLetter
+          ? 'Letter recognition could not load. Reopen this page to retry.'
+          : 'Word recognition could not load. Reopen this page to retry.';
     }
     _notify();
   }
@@ -124,7 +132,10 @@ class WordPracticeController extends ChangeNotifier {
       return;
     }
     if (phase != WordPracticePhase.recording) return;
-    if (_clock().difference(_startedAt!) > maximumAttempt) {
+    final timeLimit = motionLetter
+        ? const Duration(seconds: 4)
+        : maximumAttempt;
+    if (_clock().difference(_startedAt!) > timeLimit) {
       cancel('Attempt timed out. Start again and finish after the sign.');
     } else if (_clock().difference(_lastReceivedAt ?? _startedAt!) >
         maximumGap) {
@@ -158,7 +169,7 @@ class WordPracticeController extends ChangeNotifier {
       phase = matches ? WordPracticePhase.matched : WordPracticePhase.retry;
       message = matches
           ? 'Matched ${displayWord(target)}.'
-          : result.confidence < minimumConfidence
+          : result.confidence < minimumConfidence || result.label == 'other'
           ? 'The reading was uncertain. Try another attempt.'
           : 'Recognized ${displayWord(result.label)}. Try ${displayWord(target)} again.';
       _notify();

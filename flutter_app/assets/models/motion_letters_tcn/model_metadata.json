@@ -1,0 +1,69 @@
+{
+  "schema_version": "word-model-bundle-v1",
+  "architecture": "tcn",
+  "trained": true,
+  "data_origin": "real_with_train_only_timing_offsets",
+  "vocabulary": [
+    "j",
+    "z",
+    "other"
+  ],
+  "feature_columns": [
+    "ax",
+    "ay",
+    "az",
+    "gx",
+    "gy",
+    "gz"
+  ],
+  "window_samples": 160,
+  "target_rate_hz": 40,
+  "preprocessing": {
+    "schema_version": "sequence-preprocessing-v1",
+    "feature_set": "imu6",
+    "window_samples": 160,
+    "target_rate_hz": 40,
+    "window_policy": "center_trim_edge_pad"
+  },
+  "standardizer": {
+    "method": "per_feature_standardization",
+    "fitted_split": "train",
+    "feature_columns": [
+      "ax",
+      "ay",
+      "az",
+      "gx",
+      "gy",
+      "gz"
+    ],
+    "mean": [
+      -0.024828221648931503,
+      0.21811698377132416,
+      0.7864771485328674,
+      0.3530750572681427,
+      0.9143930077552795,
+      -0.14969034492969513
+    ],
+    "scale": [
+      0.4566881060600281,
+      0.25585123896598816,
+      0.33349260687828064,
+      28.784042358398438,
+      17.102474212646484,
+      16.14097023010254
+    ]
+  },
+  "tflite_sha256": "bb230fbf3c3fd2c62487d6a26edf043e5d082dfcead21074f37eac34c031a586",
+  "source_sha256": {
+    "trials (6).csv": "b17678c6895b050a684aee4e33dc71b87c607aed61f084b08c293c3ce561027c",
+    "manifest (6).json": "101bd629b36c3bec8d47e550e889105e8b2f5b6141135416643bda5bb631a09b",
+    "trials (3).csv": "abbdd59aae13ff2044c6188482a662e33b060fdafa0626d1aa2a6d0f491323e3",
+    "manifest (4).json": "48ec7ea8ab3b463e76ff25d85b80096b6ce679609c9c829a6fd9b6d77250c92f",
+    "trials (4).csv": "dd6a34a38f46d35fd0158f2222a5969985e71daf83fadcbd83effe8d807a43f9",
+    "manifest (3).json": "f482e533bd0e40c8c705f153bbb01c8f59e7e9bfe413d9c42aa10cf866732ded",
+    "trials (5).csv": "440cfe1ba68a88468d275a0ff0a113083cebed032118586c5bf7848f818f9cca",
+    "manifest (5).json": "252e2f9f5fa9e520738583231535360ab23bf28c718f5c64cce21130f8d0ec5e"
+  },
+  "threshold": 0.8,
+  "selected_epoch": 129
+}

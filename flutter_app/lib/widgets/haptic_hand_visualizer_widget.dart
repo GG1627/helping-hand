@@ -301,16 +301,37 @@ class _HapticHandPainter extends CustomPainter {
 }
 
 class PiezoOutputHand extends StatelessWidget {
-  const PiezoOutputHand({super.key, this.activeOutput, this.height = 300});
+  const PiezoOutputHand({
+    super.key,
+    this.activeOutput,
+    this.height = 300,
+    this.animatePulse = false,
+  });
 
   final PiezoOutput? activeOutput;
   final double height;
+  final bool animatePulse;
 
   @override
   Widget build(BuildContext context) {
+    if (!animatePulse ||
+        activeOutput == null ||
+        MediaQuery.disableAnimationsOf(context)) {
+      return _hand(1);
+    }
+    return TweenAnimationBuilder<double>(
+      key: ValueKey(activeOutput),
+      tween: Tween(begin: 0.28, end: 1),
+      duration: const Duration(milliseconds: 140),
+      curve: Curves.easeOut,
+      builder: (context, intensity, _) => _hand(intensity),
+    );
+  }
+
+  Widget _hand(double intensity) {
     final states = List<double>.filled(PiezoOutput.values.length, 0);
     final output = activeOutput;
-    if (output != null) states[output.marker] = 1;
+    if (output != null) states[output.marker] = intensity;
     return SizedBox(
       height: height,
       child: FittedBox(

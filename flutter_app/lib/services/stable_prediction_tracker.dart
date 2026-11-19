@@ -56,6 +56,7 @@ class StablePredictionTracker {
   bool _completed = false;
 
   String? get target => _target;
+  bool get isCompleted => _completed;
 
   StablePredictionResult selectTarget(String target) {
     final normalized = target.trim().toUpperCase();

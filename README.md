@@ -35,8 +35,8 @@ problems. The glove has five flex sensors, an ICM-20948, and ten piezos.
 | --- | --- |
 | Held letters and digits | ESP32 MLP for 24 letters and all ten digits. |
 | J and Z | Separate IMU-only phone TCN. Use Start attempt and Finish sign. |
-| Words | The bundled phone TCN recognizes Hello, Please, and Yes. The Words list displays all eight lessons and highlights saved completions in green. |
-| Developer Mode haptics | Number 3 gives an automatic middle or pinky correction. Matching Hello and Please attempts replay preset motion cues on the back of the hand. |
+| Words | Hello, Please, and Yes use the rehearsal model. Sorry and No use a second TCN checked on reserved recordings. The Words list displays all eight lessons and highlights saved completions in green. |
+| Developer Mode haptics | Number 3 gives an automatic middle or pinky correction. Hello and Please start preset cues after three seconds and replay after two-second pauses. Starting an attempt pauses guidance. |
 | Developer recording | Static holds start on tap and save after three seconds. Word recording starts on tap and retains manual stop and review. |
 
 For the demo, prepare BLE and Developer Mode before presenting. Use the

@@ -10,7 +10,7 @@ glove and phone. Assign the wearer, phone operator, narrator, and slide operator
 | 10–25 s | Open **G**, form it, and hold for the recognition result. | Point to the match and hold indicator. |
 | 25–43 s | Open **Z**, tap **Start attempt**, trace Z, then **Finish sign** within four seconds. | Contrast a moving attempt with the held G. |
 | 43–72 s | Open **Numbers → 3**, scroll to **Demo**, and hold a deliberately curled middle finger. After five seconds, leave time for the cue, then straighten it. | The finger pulse identifies the finger. Bottom → center → top means straighten. Show what the app reports after the correction. |
-| 72–108 s | Use **Start attempt** and **Finish sign** for **Hello**, then **Please** if time permits. Let Hello's left → center → right cue play, then allow time for Please's three left → top → right → bottom laps. | Matching words replay preset cues. Describe the physical output and wearer sensation as observed. |
+| 72–108 s | Open **Hello** and wait three seconds for the left → center → right cue. It replays after a two-second pause. Use **Start attempt** and **Finish sign**, then repeat the flow for **Please** if time permits. Please plays three left → top → right → bottom laps per cue. | Show the motion guidance before signing. Describe the physical output and wearer sensation as observed. |
 | 108–120 s | Return to **Words**, point to the green rows and checkmarks, then return to slide 8. | Show saved completion. Call out a newly completed row only if it changes during the attempt. |
 
 If the previous steps or audience questions use up the buffer, go from Hello
@@ -32,12 +32,12 @@ wearer's actual experience.
 - The manual buzzer locations matched the display, and Gael separately
   reported that the hands-free Number 3 demo worked on the glove. The two new
   word cue sequences have software checks with simulated glove responses.
-- The bundled word recognizer covers Hello, Please, and Yes. The Words screen
-  lists eight lessons. The other five recognizer labels and expanded haptic
-  coverage remain post-presentation work.
+- The rehearsal recognizer covers Hello, Please, and Yes. Sorry and No use
+  a second model with offline results. The Words screen lists eight lessons,
+  and Hello and Please have preset guidance.
 
 See [the evidence checklist](../docs/FINAL_REPORT_EVIDENCE_CHECKLIST.md) for
-LIVE-04, EVAL-05, and HAPT-01 through HAPT-04.
+LIVE-04, EVAL-05, EVAL-06, and HAPT-01 through HAPT-05.
 
 ## Before the presentation
 

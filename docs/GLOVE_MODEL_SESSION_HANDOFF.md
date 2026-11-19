@@ -17,10 +17,12 @@ making live performance claims. See the [run sheet](../post_mortem_presentation/
 The November 19 export has 123 real trials and 14,824 frames. It includes five
 J and six Z attempts. Thumb and index tracked together, and ring reached the
 ADC rail in 3,655 frames. The number 3 cue uses measured middle and pinky bands.
-Resume after slides with the remaining word models and haptic cues, and keep a
-record of newly tested targets. The [evidence checklist](FINAL_REPORT_EVIDENCE_CHECKLIST.md)
-holds the raw export references and recorded outcomes under DATA-02, EVAL-05,
-HAPT-03, and HAPT-04.
+The later seven-word export adds 53 attempts. The selected expanded TCN uses
+middle, pinky, and the six inertial axes. Sorry and No use this bundle in
+practice. Thank You and Eat need fresh trials together to check their
+separation before either is enabled. See the
+[word experiment](FINAL_REPORT_EVIDENCE_CHECKLIST.md#eval-06-expanded-word-tcn)
+and [recording details](FINAL_REPORT_EVIDENCE_CHECKLIST.md#data-03-additional-word-recordings).
 
 ## Current runtime and evidence
 
@@ -28,7 +30,7 @@ HAPT-03, and HAPT-04.
 | --- | --- | --- |
 | Static recognition | Default ESP32 recorded MLP: five calibrated flex inputs, 34 letter/number classes excluding J/Z | Legacy 36-class baseline is preserved; current endpoints are 425 bent / 625 straight for all five fingers and must be rechecked on replacement sensors |
 | J/Z recognition | A separate phone TCN uses six IMU axes and a 160-sample, 40 Hz window. It accepts J or Z through a Start/Finish attempt and has an `other` class. | Offline replay accepted 4/4 matching held-out attempts and 0/36 unrelated attempts. Some of those attempts were examined during development. Live J/Z use and signer independence are unverified. |
-| Word recognition | The bundled Flutter TCN recognizes `hello, please, yes`; Start/Finish attempts award saved completion. All eight lessons appear in Words, with saved completions highlighted. | The input is 160 samples at 40 Hz and 11 features, with near-rail flex masking. All three bundled labels have operator-reported live results. The remaining five labels need a validated bundle. |
+| Word recognition | Hello, Please, and Yes use the rehearsal TCN. Sorry and No use the expanded TCN. Start/Finish attempts award saved completion. All eight lesson rows appear in Words. | Both models accept 160 samples at 40 Hz and 11 input features. Sorry and No have offline results; live tests are Not run. Thank You, Eat, and Drink are practice lessons without scored recognition. |
 | Historical word data | 15 real attempts, five per word; original split 9 train / 3 validation / 3 test | Reported signer IDs do not prove independent wearers; historical test attempts are development/regression evidence after further tuning |
 | IMU transport | Six motion axes plus optional magnetic status/vector through firmware, BLE, Flutter, and recording export. Gael reported the installed ICM-20948 working. | The six-face diagnostic flagged two Y captures. The cause and magnetic fusion behavior need verification. |
 | Calibration | Developer-only guided capture, local save/export, raw evidence, and profile-linked recording snapshots | Measurement only: profiles are not automatically applied to firmware readings, model inputs, or magnetic fusion |
@@ -38,10 +40,11 @@ HAPT-03, and HAPT-04.
 | Standalone boot | Optional USB Serial wait is bounded to approximately 1,500 ms before continuing setup | Firmware/host checks passed; physical battery-only startup is Not run |
 | Haptics | Manual BLE output testing, automatic Number 3 cues, and preset Hello/Please playback use the same bounded pulses. | Gael confirmed manual mapping and Number 3 playback. The word cues have simulated results. See the [haptic handoff](HAPTIC_ENGINEERING_HANDOFF.md). |
 
-The word TCN uses five raw flex readings plus `ax, ay, az, gx, gy, gz`. J/Z use
-those same motion axes alone. Both bundles use accelerometer and gyroscope
-signals directly. A wrist IMU measures motion and orientation, while body-relative
-position, finger spread/contact, and other-hand activity require separate evidence.
+The rehearsal word TCN uses five raw flex readings plus
+`ax, ay, az, gx, gy, gz`. The expanded TCN selects middle, pinky, and those six
+motion axes. J/Z use those motion axes alone. A wrist IMU measures motion and
+orientation, while body-relative position, finger spread/contact, and other-hand
+activity require separate evidence.
 
 ## Completed preparation and references
 
@@ -193,7 +196,7 @@ product as hardware-validated or feature-complete.
 ## Suggested prompt for a new session
 
 > Read AGENTS.md, the current status above, and docs/HAPTIC_ENGINEERING_HANDOFF.md.
-> Resume after the presentation with fresh word trials and negative examples for
-> Thank You, Sorry, No, Eat, and Drink. Keep the current three-word and J/Z
-> bundles as baselines. Record live outcomes and confirm which additional cue
-> patterns to use before extending automatic playback.
+> Rehearse Sorry and No with the connected glove. Collect a fresh session with
+> alternating Thank You and Eat attempts to check confusion, plus idle and
+> unrelated movements for rejection checks. Drink is pending collection. Record
+> live outcomes and confirm additional cue patterns before extending playback.

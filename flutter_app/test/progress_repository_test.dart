@@ -55,15 +55,19 @@ void main() {
         await first.completeStaticTarget('A');
         await first.completeWord('hello');
         await first.completeWord('hello');
-        await expectLater(first.completeWord('sorry'), throwsArgumentError);
+        await first.completeWord('sorry');
+        await first.completeWord('no');
+        await expectLater(first.completeWord('drink'), throwsArgumentError);
         first.dispose();
         final restored = ProgressRepository(localStore: store);
         await restored.initialize();
-        expect(restored.state.progress.learnedWords, {'hello'});
+        expect(restored.state.progress.learnedWords, {'hello', 'sorry', 'no'});
         expect(restored.state.progress.learnedLetters, {'A'});
         expect(restored.state.progress.completedExercises, {
           'static_prediction_a',
           'word_prediction_hello',
+          'word_prediction_sorry',
+          'word_prediction_no',
         });
         await restored.reset();
         expect(restored.state.progress.learnedWords, isEmpty);

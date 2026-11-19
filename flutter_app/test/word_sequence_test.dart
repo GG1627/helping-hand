@@ -108,6 +108,24 @@ void main() {
     expect(() => WordModelSpec.fromJson(invalid), throwsFormatException);
   });
 
+  test('motion-letter bundle uses IMU readings independently of flex', () {
+    final json = metadata(
+      'assets/models/motion_letters_tcn/model_metadata.json',
+    );
+    expect(() => WordModelSpec.fromJson(json), throwsFormatException);
+    final spec = WordModelSpec.fromJson(json, motionLetters: true);
+    List<WordFrame> frames(double flex) => [
+      WordFrame(0, 1, [flex, flex, flex, flex, flex, 0, 0, 1, 1, 2, 3]),
+      WordFrame(25, 2, [flex, flex, flex, flex, flex, 0, 0, 1, 4, 5, 6]),
+    ];
+    final input = spec.prepare(frames(0));
+    expect(spec.vocabulary, ['j', 'z', 'other']);
+    expect(input.length, 160);
+    expect(input.first.length, 6);
+    expect(spec.prepare(frames(4095)), input);
+    expect(input.first, isNot(input.last));
+  });
+
   test('reversed clock and non-finite frames cannot reach inference', () {
     final spec = WordModelSpec.fromJson(metadata());
     expect(

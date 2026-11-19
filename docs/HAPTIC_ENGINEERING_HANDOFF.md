@@ -12,14 +12,16 @@ and commit.
 | --- | --- | --- |
 | Developer → Piezo Outputs | Manually enable and pulse one location. | Gael confirmed the physical buzzers matched the highlighted dots. HAPT-01. |
 | Numbers → 3 → Demo | Wait five seconds. Cue the middle or pinky first, then play top → center → bottom to bend or bottom → center → top to straighten. A still-needed cue repeats after two seconds. Practice completion cuts off the cue. | Gael reported that the hands-free version worked on the glove. Per-cue timing and tactile discrimination are unmeasured. HAPT-02 and HAPT-03. |
-| Words → Hello → Demo | Match the word to play left → center → right on the back of the hand. | Software check with simulated glove responses. Live playback is Not run. HAPT-04. |
-| Words → Please → Demo | Match the word to play left → top → right → bottom, three times. | Software check with simulated glove responses. Live playback is Not run. HAPT-04. |
+| Words → Hello → Haptic guidance | Left → center → right on the back of the hand. | Software check with simulated glove responses. Live playback is Not run. HAPT-05. |
+| Words → Please → Haptic guidance | Left → top → right → bottom for three laps per cue. | Software check with simulated glove responses. Live playback is Not run. HAPT-05. |
 
 Number 3 evaluates two fingers against the measured raw bands. The recordings
 show thumb/index agreement and ring clipping, so the cue uses middle and pinky.
-Hello and Please replay preset patterns after a match. The directions in the
-table refer to the glove's plus positions. The word cues illustrate the motion
-selected by the team. Motion-error correction remains future work.
+Hello and Please begin three seconds after opening the lesson and replay two
+seconds after the glove confirms the end of each cue. Starting an attempt
+pauses guidance until a retry. A successful match ends guidance for the open
+lesson. The directions refer to the glove's plus positions and illustrate the
+motion selected by the team.
 
 The analyzer, 77 Flutter tests, and Android debug build passed for the word cue
 update. The tests exercised both word sequences and cancellation, with the
