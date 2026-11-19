@@ -17,6 +17,18 @@ than assuming a successful outcome. Haptics must be described by what the wearer
 actually feels and what each cue means; do not substitute an audible tone for
 a demonstrated tactile result. If cues only indicate success/error, say so.
 
+## Static targets to rehearse
+
+The November 18 offline replay completed **5 of 36** attempts on the intended
+target. The five were **A, G, I, 1, and 3**.
+
+- Rehearse **1** first. It completed on its recorded attempt and had zero
+  completions across the 35 other recordings.
+- Rehearse **A, G, I, and 3** as alternatives. Each also completed on at least
+  one wrong-target replay.
+- Choose the live targets after repeated attempts on the presentation glove
+  and phone. The replay included one matching attempt per target.
+
 ## Before the presentation
 
 - [ ] Record demonstrated app/firmware/model, glove configuration, phone, and wearer scope.
