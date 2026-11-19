@@ -24,6 +24,10 @@
 
 ## Visuals
 
+- [Cover backdrop](assets/illustrations/cover-backdrop.png) was generated with
+  the built-in ImageGen tool. The cover layers the original glove photograph
+  and the actual Words screenshot over it.
+
 - `assets/hardware/glove-final.jpg` matches the supplied `IMG_9891.jpeg`
   and the [repository original](../docs/figures/r4/IMG_9891.jpeg).
 - `assets/hardware/pcb-prototype.jpg` is the
@@ -39,3 +43,7 @@
 - The system diagram and icons are editable HTML/CSS/SVG. DM Sans and Fraunces
   Italic follow the [beta style guide](../docs/BETA_PRESENTATION_STYLE_GUIDE.md).
   Their local font licenses are in `assets/fonts/`.
+
+### Cover backdrop generation prompt
+
+> Use case: productivity-visual. Generate only the image background for the opening slide of Helping Hand, an ASL learning glove and app. Full-bleed 16:9 landscape. Make it look like a premium editorial product photograph of a carefully art-directed empty studio flat lay, with a real photographed object and a phone to be composited later. The left 45% is a continuously blank warm ivory paper surface (#FFFCF5), very even light and low texture, for dark slide type. The right half is a boldly colored field of rich deep teal (#00645C) matte paper, filling the right edge and bottom edge, entering from the upper edge at 60% frame width and easing to a soft angled edge near 44% at the bottom. Layer a sculptural mint paper ribbon or curled strip on the far right edge and lower-right corner, with realistic directional sunlight and clean soft shadows, evocative of motion and a haptic pulse. Add one very small golden yellow accent in the upper right. Keep the center-right area relatively quiet so two foreground product images can sit there. Restrained modern product-launch art direction, crisp clear geometry, subtle physical paper grain, refined and confident. No glove, hands, phone, electronics, frames, circles, words, lettering, typography, or logos.
