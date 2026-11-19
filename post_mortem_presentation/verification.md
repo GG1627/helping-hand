@@ -1,4 +1,25 @@
-# Draft 01 presentation verification
+# Post-mortem presentation verification
+
+## November 19 presentation build
+
+- Opened the local HTML in Playwright Chromium on Windows. All five visual
+  assets loaded. No page errors or failed requests occurred.
+- Checked eight main slides and two backups at 1660 × 1000. The main slide
+  durations total 420 seconds, including 100 seconds for the demo. Key content
+  stayed inside each slide and above the footer. Checked scaled fit at 390 × 844.
+- Exercised keyboard progression, Home, overview, backup entry and return, and
+  the help print option. Opened all ten inline notes and matched them against the
+  standalone speaker notes.
+- Exported and visually inspected all eight pages of the
+  [Canvas PDF](exports/helping-hand-post-mortem.pdf). It is about 1.6 MB with
+  searchable text and approximately 1200 × 675 pt pages. The photo and screenshot
+  streams were compressed after export. Checked that the optional backup export
+  contains ten pages.
+
+These checks cover the presentation and its files. Live Z, physical word cue
+playback, phone projection, and full-team timing belong to the rehearsal.
+
+## November 6 draft 01
 
 Checked November 6, 2026 using Playwright Chromium on Windows, opening the
 local `index.html` directly. No application or hardware behavior was tested.

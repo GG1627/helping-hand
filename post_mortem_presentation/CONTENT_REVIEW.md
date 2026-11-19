@@ -1,48 +1,47 @@
-# Post-mortem content review
+# Post-mortem content and rubric review
 
-Draft 01 was prepared November 6, 2026. This review was updated November 19.
-The [presentation handoff](../docs/POST_MORTEM_PRESENTATION_PLAN.md#november-19-handoff-for-the-slides)
-and [run sheet](demo_checklist.md) describe the current working app and demo.
-Slide edits and delivery assignments remain open.
+November 19, 2026. Gael confirmed **7:00 to present, then 2:00 for questions**.
+The written P3 prompt anticipates questions throughout. The deck also includes
+an optional demo cut if an interruption takes time.
 
-## Confirmed
+| Rubric criterion | Points | Where it is addressed |
+| --- | ---: | --- |
+| Problem Statement | 4 | Slide 1 explains the need for feedback between ASL lessons. |
+| Project Overview | 4 | Slides 1–2 explain the wearable, Android app, and feedback loop. |
+| Appearance | 5 | Consistent projected layouts and actual product photos. Bring business casual or formal attire as specified in P3. |
+| Intonation | 2.5 | Rehearse the narration out loud and emphasize each result as it happens. |
+| Clarity | 2.5 | Plain-language model descriptions, labeled hardware and screenshots, and separate live and offline evidence. |
+| Concision | 2.5 | Eight main slides with technical questions in backup. |
+| Flow | 2.5 | Speaker notes link the need, build, live practice, and reflection. Confirm speaker handoffs. |
+| Pacing | 2.5 | Seven-minute schedule with a 100-second demo and an optional second word. |
+| Media Integration | 2.5 | Use the current photos and screenshots as narration cues. Rehearse phone projection and the return to slides. |
+| Final Features | 10 | Slides 2–4 cover sensing, recognition, app modes, instructions, and saved progress. Slides 5 and 6 address scoped haptics. |
+| Features in Practice or Prior Work | 5 | Slide 4 shows the learner flow and live check, and slide 5 runs the workflow on the glove. |
+| Live Demo / Methods | 5 | Slide 5 and the run sheet cover the live learner scenario, with recovery and timing. |
+| Current Merged Version or Initial Findings | 5 | Show the integrated presentation build live. The notes identify the locally reviewed app and firmware. Confirm the exact running revision during rehearsal. |
+| Demo Narration | 5 | Slide 5 notes call out the action, expected screen response, cue behavior, and saved state. |
+| Successes | 16 | Slide 6 and notes give three distinct challenges, approaches, and outcomes. |
+| Challenges | 16 | Slide 7 and notes give three difficulties, their impact, and specific process changes. |
+| Showcase | 10 | Separate course event. |
+| **Total** | **100** | |
 
-- Local HTML in the beta style; eight proposed main slides plus two backups.
-- Seven-minute assignment, questions throughout; prepared content targets 6:10.
-- Planned live order is G, Z, 3, Hello, and Please. The final glove uses wired
-  perfboard with laptop USB power.
-- App vocabulary: Hello, Thank You, Please, Sorry, Yes, No, Eat, Drink.
-- The original beta deck is preserved. Draft 01 still uses the October assets.
+The slide 4 captures show the Alphabet picker, Letter A target reference,
+and the saved Words rows. Letter A was captured while disconnected. A connected
+screen would strengthen the media, and the current example is sufficient to
+explain the reference before the live demonstration.
 
-## Open content slots
+## Delivery checks
 
-| Slide | Item | Current fact / draft treatment | Final update needed | Owner |
-| --- | --- | --- | --- | --- |
-| 1, 3 | Final glove photo | The [as-built photo](../docs/figures/r4/IMG_9891.jpeg) shows the wired perfboard, five flex strips, and piezos. | Replace the October photo and update its caption and alt text. | TBD |
-| 3 | PCB image | [Prototype PCB photo](../docs/figures/r4/IMG_9894.jpeg). The team returned to perfboard after unreliable connections. | Use the PCB as an iteration comparison. | TBD |
-| 2, 3, 5 | Haptic feedback | Gael reported success with manual mapping and automatic Number 3 cues. Hello and Please replay preset patterns after a match and have software-test evidence. | Show the BLE command/acknowledgment path and current cue meaning. Rehearse both new word patterns live. | TBD |
-| 2, 3 | New IMU | Gael reported the installed ICM-20948 working. The six-face diagnostic flagged two Y captures. | Show the actual sensor and avoid unmeasured fusion or orientation claims. | TBD |
-| 4, backup 1 | Letters and digits | ESP32 MLP covers 24 letters and ten digits. J/Z use a separate IMU TCN with offline results. | Show both paths and label live rehearsal separately from offline results. | TBD |
-| 4, backup 1 | Words | Eight lessons are listed. The bundled recognizer covers Hello, Please, and Yes. Saved completions have a green row and checkmark. | Use current coverage and a current Words screenshot. | TBD |
-| 4 | Current app photos | October Home, disconnected B practice, word picker. | Final connected practice, actual feedback, and completion/progress screens. | TBD |
-| 4, backup 2 | Results | LIVE-04 records reported live attempts. EVAL-05 records the small offline J/Z check. HAPT-03 records Number 3 on the glove. | Give the result scope and any new rehearsal observations. | TBD |
-| 6 | Three successes | Two historical/integrated stories plus one conditional final-wearable story. | Three team-confirmed examples with why the approach worked and actual outcomes. | TBD |
-| 7 | Three challenges | Sensor/data examples and a physical/software dependency prompt. | Concrete team experience, why difficult, impact, and future improvement for each. | TBD |
-| 8 | Final takeaway | Proposed integration lesson; final outcome/limit pending. | Strongest supported final outcome and most important remaining limit. | TBD |
-| All | Delivery | Timing targets supplied; assignments TBD. | Speakers, wearer, phone operator, slide operator, transitions, and actual rehearsal time. | TBD |
+- [ ] Assign speakers, wearer, phone operator, and slide operator.
+- [ ] Verify the glove and app on the presentation setup, including live Z and
+  physical Hello/Please cue playback. Record the actual revision and outcome.
+- [ ] Time the seven-minute presentation with the device and phone projection.
+  Practice the optional Please cut and the two-minute question period.
+- [ ] Prepare the laptop, USB cable, signed-in phone, BLE connection, and
+  physical glove in advance.
+- [ ] Submit slides and any props on Canvas.
 
-## Before final export
-
-- [ ] Replace all bracketed content and resolve candidate stories.
-- [ ] Update historical photos/captions and final supported vocabulary.
-- [ ] Update the architecture diagram to actual final recognition and haptic paths.
-- [ ] Label any remaining incomplete or unrun items accurately.
-- [ ] Keep implementation thresholds distinct from accuracy and learning outcomes.
-- [ ] Update both inline HTML notes and standalone speaker notes together.
-- [ ] Rehearse the actual demo and recovery route within the seven-minute talk.
-- [ ] Remove Draft 01 labels only when final claims/content have been settled.
-- [ ] Regenerate and inspect PDF; decide whether Canvas export includes backups.
-
-Sources: [current handoff](../docs/GLOVE_MODEL_SESSION_HANDOFF.md),
-[historical demo observations](../docs/R3_DEMO_OBSERVATIONS.md), and
-[the presentation plan](../docs/POST_MORTEM_PRESENTATION_PLAN.md).
+References include the [P3 assignment](../P3-Post-Mortem-Presentation.md), the
+point rubric supplied by Gael on November 19, the
+[November 19 handoff](../docs/POST_MORTEM_PRESENTATION_PLAN.md#november-19-handoff-for-the-slides),
+and the [demo run sheet](demo_checklist.md).

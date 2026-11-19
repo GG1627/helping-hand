@@ -7,6 +7,14 @@ The [P3 assignment](../P3-Post-Mortem-Presentation.md) governs requirements.
 
 ## November 19 handoff for the slides
 
+- **Delivery:** Gael confirmed seven minutes for the presentation, then two
+  minutes for questions. The eight-slide deck includes a 100-second demo and
+  has two backups for questions. See the
+  [updated HTML deck](../post_mortem_presentation/index.html),
+  [speaker notes](../post_mortem_presentation/speaker_notes.md), and
+  [Canvas PDF](../post_mortem_presentation/exports/helping-hand-post-mortem.pdf).
+  Showcase is a separate event.
+
 - **Live order:** G → Z → 3 → Hello → Please. Use the
   [timed run sheet](../post_mortem_presentation/demo_checklist.md) for exact
   app actions, buzzer patterns, and recovery. Finish on the green learned
@@ -34,11 +42,19 @@ The [P3 assignment](../P3-Post-Mortem-Presentation.md) governs requirements.
 
 Use the [evidence checklist](FINAL_REPORT_EVIDENCE_CHECKLIST.md) for BUILD-01,
 LIVE-04, EVAL-05, and HAPT-01 through HAPT-04. The app source and model updates
-are in the current working copy pending code review and commit. The deck and
-its PDF still reflect Draft 01. Refresh the slides, screenshots, notes, and
-export together in the presentation session.
+were in the working copy at slide review. Confirm the exact live build on the
+phone before presenting. The deck uses the final glove and current Android
+screens, including a Letter A reference captured while disconnected. The
+supplied M6 and R4 reports cover the earlier release snapshot. The
+[content review](../post_mortem_presentation/CONTENT_REVIEW.md) maps the
+delivered slides and rehearsal items to the rubric.
 
-## First HTML draft
+## Earlier planning and first draft
+
+The original planning material below records the November 6 approach and
+timing estimates. Use the November 19 handoff and current run sheet for delivery.
+
+### First HTML draft
 
 Draft 01 was built November 6 in
 [`post_mortem_presentation/index.html`](../post_mortem_presentation/index.html),
@@ -49,7 +65,7 @@ and a draft PDF. See the [deck README](../post_mortem_presentation/README.md),
 Final photos, results, haptic behavior, coverage, team stories, and speaker/demo
 assignments remain draft content. The beta deck is unchanged.
 
-## Confirmed presentation direction
+### Initial presentation direction
 
 - Build another **local HTML presentation in the beta style**, with local
   assets/fonts, keyboard navigation, a thin progress line, and a PDF export.
