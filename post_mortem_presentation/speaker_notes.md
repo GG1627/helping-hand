@@ -42,11 +42,11 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 “The demo glove has five flex sensors, a motion sensor, ten piezo buzzers, and a cuff-mounted ESP32. We tried a custom PCB and later hid the connections with conductive thread. When sensor readings dropped out, we switched to individual wires on perfboard. We’re powering it over USB today.”
 
-## 6. App features and live results
+## 6. Android app and live results
 
-**1:50–2:15 · 25 seconds.** Point to the sign reference, saved Words rows, and live test counts.
+**1:50–2:15 · 25 seconds.** Move across the screenshots from sign-in to saved lessons, then point to the live test counts.
 
-“The app offers letter, number, and word lessons, with on-screen feedback and saved progress. Eight word lessons are listed, and the model recognizes three. In one live check, six signs passed three of three attempts each. K and X passed one of three each. Now we’ll show what that practice looks like.”
+“Users sign in and see their progress on Home. They can pick a letter, number, or word lesson, view the target sign, and see which lessons they completed. The app lists eight words and recognizes three. In one live test, six targets passed all three attempts. K and X passed once each. Let’s try it live.”
 
 ## 7. Live ASL practice demo
 

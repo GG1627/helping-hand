@@ -25,9 +25,10 @@ an optional demo cut if an interruption takes time.
 | Showcase | 10 | Separate course event. |
 | **Total** | **100** | |
 
-Slide 6 uses two enlarged captures, the Letter A reference and saved Words
-rows. Letter A was captured while disconnected. The live demo shows the
-connected match and completion flow.
+Slide 6 shows the sign-in, Home, Alphabet, Letter A, and Words screens in
+practice order. The sign-in fields are blank for projection. Letter A was
+captured while disconnected. The live demo shows the connected match and
+completion flow.
 
 ## Delivery checks
 

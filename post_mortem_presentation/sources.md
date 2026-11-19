@@ -55,9 +55,16 @@
   captures from 05:13:57, 05:14:02, and 05:13:49 respectively. The Letter A
   screen shows the reference in a disconnected state. The Words photo shows
   already-saved completion.
+- [Sign-in screen](assets/screenshots/sign-in-cleared.png) derives from Gael's
+  November 19, 05:15:06 screenshot. The built-in ImageGen tool cleared the email
+  and masked password fields for projection.
 - The system diagram and icons are editable HTML/CSS/SVG. DM Sans and Fraunces
   Italic follow the [beta style guide](../docs/BETA_PRESENTATION_STYLE_GUIDE.md).
   Their local font licenses are in `assets/fonts/`.
+
+### Sign-in screenshot edit prompt
+
+> Precise document screenshot cleanup for a presentation. Use the supplied portrait screenshot as the exact edit target. Clear only the typed email-address value inside the Email address input and the six masked-password dots inside the Password input, leaving those two input interiors uniformly blank in their original shade. Preserve the original image's tall portrait framing, proportions and edge-to-edge app screenshot, every other pixel and text as closely as possible. Keep the Helping Hand wordmark, tagline, Welcome back, sign-in explanation, field outlines and their labels Email address and Password, eye icon, Forgot password?, Sign in button, Create account, top status icons and bottom navigation line. Do not add replacement text, placeholder values, device frame or any other object. The email address value must not appear anywhere.
 
 ### Cover product scene generation prompt
 
