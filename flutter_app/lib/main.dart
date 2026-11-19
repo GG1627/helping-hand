@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'test_hand_page.dart';
 import 'screens/account_screen.dart';
 import 'screens/main_shell.dart';
 import 'services/firebase_auth_service.dart';

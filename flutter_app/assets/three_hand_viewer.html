@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Armature Hand Viewer</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #1e1e22; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+</head>
+<body>
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1e1e22);
+
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 8, 8);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    document.body.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.target.set(0, 3, 0);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+    dirLight.position.set(3, 6, 4);
+    scene.add(dirLight);
+    scene.add(new THREE.GridHelper(10, 10, 0x444444, 0x2a2a2a));
+
+    const bones = {};
+    const restQuaternions = {};
+    const loader = new GLTFLoader();
+
+    // Explicitly bind to window scope globally
+    window.loadGltfFromBase64 = function(base64Str) {
+        try {
+            const binaryString = atob(base64Str);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            loader.parse(bytes.buffer, '', (gltf) => {
+                console.log('[ThreeJS] SUCCESS: test.glb parsed from base64!');
+                const model = gltf.scene;
+
+                model.scale.set(0.5, 0.5, 0.5)
+
+                scene.add(model);
+                model.traverse((obj) => {
+                    if (obj.isBone) {
+                        bones[obj.name] = obj;
+                        restQuaternions[obj.name] = obj.quaternion.clone();
+                    }
+                });
+            }, (error) => {
+                console.error('[ThreeJS] Error parsing GLTF buffer:', error);
+            });
+        } catch (e) {
+            console.error('[ThreeJS] Exception in loadGltfFromBase64:', e);
+        }
+    };
+
+    // Keep your existing animation / bone transformation functions here...
+    const _identityQuat = new THREE.Quaternion();
+    const _deltaQuat = new THREE.Quaternion();
+
+    function setBoneQuaternionCurl(boneName, targetQuat, t) {
+        const bone = bones[boneName];
+        const rest = restQuaternions[boneName];
+        if (!bone || !rest) return;
+        _deltaQuat.slerpQuaternions(_identityQuat, targetQuat, t);
+        bone.quaternion.copy(rest).multiply(_deltaQuat);
+    }
+
+    const FINGER_MAX_CURL = new THREE.Quaternion(-0.8, 0.0, 0.0, 1.0).normalize();
+    const THUMB_MAX_CURL = {
+        Thumb_CMC: new THREE.Quaternion(-0.5, -0.3, 0.0, 1.0).normalize(),
+        Thumb_MCP: new THREE.Quaternion(-0.8, -0.3, 0.0, 1.0).normalize(),
+        Thumb_IP:  new THREE.Quaternion(-0.8,  0.0, 0.0, 1.0).normalize(),
+    };
+
+    window.updateHandPose = function(sensorState) {
+        const fingers = ['Index', 'Middle', 'Ring', 'Pinky'];
+        fingers.forEach((finger) => {
+            const flex = sensorState[finger.toLowerCase()] || 0;
+            setBoneQuaternionCurl(`${finger}_MCP`, FINGER_MAX_CURL, flex);
+            setBoneQuaternionCurl(`${finger}_PIP`, FINGER_MAX_CURL, flex);
+            setBoneQuaternionCurl(`${finger}_DIP`, FINGER_MAX_CURL, flex);
+        });
+
+        const thumbFlex = sensorState.thumb || 0;
+        setBoneQuaternionCurl('Thumb_CMC', THUMB_MAX_CURL.Thumb_CMC, thumbFlex);
+        setBoneQuaternionCurl('Thumb_MCP', THUMB_MAX_CURL.Thumb_MCP, thumbFlex);
+        setBoneQuaternionCurl('Thumb_IP',  THUMB_MAX_CURL.Thumb_IP,  thumbFlex);
+
+        if (bones['Wrist'] && restQuaternions['Wrist']) {
+            const pitch = sensorState.pitch || 0;
+            const roll = sensorState.roll || 0;
+            const euler = new THREE.Euler(
+                THREE.MathUtils.degToRad(pitch),
+                THREE.MathUtils.degToRad(roll),
+                0,
+                'YXZ'
+            );
+            _deltaQuat.setFromEuler(euler);
+            bones['Wrist'].quaternion.copy(restQuaternions['Wrist']).multiply(_deltaQuat);
+        }
+    };
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
+    animate();
+</script>
+</body>
+</html>
