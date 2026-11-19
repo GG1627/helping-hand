@@ -8,6 +8,7 @@
 #include "imu_sensor.h"
 #include "telemetry.h"
 #include "piezo.h"
+#include "piezo_demo.h"
 #include "serial_startup.h"
 using namespace std;
 
@@ -55,7 +56,9 @@ void setup() {
 
 void loop() {
   updatePiezos();
-  updateImu();
+  // IMU recovery may block. Defer recovery while a timed output is active.
+  if (!piezoOutputActive()) updateImu();
+  updatePiezoDemo();
 
   const uint32_t nowUs = micros();
   if (static_cast<uint32_t>(nowUs - lastSensorPacketUs) < kSensorIntervalUs) {

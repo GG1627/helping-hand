@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../services/ble_connection_service.dart';
 import '../services/ble_packet.dart';
+import '../services/piezo_demo_protocol.dart';
 import '../services/tflite_word_classifier.dart';
 import '../services/word_practice_controller.dart';
 import '../services/word_sequence.dart';
 import '../theme/helping_hand_theme.dart';
+import 'haptic_hand_visualizer_widget.dart';
 
 class WordPracticeCard extends StatefulWidget {
   const WordPracticeCard({
@@ -17,12 +19,14 @@ class WordPracticeCard extends StatefulWidget {
     required this.onCompleted,
     this.classifier,
     this.clock,
+    this.showHapticDemo = false,
   });
   final String target;
   final BleConnectionService bleService;
   final Future<void> Function(String word) onCompleted;
   final WordClassifier? classifier;
   final DateTime Function()? clock;
+  final bool showHapticDemo;
 
   @override
   State<WordPracticeCard> createState() => _WordPracticeCardState();
@@ -33,8 +37,10 @@ class _WordPracticeCardState extends State<WordPracticeCard>
   late final WordPracticeController _controller;
   StreamSubscription<BlePacket>? _packets;
   Timer? _timer;
+  Timer? _previewTimer;
   String? _saveMessage;
   bool _saving = false;
+  bool _previewActive = false;
 
   @override
   void initState() {
@@ -71,6 +77,10 @@ class _WordPracticeCardState extends State<WordPracticeCard>
             _controller.phase == WordPracticePhase.evaluating)) {
       _controller.cancel('Attempt paused. Start again when you are ready.');
     }
+    if (state != AppLifecycleState.resumed && _previewActive) {
+      _previewTimer?.cancel();
+      setState(() => _previewActive = false);
+    }
   }
 
   Future<void> _finish() async {
@@ -81,7 +91,15 @@ class _WordPracticeCardState extends State<WordPracticeCard>
     setState(() {
       _saving = true;
       _saveMessage = 'Saving completion...';
+      _previewActive = widget.showHapticDemo;
     });
+    if (widget.showHapticDemo) {
+      _previewTimer?.cancel();
+      _previewTimer = Timer(
+        const Duration(milliseconds: 650),
+        () => setState(() => _previewActive = false),
+      );
+    }
     try {
       await widget.onCompleted(widget.target);
       if (mounted) {
@@ -102,6 +120,7 @@ class _WordPracticeCardState extends State<WordPracticeCard>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _previewTimer?.cancel();
     unawaited(_packets?.cancel());
     widget.bleService.removeListener(_connectionChanged);
     _controller.removeListener(_refresh);
@@ -235,7 +254,11 @@ class _WordPracticeCardState extends State<WordPracticeCard>
                   : recording
                   ? _finish
                   : () {
-                      setState(() => _saveMessage = null);
+                      _previewTimer?.cancel();
+                      setState(() {
+                        _saveMessage = null;
+                        _previewActive = false;
+                      });
                       _controller.start(
                         connected: connected,
                         freshSensors: fresh,
@@ -266,6 +289,19 @@ class _WordPracticeCardState extends State<WordPracticeCard>
               const SizedBox(height: 12),
               const Text('Waiting for finger and motion readings.'),
             ],
+          ],
+          if (widget.showHapticDemo && !unavailable) ...[
+            const SizedBox(height: 24),
+            Text('Haptic demo preview', style: theme.textTheme.titleSmall),
+            Semantics(
+              label: _previewActive
+                  ? 'Preview showing the back of hand center output'
+                  : 'Ten piezo locations',
+              child: PiezoOutputHand(
+                activeOutput: _previewActive ? PiezoOutput.handCenter : null,
+                height: 176,
+              ),
+            ),
           ],
         ],
       ),

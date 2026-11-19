@@ -15,6 +15,7 @@ void setupPiezos();
 // Call from loop() so a pulse ends without blocking sensor/BLE work.
 void updatePiezos();
 void stopPiezos();
+bool piezoOutputActive();
 // One passive-piezo tone at a time. Busy/invalid requests return false.
 // Frequency must be chosen for the actual buzzer/driver before use.
 // Call only from the main Arduino task, after setupPiezos().

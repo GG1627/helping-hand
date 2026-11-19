@@ -29,11 +29,16 @@ tests should be disclosed rather than replaced by invented results.
 
 - [ ] **BUILD-1:** Record the actual final hardware: PCB revision, ESP32, IMU,
   flex sensors, actuator parts/driver, mounting, wiring, and power arrangement.
+  [BUILD-01](#build-01-pcb-and-glove-assembly-history) covers the wired assembly
+  and planned laptop USB power.
 - [ ] **BUILD-2:** Record firmware/app revisions, any uncommitted changes,
   phone/OS, model filenames/hashes, labels, calibration, and preprocessing.
 - [ ] **BUILD-3:** Take clear final photos of the whole glove, PCB, sensor
   attachment/insulation, IMU mounting, and ten actuator positions. Label photos
   as actual assembly or proposed placement as appropriate.
+  [BUILD-01](#build-01-pcb-and-glove-assembly-history) links the final glove and
+  both sides of the abandoned PCB. The IMU mount and detailed wiring are still
+  to be documented.
 - [ ] **BUILD-4:** Record actual dates of major interface, hardware, firmware,
   model, and integration changes. Preserve earlier planned dates separately.
 - [ ] **BUILD-5:** Explain strategies used to finish the work: division of work,
@@ -44,23 +49,22 @@ tests should be disclosed rather than replaced by invented results.
 
 | Feature / goal | Actual final state | Completed date, if applicable | Evidence / record ID | Remaining limit and effect |
 | --- | --- | --- | --- | --- |
-| PCB fabrication, assembly, and glove integration | Not yet documented | | | |
+| PCB fabrication, assembly, and glove integration | Team fabricated a PCB and tried it in the glove. The current glove uses perfboard and discrete wiring. | Exact dates not yet documented | BUILD-01 | The PCB and conductive-thread builds were abandoned after unreliable connections. Photos are on file, and the as-built wiring diagram is still to be documented. |
 | Five working flex sensors and calibration | Not yet documented | | | |
 | New ICM-20948 integration and calibration | Not yet documented | | | |
-| A-Z recognition, including moving J/Z | Intended scope; final coverage not yet documented | | | |
-| 0-9 recognition | Intended scope; final coverage not yet documented | | | |
-| All eight app words | Intended scope; final vocabulary/coverage not yet documented | | | |
-| Ten actuator outputs | Not yet documented | | | |
-| Automatic finger bend/straighten guidance | Intended behavior; final state not yet documented | | | |
-| Word-motion guidance / demonstration patterns | Design undecided in report discussion | | | |
+| A-Z recognition, including moving J/Z | ESP32 static MLP supports 24 letters, excluding J and Z. Operator reported at least 10 live successes each for G and I. | Nov. 18 rehearsal | LIVE-01, LIVE-03 | Full per-letter live validation is not yet documented. |
+| 0-9 recognition | ESP32 static MLP supports ten digits. Operator reported at least 10 live successes for 1. | Nov. 18 rehearsal | LIVE-01, LIVE-03 | Full per-digit live validation is not yet documented. |
+| All eight app words | App lists eight words. The deployed TCN recognizes Hello, Please, and Yes. The operator reported at least 10 live successes each for those words. | Nov. 18 rehearsal | EVAL-04, LIVE-02, LIVE-03 | Five lessons are outside the deployed model vocabulary. Exact attempt totals and per-trial records are not yet documented. |
+| Ten actuator outputs | Operator heard all ten during serial testing. In the app's manual Piezo Outputs screen, the operator reported that the physical buzzers matched the highlighted dots. | Nov. 18 report | HAPT-01 | Tactile sensation was very faint in the serial check. The phone test has no per-output tally or interruption results on file. |
+| Automatic finger bend/straighten guidance | Visual estimates exist in letter practice. Automatic physical correction is an unfinished goal. | | HAPT-01 | Reliable detection, physical cue selection, and wearer interpretation still require validation. |
+| Word-motion guidance / demonstration patterns | The operator reported that the Developer Mode visual preview worked as intended during word practice. | Nov. 18 report | HAPT-01 | Physical word-motion guidance remains an unfinished goal. |
 | App instruction, navigation, and feedback | Final-build checks not yet documented | | | |
-| Accounts and saved progress | Final-build checks not yet documented | | | |
-| Battery-powered operation | Goal; USB is a possible fallback | | | |
+| Accounts and saved progress | Operator reported that progress was still visible after closing and reopening the app. | Nov. 18 report | LIVE-03 | Account isolation and cloud records are not yet documented. |
+| Battery-powered operation | Demo power will be supplied by laptop USB due to earlier battery issues. | Nov. 18 decision | BUILD-01 | Battery failure details and runtime are not yet documented. |
 
-The last reviewed handoff describes a 34-class static model excluding J/Z and
-Hello/Please/Yes phone recognition. This is a baseline, not confirmation of the
-latest work in other sessions. Verify both the eight-word app vocabulary and
-the deployed labels before updating the inventory.
+Use the [glove model handoff](GLOVE_MODEL_SESSION_HANDOFF.md) and the dated
+records below to verify the build shown at the release. Reported live checks,
+software validation, and intended feature coverage describe distinct evidence.
 
 ## 2. Hardware, calibration, and power evidence
 
@@ -74,6 +78,7 @@ the deployed labels before updating the inventory.
   do not treat magnetic telemetry as proof of calibrated orientation.
 - [ ] **HW-4:** Record USB and battery startup, connection, and signing behavior
   separately. Record power source, test duration, disconnects/resets, and changes.
+  [BUILD-01](#build-01-pcb-and-glove-assembly-history) records the demo power choice.
 - [ ] **HW-5:** If battery runtime is measured, retain start/end conditions and
   workload. If it is not measured, do not state a measured runtime.
 - [ ] **HW-6:** Record physical observations: secure attachment, insulation,
@@ -96,6 +101,8 @@ changes to the sensor or model contracts by itself.
   reused evaluation data; reserve fresh final attempts before tuning when able.
 - [ ] **ML-4:** Keep a per-target live attempt log for the letters, numbers, and
   words actually tested. Include failed, invalid, and inconclusive attempts.
+  [LIVE-03](#live-03-selected-sign-rehearsal-and-progress-persistence) has the
+  operator's per-target totals as reported.
 - [ ] **ML-5:** Record expected target, sign actually performed, predicted label,
   confidence, completion awarded or not, and any separate human correctness
   check. A completion threshold is not an accuracy measurement.
@@ -126,11 +133,14 @@ that a user learned or retained a sign.
   behavior when readings are missing, noisy, stale, or ambiguous.
 - [ ] **HAP-4:** Check that commanded finger/directional patterns match the
   physical outputs. Record simultaneous versus sequential behavior and timing.
+  [HAPT-01](#hapt-01-piezo-output-check) records the reported match between
+  physical outputs and highlighted dots during manual activation.
 - [ ] **HAP-5:** Check whether users identify the finger and intended direction.
   Record the instruction given, cues presented, responses, and correct/total
   counts. Distinguish audible hints from tactile perception if relevant.
-- [ ] **HAP-6:** Describe the final word-motion behavior, if any. Separate
+- [x] **HAP-6:** Describe the final word-motion behavior, if any. Separate
   demonstration playback from feedback based on detected motion errors.
+  See [HAPT-01](#hapt-01-piezo-output-check) for the working visual preview.
 - [ ] **HAP-7:** Check perception during signing and whether actuation affects
   sensor readings, recognition, BLE delivery, power, or comfort.
 - [ ] **HAP-8:** Check that cues stop on cancellation, navigation, disconnection,
@@ -151,6 +161,8 @@ improved learning are separate claims. Record only what was actually evaluated.
 - [ ] **APP-4:** Confirm local saving, restart persistence, and corresponding
   cloud records. Test offline/reconnection behavior if feasible; a visible
   "Synced" indicator alone does not independently verify database contents.
+  [LIVE-03](#live-03-selected-sign-rehearsal-and-progress-persistence) records
+  the reported close/reopen check.
 - [ ] **APP-5:** Record final software checks/builds with commands, revisions,
   dates, pass/fail counts, warnings, and logs. Keep older alpha/beta runs dated.
 - [ ] **APP-6:** For a sustained-use test, record duration, workload, delivered
@@ -173,6 +185,8 @@ improved learning are separate claims. Record only what was actually evaluated.
 - [ ] **USER-3:** Link each feedback round to changes made and any retest. M6
   expects multiple rounds with outside users; R4 should describe what actually
   occurred, including gaps if the intended testing was not completed.
+  [USER-01](#user-01-lab-glove-tryouts) records the two reported rounds for
+  USER-1 through USER-3.
 - [ ] **HIST-1:** Locate alpha and beta test plans/results and retain their
   actual procedures, setups, dates, outcomes, and evidence limitations. Do not
   retrospectively invent missing attempt counts, builds, or timings.
@@ -270,6 +284,10 @@ personal account information or participant identities in report screenshots.
 | LIVE-01 | November 18, 2026 | Demo wearer rehearsal (ML-4, ML-5) | Operator reported live G, I, and 1 successes and inconsistent word results except Please. | [Rehearsal and follow-up](#live-01-demo-wearer-rehearsal) | Results / limitations |
 | EVAL-04 | November 18, 2026 | Real-only, all-channel word model (ML-3, ML-8, ML-9) | Five matching completions and zero wrong-target completions across 25 exposures on reserved recordings. | [Second word APK](#eval-04-real-only-all-channel-word-model) | Results / limitations |
 | LIVE-02 | November 18, 2026 | Real-only word model live retest (ML-4, ML-5) | Operator reported that Please, Hello, and Yes worked on the phone. | [Live word retest](#live-02-real-only-word-model-live-retest) | Results / limitations |
+| HAPT-01 | November 18, 2026 | Piezo output check (HAP-1, HAP-2, HAP-4, HAP-6) | All ten outputs were audible during serial testing. The operator reported matching dots and buzzers in the manual phone test and a working word-practice preview. | [Piezo output check](#hapt-01-piezo-output-check) | Results / limitations |
+| BUILD-01 | Reported November 18, 2026 | PCB and glove assembly revisions (BUILD-1, BUILD-4, HIST-2, DES-2) | Team abandoned the fabricated PCB and later replaced conductive thread with discrete wiring on a perfboard-based glove. | [Assembly history](#build-01-pcb-and-glove-assembly-history) | Timeline / Design / Results |
+| LIVE-03 | Reported November 18, 2026 | Selected-sign rehearsal and progress (ML-4, ML-5, APP-4) | Operator reported at least 10 successful attempts each for G, I, 1, Hello, Please, and Yes, and progress persisted after closing and reopening the app. | [Rehearsal and persistence](#live-03-selected-sign-rehearsal-and-progress-persistence) | Results / limitations |
+| USER-01 | Reported November 18, 2026 | Two friends of team members across two lab rounds (USER-1 to USER-3, HIST-2) | Participants reported the glove was failing. The team replaced broken flex sensors after the first round and switched to wires after diagnosing conductive-thread shorts in the second. | [Lab tryouts](#user-01-lab-glove-tryouts) | Results / engineering lessons |
 | | | | | | |
 
 ### CAL-01 guided glove calibration
@@ -481,6 +499,92 @@ to the mounting or firmware. This run measured steady acceleration.
   to the standard Flutter assets. The recorded static MLP remains the
   deployed baseline for G, I, and 1.
 
+### HAPT-01 piezo output check
+
+- The operator used the ESP32 piezo testing tool and reported hearing all ten
+  piezo outputs. The operator reported very faint tactile sensation. The
+  as-tested hardware revision, output-by-output tactile responses, repetitions,
+  selected drive settings, and raw logs are not yet documented.
+- This provides a qualitative audible output check. Reliable location and
+  direction discrimination remain unverified. The existing Flutter hand
+  indicators were generated by the practice animation at the time. See the
+  [manual output display and word preview handoff](HAPTIC_ENGINEERING_HANDOFF.md#november-18-demonstration-controls)
+  for the later demo implementation.
+- **Manual phone test:** Gael used the app's Piezo Outputs screen and reported
+  that the physical buzzers activated at the locations shown by the highlighted
+  dots. The phone/app/firmware revisions, per-output tally, perceived intensity,
+  and stop behavior on interruption are not yet documented for this check.
+- **Word practice:** Gael also tried the practice screen preview and reported
+  that it worked as intended. The preview visually highlights a dot after a
+  recognized target word. Physical word-motion guidance remains unfinished.
+
+### BUILD-01 PCB and glove assembly history
+
+- **PCB attempt:** The team designed and fabricated a custom PCB and built a
+  glove assembly around it. The team reported mechanical breakage, unreliable
+  connections, and poor quality of the engraved copper traces. The team
+  abandoned that board and returned to perfboard.
+- **Conductive-thread attempt:** The team built a perfboard-based glove with
+  conductive thread connections and connected the piezos. The assembly used
+  multiple fabric layers to insulate the connections. The assembly remained
+  unreliable. The team attributed missing sensor values during the latest
+  tryout to conductive-thread shorts. Electrical measurements for that
+  diagnosis are not yet documented. See [USER-01](#user-01-lab-glove-tryouts).
+- **Current assembly:** The team replaced conductive thread with discrete
+  wires and continues to use perfboard. The demo will use USB power from Gael's
+  laptop because the team previously had battery issues. Exact build dates, the
+  as-built wiring diagram, final fabric layers, and power used during earlier
+  tests are not yet documented.
+- **Photos supplied November 18:** [Final glove](figures/r4/IMG_9891.jpeg)
+  shows the cuff-mounted ESP32 board on perfboard, discrete wiring, five flex
+  strips, and ten piezo discs (five near the fingers and five in a plus on the
+  back of the hand). The abandoned custom PCB is shown from the
+  [component side](figures/r4/IMG_9894.jpeg) and
+  [reverse side](figures/r4/IMG_9893.jpeg). The photos document the visible
+  assembly. The IMU mount and electrical checks require separate evidence.
+
+### LIVE-03 selected-sign rehearsal and progress persistence
+
+- **Source and procedure:** On November 18, 2026, Gael reported repeating the
+  six selected demo signs on the glove and app at least ten times each, with
+  every attempt working. The phone/OS, exact app and firmware revisions,
+  power source during this rehearsal, and raw per-attempt records are not yet
+  documented.
+
+| Target | Reported successful attempts, minimum |
+| --- | ---: |
+| G | 10 |
+| I | 10 |
+| 1 | 10 |
+| Hello | 10 |
+| Please | 10 |
+| Yes | 10 |
+| **Total** | **60** |
+
+- **Result scope:** Gael also reported trying additional signs without
+  specifying their labels, counts, or outcomes per target. The six named
+  targets provide a rehearsal result for one wearer. Exact counts, a
+  trial-by-trial record, and broader live recognition accuracy remain unknown.
+- **Progress:** Gael reported that saved progress was still visible after
+  closing and reopening the app. Cloud records, cross-device or account
+  behavior, and offline persistence are not yet documented.
+
+### USER-01 lab glove tryouts
+
+- **Participants and feedback:** Gael reported two lab tryouts with two friends
+  of team members. Gael recalled feedback along the lines of “I don't think
+  it's working.” That prompted the team to investigate. Attendance by round,
+  signing experience, specific tasks, and assistance are not yet documented.
+
+| Round | Observation reported by Gael | Change or retest |
+| --- | --- | --- |
+| About one month before November 18 | The team investigated incorrect readings and identified broken flex sensors. | The team bought and installed replacement flex sensors. |
+| November 18, 2026 | The team investigated missing sensor readings and attributed them to conductive-thread shorts. | The team switched to discrete wiring. A repeat tryout with the two participants after rewiring is not yet documented. |
+
+- **Evidence gap for M6:** The first round's date is approximate. Both rounds
+  are documented from Gael's recollection. Gael reported having no photos or
+  other records from the tryouts, so timestamped third-party evidence is missing.
+
 ### Build/test session record - copy for each session
 
 ```text
@@ -525,6 +629,7 @@ Record ID and complete setup: [link to session record]
 
 - November 17: R4 requirements compared with R3; preliminary report will be the
   foundation. Evidence collection checklist and reusable logs prepared.
-- No final report prose/document created in this step; no new tests executed.
+- November 18: Filed hardware photos and recorded the demo USB power choice,
+  selected-sign rehearsal, app restart observation, and lab tryouts.
 - Next useful update: add a session record when assembly, calibration, haptic
   implementation, or testing produces actual evidence, and link its checklist IDs.

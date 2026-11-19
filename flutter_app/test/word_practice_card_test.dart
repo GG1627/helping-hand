@@ -8,8 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_app/screens/learning_screen.dart';
 import 'package:flutter_app/services/ble_connection_service.dart';
 import 'package:flutter_app/services/ble_packet.dart';
+import 'package:flutter_app/services/piezo_demo_protocol.dart';
 import 'package:flutter_app/services/word_sequence.dart';
 import 'package:flutter_app/theme/helping_hand_theme.dart';
+import 'package:flutter_app/widgets/haptic_hand_visualizer_widget.dart';
 import 'package:flutter_app/widgets/word_practice_card.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -105,6 +107,7 @@ void main() {
               bleService: glove,
               classifier: classifier,
               clock: () => now,
+              showHapticDemo: true,
               onCompleted: (word) async => saved.add(word),
             ),
           ),
@@ -134,7 +137,15 @@ void main() {
     expect(saved, ['hello']);
     expect(classifier.calls, 1);
     expect(find.text('Matched'), findsOneWidget);
+    final demoHand = find.byType(PiezoOutputHand);
+    expect(find.text('Haptic demo preview'), findsOneWidget);
+    expect(
+      tester.widget<PiezoOutputHand>(demoHand).activeOutput,
+      PiezoOutput.handCenter,
+    );
     await screenshot(tester, key, 'matched-375');
+    await tester.pump(const Duration(milliseconds: 650));
+    expect(tester.widget<PiezoOutputHand>(demoHand).activeOutput, isNull);
     await tester.ensureVisible(find.text('Try again'));
     await tester.tap(find.text('Try again'));
     await tester.pump();

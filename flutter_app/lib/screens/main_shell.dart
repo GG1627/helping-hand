@@ -17,6 +17,7 @@ import '../widgets/stable_prediction_practice_card.dart';
 import '../widgets/word_practice_card.dart';
 import '../services/word_sequence.dart';
 import 'learning_screen.dart';
+import 'piezo_outputs_screen.dart';
 import 'tabs/alphabet_tab.dart';
 import 'tabs/ble_testing_tab.dart';
 import 'tabs/dashboard_tab.dart';
@@ -114,12 +115,16 @@ class _MainShellState extends State<MainShell> {
     _practiceRevision.value++;
   }
 
-  void _openCalibration(CalibrationService calibration) {
+  void _clearStaticPractice() {
     setState(() {
       _selectedPracticeTarget = null;
       _predictionResult = const StablePredictionResult.idle();
     });
     _practiceRevision.value++;
+  }
+
+  void _openCalibration(CalibrationService calibration) {
+    _clearStaticPractice();
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => CalibrationScreen(
@@ -127,6 +132,23 @@ class _MainShellState extends State<MainShell> {
           calibration: calibration,
           recording: _recordingService,
         ),
+      ),
+    );
+  }
+
+  void _openPiezoOutputs() {
+    if (_recordingService.state != TrialRecordingState.idle) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Finish or discard the current trial first.'),
+        ),
+      );
+      return;
+    }
+    _clearStaticPractice();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PiezoOutputsScreen(bleService: _bleService),
       ),
     );
   }
@@ -178,11 +200,7 @@ class _MainShellState extends State<MainShell> {
     required String title,
   }) {
     if (category == 'words') {
-      setState(() {
-        _selectedPracticeTarget = null;
-        _predictionResult = const StablePredictionResult.idle();
-      });
-      _practiceRevision.value++;
+      _clearStaticPractice();
     } else {
       _selectPracticeTarget(target);
     }
@@ -195,6 +213,7 @@ class _MainShellState extends State<MainShell> {
           ? WordPracticeCard(
               target: target,
               bleService: _bleService,
+              showHapticDemo: _developerMode,
               onCompleted: (word) async {
                 await _progressRepository.completeWord(word);
                 if (_progressRepository.state.status ==
@@ -293,6 +312,7 @@ class _MainShellState extends State<MainShell> {
         DeveloperToolsTab(
           onOpenCalibration: () => _openCalibration(_calibrationService),
           onOpenImuDiagnostics: () => _openCalibration(_imuDiagnosticsService),
+          onOpenPiezoOutputs: _openPiezoOutputs,
           onOpenRecordSigns: () => setState(() => tabIndex = 4),
           onOpenBleTesting: () => setState(() => tabIndex = 5),
         ),

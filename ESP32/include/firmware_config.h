@@ -16,6 +16,12 @@ constexpr int PIEZO_PINS[PIEZO_COUNT] = {A5, 5, 6, 9, 10, SCK, MISO, 12, 11, MOS
 constexpr uint8_t kPiezoLedcChannel = 0;
 constexpr uint8_t kPiezoResolutionBits = 10;
 constexpr uint32_t kPiezoMaxDurationMs = 5000;
+// The Developer Outputs tool uses the existing serial-test preset.
+constexpr uint32_t kPiezoTestFrequencyHz = 2500;
+constexpr uint32_t kPiezoTestDurationMs = 400;
+#ifndef HH_ENABLE_PIEZO_DEMO_OUTPUT
+#define HH_ENABLE_PIEZO_DEMO_OUTPUT 0
+#endif
 // Set to 0 with a build flag to restore the preserved synthetic 36-class model.
 #ifndef HH_USE_RECORDED_STATIC_MODEL
 #define HH_USE_RECORDED_STATIC_MODEL 1

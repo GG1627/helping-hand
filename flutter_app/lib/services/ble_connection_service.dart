@@ -8,6 +8,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'ble_packet.dart';
+import 'piezo_demo_protocol.dart';
 
 class BleConnectionService extends ChangeNotifier {
   BleConnectionService() {
@@ -24,9 +25,13 @@ class BleConnectionService extends ChangeNotifier {
   static const String targetDeviceName = 'HelpingHand-Glove';
   static final Guid serviceUuid = Guid('6E400001-B5A3-F393-E0A9-E50E24DCCA9E');
   static final Guid notifyUuid = Guid('6E400003-B5A3-F393-E0A9-E50E24DCCA9E');
+  static final Guid _writeUuid = Guid('6E400002-B5A3-F393-E0A9-E50E24DCCA9E');
 
   final StreamController<BlePacket> _packetController =
       StreamController<BlePacket>.broadcast(sync: true);
+  final _piezoDemoController = StreamController<PiezoDemoEvent>.broadcast(
+    sync: true,
+  );
   final List<ScanResult> _scanResults = [];
   final Queue<DateTime> _recentValidPackets = Queue<DateTime>();
   final Set<String> _intentionalDisconnects = <String>{};
@@ -39,6 +44,8 @@ class BleConnectionService extends ChangeNotifier {
 
   BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
   BluetoothDevice? _connectedDevice;
+  BluetoothCharacteristic? _piezoWriteCharacteristic;
+  int _piezoRequestId = 0;
   BlePacket? _lastPacket;
   bool _isScanning = false;
   bool _scanRequestInFlight = false;
@@ -56,6 +63,38 @@ class BleConnectionService extends ChangeNotifier {
   List<ScanResult> get scanResults => List.unmodifiable(_scanResults);
   BlePacket? get lastPacket => _lastPacket;
   Stream<BlePacket> get packets => _packetController.stream;
+  Stream<PiezoDemoEvent> get piezoDemoEvents => _piezoDemoController.stream;
+  bool get piezoDemoTransportReady =>
+      !_disposed && isConnected && _piezoWriteCharacteristic != null;
+
+  int nextPiezoDemoRequestId() {
+    if (_piezoRequestId == 65535) {
+      throw StateError('Reconnect the glove to reset the command counter.');
+    }
+    return ++_piezoRequestId;
+  }
+
+  Future<void> writePiezoDemo(
+    PiezoDemoAction action,
+    int id, {
+    PiezoOutput? output,
+  }) async {
+    final characteristic = _piezoWriteCharacteristic;
+    if (characteristic == null || !piezoDemoTransportReady) {
+      throw StateError('Glove command channel is unavailable.');
+    }
+    if (id < 1 ||
+        id > 65535 ||
+        (action == PiezoDemoAction.pulse) != (output != null)) {
+      throw ArgumentError('Invalid piezo demo request.');
+    }
+    final slot = output == null ? '' : ',${output.index}';
+    await characteristic.write(
+      utf8.encode('HP1,${action.code},$id$slot'),
+      timeout: 2,
+    );
+  }
+
   bool get isScanning => _isScanning;
   bool get isConnected => _connectedDevice != null;
   String get status => _status;
@@ -247,6 +286,7 @@ class BleConnectionService extends ChangeNotifier {
       if (state != BluetoothConnectionState.disconnected) return;
       final intentional = _intentionalDisconnects.remove(device.remoteId.str);
       _connectedDevice = null;
+      _piezoWriteCharacteristic = null;
       unawaited(_notifySub?.cancel());
       _notifySub = null;
       _setStatus(
@@ -279,11 +319,16 @@ class BleConnectionService extends ChangeNotifier {
       return;
     }
     BluetoothCharacteristic? notifyCharacteristic;
+    BluetoothCharacteristic? writeCharacteristic;
     for (final service in services) {
       if (service.uuid != serviceUuid) continue;
       for (final characteristic in service.characteristics) {
         if (characteristic.uuid == notifyUuid) {
           notifyCharacteristic = characteristic;
+        }
+        if (characteristic.uuid == _writeUuid &&
+            characteristic.properties.write) {
+          writeCharacteristic = characteristic;
         }
       }
     }
@@ -306,6 +351,8 @@ class BleConnectionService extends ChangeNotifier {
       return;
     }
     _connectedDevice = device;
+    _piezoWriteCharacteristic = writeCharacteristic;
+    _piezoRequestId = 0;
     _setStatus('Connected and listening');
   }
 
@@ -313,6 +360,11 @@ class BleConnectionService extends ChangeNotifier {
     if (bytes.isEmpty || _disposed) return;
     final raw = utf8.decode(bytes, allowMalformed: true);
     if (raw.trim().isEmpty) return;
+    if (raw.startsWith(PiezoDemoEvent.prefix)) {
+      final event = PiezoDemoEvent.tryParse(raw);
+      if (event != null) _piezoDemoController.add(event);
+      return;
+    }
     final packet = BlePacket.parse(raw, receivedAt: DateTime.now().toUtc());
     _lastPacket = packet;
     _packetCount += 1;
@@ -336,6 +388,7 @@ class BleConnectionService extends ChangeNotifier {
   Future<void> disconnect() async {
     final device = _connectedDevice;
     _connectedDevice = null;
+    _piezoWriteCharacteristic = null;
     await _notifySub?.cancel();
     _notifySub = null;
     if (device != null) {
@@ -389,6 +442,7 @@ class BleConnectionService extends ChangeNotifier {
     unawaited(_notifySub?.cancel());
     unawaited(_connectedDevice?.disconnect());
     unawaited(_packetController.close());
+    unawaited(_piezoDemoController.close());
     super.dispose();
   }
 }

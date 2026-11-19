@@ -10,12 +10,14 @@ class DeveloperToolsTab extends StatelessWidget {
     required this.onOpenBleTesting,
     required this.onOpenCalibration,
     required this.onOpenImuDiagnostics,
+    required this.onOpenPiezoOutputs,
   });
 
   final VoidCallback onOpenRecordSigns;
   final VoidCallback onOpenBleTesting;
   final VoidCallback onOpenCalibration;
   final VoidCallback onOpenImuDiagnostics;
+  final VoidCallback onOpenPiezoOutputs;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +56,13 @@ class DeveloperToolsTab extends StatelessWidget {
             title: 'IMU diagnostics',
             description: 'Capture and export the six board orientations.',
             onTap: onOpenImuDiagnostics,
+          ),
+          const SizedBox(height: WarmClayTheme.cardGap),
+          _ToolCard(
+            icon: Icons.vibration,
+            title: 'Piezo Outputs',
+            description: 'Pulse one output and see which location is active.',
+            onTap: onOpenPiezoOutputs,
           ),
           const SizedBox(height: WarmClayTheme.cardGap),
           _ToolCard(

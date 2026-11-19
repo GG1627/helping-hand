@@ -4,7 +4,10 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
+#include <atomic>
 #include <cstring>
+
+#include "piezo_demo.h"
 
 using namespace std;
 
@@ -16,16 +19,18 @@ static const char* BLE_RX_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";  // app
 static const char* BLE_TX_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E";  // ESP32 -> app
 
 BLECharacteristic* txCharacteristic = nullptr;
-bool bleClientConnected = false;
+std::atomic<bool> bleClientConnected{false};
 
 class ServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer* server) override {
+    setPiezoDemoConnected(true);
     bleClientConnected = true;
     Serial.println("BLE client connected");
   }
 
   void onDisconnect(BLEServer* server) override {
     bleClientConnected = false;
+    setPiezoDemoConnected(false);
     Serial.println("BLE client disconnected; restarting advertising");
     server->getAdvertising()->start();
   }
@@ -34,6 +39,7 @@ class ServerCallbacks : public BLEServerCallbacks {
 class RxCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic* characteristic) override {
     const string value = characteristic->getValue();
+    if (receivePiezoDemoCommand(value.data(), value.size())) return;
     if (!value.empty()) {
       Serial.print("BLE RX: ");
       Serial.println(value.c_str());

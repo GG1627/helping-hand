@@ -5,9 +5,8 @@
 #include "serial_startup.h"
 
 namespace {
-constexpr uint32_t kTestFrequenciesHz[] = {500, 1000, 2000, 2500, 3000, 4000};
+constexpr uint32_t kTestFrequenciesHz[] = {500, 1000, 2000, kPiezoTestFrequencyHz, 3000, 4000};
 constexpr size_t kTestFrequencyCount = sizeof(kTestFrequenciesHz) / sizeof(kTestFrequenciesHz[0]);
-constexpr uint32_t kTestDurationMs = 400;
 size_t frequencyIndex = 3;  // Start at the original 2500 Hz test frequency.
 
 struct TestOutput {
@@ -35,7 +34,7 @@ void printMenu() {
   Serial.println("\nHelping Hand piezo test");
   Serial.printf("Press a number to play a %lu Hz tone for %lu ms.\n",
                 static_cast<unsigned long>(kTestFrequenciesHz[frequencyIndex]),
-                static_cast<unsigned long>(kTestDurationMs));
+                static_cast<unsigned long>(kPiezoTestDurationMs));
   Serial.println("Press [ or ] to change frequency. Press ? for this menu.");
   for (const TestOutput& output : kTestOutputs) {
     const int pin = PIEZO_PINS[static_cast<size_t>(output.output)];
@@ -75,7 +74,7 @@ void loop() {
 
     const int pin = PIEZO_PINS[static_cast<size_t>(output.output)];
     const uint32_t frequencyHz = kTestFrequenciesHz[frequencyIndex];
-    if (startPiezo(output.output, frequencyHz, kTestDurationMs)) {
+    if (startPiezo(output.output, frequencyHz, kPiezoTestDurationMs)) {
       Serial.printf("Tone started on %s (GPIO %d) at %lu Hz. Verify sound and feel.\n",
                     output.label, pin, static_cast<unsigned long>(frequencyHz));
     } else {

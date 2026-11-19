@@ -7,6 +7,47 @@ report, presentation, firmware, Flutter implementation, model, inference
 preprocessing, or completion threshold was changed. Do not commit or push this
 session's work until the user explicitly requests it.
 
+## November 18 demonstration controls
+
+Flutter **Developer → Piezo Outputs** has a white 2D hand with five finger
+markers and a five-position plus on the back of the hand. Its live highlight
+uses the ESP32's reported output state. The painter order is intentionally
+mapped from the firmware slot names. The last confirmed output remains
+visible as text after the active highlight clears.
+
+The `piezo_demo` PlatformIO environment keeps the normal glove runtime and
+opts into the manual BLE preset shared with the serial `piezo_test` default.
+Use this environment only on the reviewed demo setup with the corresponding
+bench settings checked. The normal build keeps BLE output disabled.
+
+```powershell
+pio run --project-dir ESP32 -e piezo_demo -t upload
+cd flutter_app
+flutter run
+```
+
+In the app, connect in **BLE Testing**, open **Piezo Outputs**, enable
+outputs, select a location, and tap **Pulse output**. Verify the highlighted
+point matches the output on the glove. Check **Stop outputs** and disconnect.
+The firmware permits one short pulse at a time. The phone disables outputs
+when leaving the page or backgrounding. Reconnection requires enabling again.
+
+The manual path uses a short `HP1` message family on the existing RX/TX
+characteristics. The Flutter receiver routes these responses outside the
+sensor packet stream. The BLE callback queues at most one command. The main
+Arduino loop drives the output and reports start/end. The configured limits
+are the preset settings, not measurement results on a connected phone.
+
+Word practice in Developer Mode shows a **Haptic demo preview**. The center
+dot briefly highlights after a matching word, with no BLE output request.
+The preview and the live test page demonstrate separate behavior.
+
+All 68 Flutter tests, the Android debug build, and the standard,
+`piezo_demo`, and `piezo_test` firmware builds passed. The Flutter tests
+used simulated output responses.
+Physical BLE output, precise marker placement, and wearer perception on
+the new demo path still require a glove rehearsal.
+
 ## Scope and current state
 
 Read [the glove/model handoff](GLOVE_MODEL_SESSION_HANDOFF.md),

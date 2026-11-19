@@ -44,17 +44,24 @@ These are targets, not confirmed completed work:
 - Working app instructions, visual feedback, account access, and saved progress.
 - Battery-powered operation is the goal; USB is an acknowledged fallback.
 
-## Haptic decisions and open questions
+## Hardware and feedback reported November 18
 
-- Placement: one element per finger and five in an X on the back of the hand.
-- Intended static feedback: identify a finger and use a directional X sequence
-  to communicate bend more versus straighten more.
-- Word-motion feedback remains undecided. Directional guidance and a short
-  demonstration pattern are candidate ideas, not implemented/validated claims.
-- Gael has started a separate session for haptic research and implementation.
-  Obtain its actual findings and test results before updating report claims.
-- Distinguish actuator activation, automatic correction selection, and user
-  understanding of cues; each needs its own evidence.
+- The team fabricated a PCB and built around it, then returned to perfboard
+  after breakage, unreliable connections, and poor engraved copper quality.
+  A conductive-thread version used multiple fabric layers for insulation.
+  Performance remained unreliable and the team suspected shorts. The current
+  assembly uses perfboard with discrete wiring. Preserve the failure sequence,
+  photos, and as-built wiring details when available.
+  [Assembly history](FINAL_REPORT_EVIDENCE_CHECKLIST.md#build-01-pcb-and-glove-assembly-history)
+- The actual piezo layout is five finger elements and a five-position plus
+  on the back of the hand. Serial testing produced audible output across all
+  ten positions and very faint tactile sensation, as reported by the wearer.
+  [Piezo output check](FINAL_REPORT_EVIDENCE_CHECKLIST.md#hapt-01-piezo-output-check)
+- The developer app has a manual BLE output tester and a separately labeled
+  visual preview in word practice. End-to-end phone/glove actuation and
+  reliable perception need live evidence. Automatic finger correction and
+  physical word-motion guidance remain unfinished.
+  [Haptic handoff](HAPTIC_ENGINEERING_HANDOFF.md#november-18-demonstration-controls)
 
 ## Evidence boundaries
 
@@ -63,8 +70,10 @@ These are targets, not confirmed completed work:
   agreed above. Recheck implementation as other sessions make changes.
 - Last inspected baseline: recorded 34-class static model excluding J/Z,
   preserved original 36-class baseline, and phone recognition for Hello/Please/Yes.
-- Physical assembly, expanded coverage, new hardware performance, and final
-  haptic behavior have not been established in this report discussion.
+- The team reports a wired-perfboard final assembly and successful live
+  practice for G, I, 1, Hello, Please, and Yes on the rehearsal builds.
+  Repeatability on the final release build, complete vocabulary coverage,
+  power behavior, and live BLE haptic output still need evidence.
 - Orientation/motion information does not establish reliable hand location
   relative to the body. Flex sensors do not directly measure finger spread.
 - Magnetic telemetry alone does not establish calibrated orientation.
@@ -80,9 +89,13 @@ These are targets, not confirmed completed work:
   unfinished work in future tense and bracketed result placeholders.
 - Planned sections: overview; work since release candidate; usability/build
   quality; integrated learning flow and storage; testing; limitations.
-- Next: review Gael's wording preferences, then incorporate actual assembly,
-  firmware/app/model revisions, final vocabulary, calibration, power, recognition,
-  haptic, and saved-progress results as available.
+- Next: collect final build photographs and wiring details. Record the exact
+  release firmware, app, models, phone, power source, and measured test results.
+- Refresh the README's current release section with the wired-perfboard
+  hardware, actual model coverage, haptic scope, architecture, setup
+  instructions, and known bugs. Preserve historical milestone sections.
+- Test the final phone/glove flow, including saved progress after relaunch and
+  reconnect, and record real piezo output separately from the word preview.
 - Record non-team-member testing rounds, feedback, changes, and retest outcomes.
 - Recheck known bugs, especially static completion after leaving practice.
 - Before submission: replace placeholders, revise tense only for confirmed work,
