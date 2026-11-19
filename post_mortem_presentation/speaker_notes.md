@@ -82,11 +82,11 @@ Confirm names and who advances the slides during rehearsal. Use these notes on a
 
 **Limits of the glove sensors.** “The flex strips measure finger bend, and the wrist sensor measures motion and rotation. Two signs can give similar readings even if the fingers cross or the hand starts closer to the face. Next time we’d test those cases before training and try camera tracking for the details the glove misses.”
 
-## 10. Main lesson and next steps
+## 10. Thank you and questions
 
-**6:30–6:45 · 15 seconds.** Leave this slide up for the question period.
+**6:30–6:45 · 15 seconds for the close and handoff.** Leave this slide up for the two-minute question period.
 
-“Our main lesson was to test the glove and app together, through recognition, feedback, and saved progress. Next we’d test with more wearers to see which signs work consistently and whether users can interpret the cues.”
+“Thank you. What questions do you have?”
 
 ## Backup 1. Original goals and final features
 

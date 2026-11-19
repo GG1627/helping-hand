@@ -220,15 +220,27 @@
 
       <section class="slide challenges" id="slide-9" aria-labelledby="title-9" data-title="Challenges and lessons" data-seconds="65">
         <header><p class="eyebrow">Post-mortem</p><h2 id="title-9">Challenges and lessons</h2></header>
-        <div class="challenge-head"><span>What happened</span><span>What we would do next time</span></div>
-        <article class="challenge-row"><div><h3>Unreliable connections</h3><p>The PCB broke, and the conductive-thread build lost sensor readings. We switched to individual wires.</p></div><p class="lesson">Test connections while flexing the glove.<span>Add strain relief before final mounting.</span></p></article>
-        <article class="challenge-row"><div><h3>Damaged flex sensors</h3><p>The thumb and index sensors barely responded when the fingers bent.</p></div><p class="lesson">Check each sensor reading early.<span>Recheck calibration and known signs after hardware changes.</span></p></article>
+        <div class="challenge-head"><span>What happened</span><span>What we’d do next</span></div>
+        <article class="challenge-row">
+          <div>
+            <h3>Unreliable connections</h3>
+            <p>The PCB broke, and conductive thread lost sensor readings.</p>
+          </div>
+          <p class="lesson">Test the wiring while flexing the glove.</p>
+        </article>
+        <article class="challenge-row">
+          <div>
+            <h3>Damaged flex sensors</h3>
+            <p>Thumb and index readings barely changed when the fingers bent.</p>
+          </div>
+          <p class="lesson">Check each sensor before calibration.</p>
+        </article>
         <article class="challenge-row">
           <div>
             <h3>Limits of the glove sensors</h3>
-            <p>The glove can’t tell how fingers are positioned relative to each other or where the hand is relative to the body.</p>
+            <p>The glove can’t measure exact finger positions relative to each other or hand location relative to the body.</p>
           </div>
-          <p class="lesson">Test what the sensors can measure before training.<span>Try camera tracking for finger spacing and hand location.</span></p>
+          <p class="lesson">Test sensing limits before training. Try camera tracking.</p>
         </article>
         <footer class="slide-footer"><span></span><b>09 / 10</b></footer>
         <template class="slide-notes">
@@ -239,16 +251,16 @@
         </template>
       </section>
 
-      <section class="slide closing" id="slide-10" aria-labelledby="title-10" data-title="Main lesson and next steps" data-seconds="15">
-        <p class="wordmark">Helping Hand</p>
-        <svg class="closing-wave" viewBox="0 0 820 310" aria-hidden="true"><path d="M-40 250C170-30 360 410 540 175S730 10 870 100"/><circle cx="540" cy="175" r="13"/></svg>
-        <h2 id="title-10">Test the glove<br><em>and app together</em></h2>
-        <p class="closing-lead">Check recognition, feedback, and saved progress in the same practice session.</p>
-        <div class="closing-bottom"><strong>Questions?</strong><span>Next, test recognition and haptic cues with more wearers.</span></div>
+      <section class="slide closing" id="slide-10" aria-labelledby="title-10" data-title="Thank you and questions" data-seconds="15">
+        <svg class="closing-trail" viewBox="0 0 1600 900" aria-hidden="true"><path d="M-100 820C250 350 650 1090 1050 640S1440 235 1730 390"/><circle cx="1050" cy="640" r="15"/></svg>
+        <div class="closing-copy">
+          <p class="wordmark">Helping Hand</p>
+          <h2 id="title-10">Thank you.<br><em>Questions?</em></h2>
+        </div>
         <footer class="slide-footer"><span>November 19, 2026</span><b>10 / 10</b></footer>
         <template class="slide-notes">
-          <p>6:30–6:45 · 15 seconds. Leave this slide up for the question period.</p>
-          <p>“Our main lesson was to test the glove and app together, through recognition, feedback, and saved progress. Next we’d test with more wearers to see which signs work consistently and whether users can interpret the cues.”</p>
+          <p>6:30–6:45 · 15 seconds for the close and handoff. Leave this slide up for the two-minute question period.</p>
+          <p>“Thank you. What questions do you have?”</p>
         </template>
       </section>
 
